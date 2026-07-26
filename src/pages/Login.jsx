@@ -15,11 +15,21 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setIsSubmitting(false);
     if (signInError) {
       setError(signInError.message);
       return;
+    }
+
+    // A direct login (no explicit ?redirect=, e.g. not bounced here from checkout)
+    // sends admins straight to their dashboard instead of the customer homepage.
+    if (!searchParams.get('redirect')) {
+      const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', data.user.id).single();
+      if (profile?.is_admin) {
+        navigate('/admin');
+        return;
+      }
     }
     navigate(redirect);
   };
