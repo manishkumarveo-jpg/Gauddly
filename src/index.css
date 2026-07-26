@@ -1,0 +1,257 @@
+/* ----------------------------------------------------
+   GAUDDLY.COM — CORE DESIGN SYSTEM & STYLES
+   ---------------------------------------------------- */
+
+/* Reset & Base Box Sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Color Palette */
+  --void-black: #0A0A0A;
+  --bone-white: #F4F1EA;
+  --ash-grey: #7A7671;
+  --cold-silver: #C8CCD1;
+
+  /* Typography Fonts */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+
+  /* Grid Variables */
+  --grid-columns-desktop: 12;
+  --grid-gutter-desktop: 80px;
+  --grid-margin-desktop: 120px;
+
+  --grid-columns-mobile: 4;
+  --grid-gutter-mobile: 24px;
+  --grid-margin-mobile: 24px;
+
+  /* Spacing Grid (8px grid base) */
+  --spacing-section-desktop: 160px;
+  --spacing-section-mobile: 80px;
+  --spacing-subsection-desktop: 80px;
+  --spacing-subsection-mobile: 48px;
+  --spacing-text-desktop: 32px;
+  --spacing-text-mobile: 24px;
+  --spacing-element-desktop: 16px;
+  --spacing-element-mobile: 12px;
+}
+
+/* Base Body Styling */
+html, body {
+  background-color: var(--void-black);
+  color: var(--bone-white);
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 18px; /* Body M standard */
+  line-height: 1.7;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Interactive elements default cursor */
+a, button {
+  cursor: pointer;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--void-black);
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ash-grey);
+}
+
+/* Headings & Typography Scale */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 300; /* Light is standard for large display */
+  color: var(--bone-white);
+}
+
+.display-xl {
+  font-size: 96px;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.display-l {
+  font-size: 64px;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.display-m {
+  font-size: 48px;
+  font-weight: 300;
+  line-height: 1.2;
+}
+
+.display-s {
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1.3;
+}
+
+.body-l {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.body-m {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.7;
+}
+
+.body-s {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ash-grey);
+}
+
+/* UI Text: EB Garamond, tracking +80, small caps */
+.ui-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.15em; /* Tracked wide */
+  color: var(--ash-grey);
+}
+
+/* Links & CTAs */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.underlined-link {
+  position: relative;
+  display: inline-block;
+  color: var(--bone-white);
+  padding-bottom: 2px;
+}
+
+.underlined-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--cold-silver);
+  transition: height 0.2s ease, background-color 0.2s ease;
+}
+
+.underlined-link:hover::after {
+  height: 2px;
+  background-color: var(--bone-white);
+}
+
+/* Custom Dividers */
+.hairline {
+  height: 1px;
+  background-color: var(--cold-silver);
+  border: none;
+  opacity: 0.4;
+  margin: 40px 0;
+}
+
+.hairline-centered {
+  max-width: 120px;
+  margin: 80px auto;
+  opacity: 0.4;
+  height: 1px;
+  background-color: var(--cold-silver);
+  border: none;
+}
+
+/* Grid Layouts */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns-desktop), 1fr);
+  column-gap: var(--grid-gutter-desktop);
+  padding: 0 var(--grid-margin-desktop);
+}
+
+.full-bleed {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Mobile Scale Overrides */
+@media (max-width: 1024px) {
+  :root {
+    --spacing-section-desktop: var(--spacing-section-mobile);
+    --spacing-subsection-desktop: var(--spacing-subsection-mobile);
+    --spacing-text-desktop: var(--spacing-text-mobile);
+    --spacing-element-desktop: var(--spacing-element-mobile);
+  }
+
+  body, html {
+    font-size: 16px;
+  }
+
+  .display-xl { font-size: 56px; }
+  .display-l { font-size: 44px; }
+  .display-m { font-size: 36px; }
+  .display-s { font-size: 26px; }
+  .body-l { font-size: 18px; }
+  .body-m { font-size: 16px; }
+  .body-s { font-size: 14px; }
+
+  .grid-container {
+    grid-template-columns: repeat(var(--grid-columns-mobile), 1fr);
+    column-gap: var(--grid-gutter-mobile);
+    padding: 0 var(--grid-margin-mobile);
+  }
+}
+
+/* Custom Transitions & Animations */
+.fade-in {
+  animation: fadeInEffect 0.4s ease forwards;
+}
+
+@keyframes fadeInEffect {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.silver-rain-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Custom Cursor styling wrapper */
+#custom-cursor-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
