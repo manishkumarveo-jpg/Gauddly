@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase, mediaUrl } from '../../lib/supabase';
-import { uploadToR2 } from './uploadToR2';
+import { uploadToR2, safeFileName, deleteFromR2 } from './uploadToR2';
 import { inputStyle, cardStyle, badgeStyle, iconButtonStyle, primaryButtonStyle } from './adminStyles';
 import { PencilIcon, TrashIcon, PlusIcon } from './Icons';
 import Pagination from './Pagination';
@@ -109,7 +109,7 @@ export default function AdminProducts() {
     setUploadError('');
     setIsBusy(true);
     try {
-      const key = `products/${productId}/${Date.now()}-${file.name}`;
+      const key = `products/${productId}/${Date.now()}-${safeFileName(file.name)}`;
       await uploadToR2(key, file);
       await supabase.from('product_images').insert({ product_id: productId, r2_key: key, sort_order: 0, alt: productId });
       load();
@@ -120,9 +120,15 @@ export default function AdminProducts() {
   };
 
   const deleteImage = async (image) => {
-    if (!(await requestConfirm('Remove this image?', { danger: true }))) return;
+    if (!(await requestConfirm('Remove this image? This deletes the file permanently.', { danger: true }))) return;
     setIsBusy(true);
-    await supabase.from('product_images').delete().eq('id', image.id);
+    try {
+      await deleteFromR2(image.r2_key);
+      const { error } = await supabase.from('product_images').delete().eq('id', image.id);
+      if (error) throw new Error(error.message);
+    } catch (err) {
+      setUploadError(err.message);
+    }
     setIsBusy(false);
     load();
   };

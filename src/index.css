@@ -57,6 +57,19 @@ a, button {
   cursor: pointer;
 }
 
+/* Native <select> dropdown theming (popup list otherwise renders with browser default white/blue) */
+select, video {
+  color-scheme: dark;
+}
+select, option {
+  background-color: var(--void-black);
+  color: var(--bone-white);
+}
+option:checked {
+  background-color: var(--cold-silver);
+  color: var(--void-black);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

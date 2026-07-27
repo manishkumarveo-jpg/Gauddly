@@ -1,26 +1,37 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase, mediaUrl } from '../../lib/supabase';
-import { uploadToR2 } from './uploadToR2';
+import { uploadToR2, safeFileName, deleteFromR2 } from './uploadToR2';
 import { inputStyle, cardStyle, iconButtonStyle, primaryButtonStyle } from './adminStyles';
 import { PencilIcon, TrashIcon } from './Icons';
 import UploadLink from './UploadLink';
 import Pagination from './Pagination';
 import ProgressBar from './ProgressBar';
 import { useConfirm } from './useConfirm';
+import { useToast } from './useToast';
 
 const STATUSES = ['released', 'awaiting', 'sealed'];
 const PAGE_SIZE = 6;
 const emptyDraft = { id: '', num: '', title: '', status: 'awaiting', still_r2_key: '', video_r2_key: '', description: '', director_note: '', release_date: '', sort_order: 0 };
 
+const mediaDeleteButtonStyle = {
+  ...iconButtonStyle,
+  position: 'absolute',
+  top: '8px',
+  right: '8px',
+  padding: '6px',
+  backgroundColor: 'rgba(10, 10, 10, 0.85)',
+};
+
 export default function AdminEpisodes() {
   const [episodes, setEpisodes] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState(emptyDraft);
-  const [uploadError, setUploadError] = useState('');
   const [isBusy, setIsBusy] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [confirmDialog, requestConfirm] = useConfirm();
+  const [toast, showToast] = useToast();
 
   const load = () => {
     supabase.from('episodes').select('*').order('sort_order').then(({ data }) => setEpisodes(data || []));
@@ -78,15 +89,35 @@ export default function AdminEpisodes() {
   };
 
   const handleUpload = async (episodeId, field, file) => {
-    setUploadError('');
+    const label = field === 'video_r2_key' ? 'Video' : 'Still image';
     setIsBusy(true);
+    setUploadProgress(0);
     try {
-      const key = `episodes/${episodeId}/${Date.now()}-${file.name}`;
-      await uploadToR2(key, file);
+      const key = `episodes/${episodeId}/${Date.now()}-${safeFileName(file.name)}`;
+      await uploadToR2(key, file, setUploadProgress);
       await supabase.from('episodes').update({ [field]: key }).eq('id', episodeId);
       load();
+      showToast(`${label} uploaded.`);
     } catch (err) {
-      setUploadError(err.message);
+      showToast(`${label} upload failed: ${err.message}`, { danger: true, duration: 8000 });
+    }
+    setUploadProgress(null);
+    setIsBusy(false);
+  };
+
+  const clearMedia = async (ep, field) => {
+    const label = field === 'video_r2_key' ? 'video' : 'still image';
+    const key = ep[field];
+    if (!(await requestConfirm(`Remove the ${label} for "${ep.title}"? This deletes the file permanently.`, { danger: true }))) return;
+    setIsBusy(true);
+    try {
+      if (key) await deleteFromR2(key);
+      const { error } = await supabase.from('episodes').update({ [field]: null }).eq('id', ep.id);
+      if (error) throw new Error(error.message);
+      load();
+      showToast(`Removed ${label}.`);
+    } catch (err) {
+      showToast(`Failed to remove ${label}: ${err.message}`, { danger: true });
     }
     setIsBusy(false);
   };
@@ -101,7 +132,7 @@ export default function AdminEpisodes() {
         <button style={primaryButtonStyle} onClick={startNew}>+ New Episode</button>
       </div>
 
-      <ProgressBar active={isBusy} />
+      <ProgressBar active={isBusy} percent={uploadProgress} />
 
       <label className="body-s" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: 'fit-content' }}>
         Release state
@@ -125,17 +156,37 @@ export default function AdminEpisodes() {
             <>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '56px', width: '100px', flexShrink: 0 }}>{ep.num}</div>
 
-              <div style={{ width: '200px', aspectRatio: '16/9', backgroundColor: '#151515', flexShrink: 0 }}>
-                {ep.still_r2_key && <img src={mediaUrl(ep.still_r2_key)} alt={ep.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+              <div style={{ width: '200px', aspectRatio: '16/9', backgroundColor: '#151515', flexShrink: 0, position: 'relative' }}>
+                {ep.still_r2_key && (
+                  <>
+                    <img src={mediaUrl(ep.still_r2_key)} alt={ep.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button onClick={() => clearMedia(ep, 'still_r2_key')} title="Remove still image" style={mediaDeleteButtonStyle}>
+                      <TrashIcon width={12} height={12} />
+                    </button>
+                  </>
+                )}
               </div>
 
               <div style={{ flex: 1, padding: '0 24px', minWidth: 0 }}>
                 <strong style={{ fontFamily: 'var(--font-display)', fontSize: '22px', display: 'block' }}>{ep.title}</strong>
                 {ep.release_date && <span className="body-s">{new Date(ep.release_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>}
                 <div style={{ marginTop: '10px', display: 'flex', gap: '20px' }}>
-                  <UploadLink label="Upload still →" accept="image/*" onFile={(file) => handleUpload(ep.id, 'still_r2_key', file)} />
-                  <UploadLink label="Upload video →" accept="video/*" onFile={(file) => handleUpload(ep.id, 'video_r2_key', file)} />
+                  <UploadLink label={ep.still_r2_key ? 'Replace still →' : 'Upload still →'} accept="image/*" onFile={(file) => handleUpload(ep.id, 'still_r2_key', file)} />
+                  <UploadLink label={ep.video_r2_key ? 'Replace video →' : 'Upload video →'} accept="video/*" onFile={(file) => handleUpload(ep.id, 'video_r2_key', file)} />
                 </div>
+
+                {ep.video_r2_key && (
+                  <div style={{ width: '200px', aspectRatio: '16/9', backgroundColor: '#000', position: 'relative', marginTop: '12px' }}>
+                    <video
+                      src={mediaUrl(ep.video_r2_key)}
+                      controls
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    <button onClick={() => clearMedia(ep, 'video_r2_key')} title="Remove video" style={mediaDeleteButtonStyle}>
+                      <TrashIcon width={12} height={12} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
@@ -158,8 +209,8 @@ export default function AdminEpisodes() {
 
       <Pagination page={page} totalPages={totalPages} onPageChange={setPage} totalCount={filtered.length} pageSize={PAGE_SIZE} />
 
-      {uploadError && <span className="body-s">Upload failed: {uploadError}</span>}
       {confirmDialog}
+      {toast}
     </div>
   );
 }

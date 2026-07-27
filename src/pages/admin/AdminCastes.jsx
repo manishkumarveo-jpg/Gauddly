@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase, mediaUrl } from '../../lib/supabase';
-import { uploadToR2 } from './uploadToR2';
+import { uploadToR2, safeFileName } from './uploadToR2';
 import { inputStyle, cardStyle, iconButtonStyle, primaryButtonStyle } from './adminStyles';
 import { PencilIcon, TrashIcon } from './Icons';
 import UploadLink from './UploadLink';
@@ -67,7 +67,7 @@ export default function AdminCastes() {
     setUploadError('');
     setIsBusy(true);
     try {
-      const key = `castes/${casteId}/${Date.now()}-${file.name}`;
+      const key = `castes/${casteId}/${Date.now()}-${safeFileName(file.name)}`;
       await uploadToR2(key, file);
       await supabase.from('castes').update({ hero_r2_key: key }).eq('id', casteId);
       load();
