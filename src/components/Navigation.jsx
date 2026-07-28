@@ -11,20 +11,14 @@ export default function Navigation() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Define background style based on scroll & page
   const navStyle = {
     position: 'fixed',
     top: 0,
@@ -36,12 +30,14 @@ export default function Navigation() {
     alignItems: 'center',
     padding: '0 var(--grid-margin-desktop)',
     zIndex: 1000,
-    transition: 'background-color 0.4s ease, border-bottom 0.4s ease',
-    backgroundColor: isHome 
-      ? (isScrolled ? 'rgba(10, 10, 10, 0.95)' : 'transparent')
-      : 'rgba(10, 10, 10, 0.95)',
+    transition: 'background-color 0.5s var(--ease-luxury), border-bottom 0.5s ease, backdrop-filter 0.5s ease',
+    backgroundColor: isHome
+      ? (isScrolled ? 'rgba(10, 10, 10, 0.92)' : 'transparent')
+      : 'rgba(10, 10, 10, 0.92)',
+    backdropFilter: (isScrolled || !isHome) ? 'blur(12px)' : 'none',
+    WebkitBackdropFilter: (isScrolled || !isHome) ? 'blur(12px)' : 'none',
     borderBottom: (isScrolled || !isHome)
-      ? '1px solid rgba(200, 204, 209, 0.15)'
+      ? '1px solid rgba(200, 204, 209, 0.12)'
       : '1px solid transparent',
   };
 
@@ -49,48 +45,49 @@ export default function Navigation() {
     <nav style={navStyle}>
       {/* Left Column: Pages */}
       <div style={{ display: 'flex', gap: '32px' }}>
-        <Link to="/the-sanctum" className="ui-text silver-hover" style={{ textDecoration: 'none' }}>
-          Sanctum
-        </Link>
-        <Link to="/codex" className="ui-text silver-hover" style={{ textDecoration: 'none' }}>
-          Codex
-        </Link>
-        <Link to="/episodes" className="ui-text silver-hover" style={{ textDecoration: 'none' }}>
-          Episodes
-        </Link>
-        <Link to="/old-world" className="ui-text silver-hover" style={{ textDecoration: 'none' }}>
-          Archive
-        </Link>
+        <Link to="/store"       className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Store</Link>
+        <Link to="/the-sanctum" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Sanctum</Link>
+        <Link to="/codex"       className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Codex</Link>
+        <Link to="/episodes"    className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Episodes</Link>
+        <Link to="/old-world"   className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Archive</Link>
       </div>
 
       {/* Center: Brand Name */}
       <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-        <Link to="/home" className="ui-text silver-hover" style={{ fontSize: '15px', color: 'var(--bone-white)', textDecoration: 'none' }}>
+        <Link
+          to="/home"
+          className="nav-link"
+          style={{ fontSize: '15px', fontFamily: 'var(--font-body)', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'var(--bone-white)', textDecoration: 'none' }}
+        >
           GAUDDLY
         </Link>
       </div>
 
-      {/* Right Column: Account + Claim Cart */}
+      {/* Right Column: Account + Cart */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-        <Link to={user ? '/account' : '/login'} className="ui-text silver-hover" style={{ textDecoration: 'none' }}>
+        <Link
+          to={user ? '/account' : '/login'}
+          className="ui-text nav-link"
+          style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}
+        >
           {user ? 'Account' : 'Sign In'}
         </Link>
         <button
           onClick={() => setIsCartOpen(true)}
-          className="ui-text silver-hover"
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: 'var(--bone-white)', 
-            padding: 0,
+          className="ui-text nav-link btn-liquid"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--bone-white)',
+            padding: '4px 0',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
           }}
         >
           <span>Claims</span>
           {totalItems > 0 && (
-            <span style={{ 
+            <span style={{
               display: 'inline-block',
               width: '18px',
               height: '18px',
@@ -100,7 +97,7 @@ export default function Navigation() {
               fontSize: '10px',
               fontWeight: 'bold',
               lineHeight: '18px',
-              textAlign: 'center'
+              textAlign: 'center',
             }}>
               {totalItems}
             </span>

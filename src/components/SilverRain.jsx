@@ -10,69 +10,74 @@ export default function SilverRain({ opacity = 1.0 }) {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    // Resize canvas
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
+      canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Rain drop particle class
+    // Enhanced rain drop — varying speed, opacity, length, pulse
     class Drop {
       constructor(canvasWidth) {
         this.reset(canvasWidth, true);
       }
 
       reset(canvasWidth, initial = false) {
-        this.x = Math.random() * canvasWidth;
-        this.y = initial ? Math.random() * -window.innerHeight : -100;
-        // Slow motion falling speed (1px to 3px per frame)
-        this.speed = 0.5 + Math.random() * 1.5;
-        // Elongated strands (40px to 120px long)
-        this.length = 50 + Math.random() * 150;
-        // Variable thickness (0.5px to 2px)
-        this.thickness = 0.5 + Math.random() * 1.5;
-        // Alpha for soft depth
-        this.alpha = 0.1 + Math.random() * 0.6;
+        this.x         = Math.random() * canvasWidth;
+        this.y         = initial ? Math.random() * -window.innerHeight : -(60 + Math.random() * 100);
+        // 3 speed tiers: slow foreground, medium, fast distant
+        const tier     = Math.random();
+        this.speed     = tier < 0.33 ? 0.3 + Math.random() * 0.5
+                       : tier < 0.66 ? 0.8 + Math.random() * 1.2
+                       :               1.8 + Math.random() * 2.0;
+        this.length    = 40 + Math.random() * 160;
+        this.thickness = 0.3 + Math.random() * 1.6;
+        // Each drop fades in and out softly
+        this.alphaBase = 0.05 + Math.random() * 0.55;
+        this.alphaOsc  = Math.random() * Math.PI * 2; // phase offset for flicker
+        this.flickerSpeed = 0.008 + Math.random() * 0.025;
       }
 
       update(canvasWidth, canvasHeight) {
-        this.y += this.speed;
-        if (this.y > canvasHeight) {
+        this.y        += this.speed;
+        this.alphaOsc += this.flickerSpeed;
+        if (this.y > canvasHeight + this.length) {
           this.reset(canvasWidth);
         }
       }
 
       draw(context) {
-        // Draw elongated silver strand
+        const flickerAmt = 0.18 * Math.sin(this.alphaOsc);
+        const alpha      = Math.max(0, Math.min(1, this.alphaBase + flickerAmt));
+
         context.beginPath();
         context.moveTo(this.x, this.y);
         context.lineTo(this.x, this.y + this.length);
-        
-        // Metallic Silver Rain color gradient (#C8CCD1 to semi-transparent)
+
         const gradient = context.createLinearGradient(this.x, this.y, this.x, this.y + this.length);
-        gradient.addColorStop(0, `rgba(200, 204, 209, ${this.alpha})`);
-        gradient.addColorStop(0.5, `rgba(244, 241, 234, ${this.alpha * 1.2})`); // Bone white glint
-        gradient.addColorStop(1, 'rgba(200, 204, 209, 0)');
+        gradient.addColorStop(0,   `rgba(200, 204, 209, 0)`);
+        gradient.addColorStop(0.2, `rgba(200, 204, 209, ${alpha})`);
+        gradient.addColorStop(0.5, `rgba(244, 241, 234, ${Math.min(1, alpha * 1.3)})`); // bright glint
+        gradient.addColorStop(0.8, `rgba(200, 204, 209, ${alpha * 0.6})`);
+        gradient.addColorStop(1,   `rgba(200, 204, 209, 0)`);
 
         context.strokeStyle = gradient;
-        context.lineWidth = this.thickness;
+        context.lineWidth   = this.thickness;
         context.stroke();
       }
     }
 
-    // Initialize particles (dense strands)
-    const particleCount = 150;
-    const drops = [];
+    // More drops for a denser ethereal effect
+    const particleCount = 200;
+    const drops         = [];
     for (let i = 0; i < particleCount; i++) {
       drops.push(new Drop(canvas.width));
     }
 
-    // Animation Loop
     const render = () => {
-      // Clear with slight trailing opacity for a soft metallic motion blur
-      ctx.fillStyle = 'rgba(10, 10, 10, 0.15)';
+      // Softer trailing for elegant motion blur
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.12)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       drops.forEach((drop) => {

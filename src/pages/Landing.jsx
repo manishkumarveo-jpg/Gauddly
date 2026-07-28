@@ -11,96 +11,77 @@ export default function Landing() {
 
   // Web Audio elements for synthesising the low 40Hz sub-bass drone
   const audioCtxRef = useRef(null);
-  const oscRef = useRef(null);
-  const gainRef = useRef(null);
+  const oscRef      = useRef(null);
+  const gainRef     = useRef(null);
 
   // Sequence timings
   useEffect(() => {
     // 0.5s: Fades in Silver Rain and begins text sequence
     const t1 = setTimeout(() => {
       setStep(1);
-      if (soundEnabled) {
-        startDrone();
-      }
+      if (soundEnabled) startDrone();
     }, 500);
 
     // 5.0s: Transition to "Enter." button
-    const t2 = setTimeout(() => {
-      setStep(2);
-    }, 5000);
+    const t2 = setTimeout(() => setStep(2), 5000);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       stopDrone();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Web Audio synth logic
   const startDrone = () => {
     try {
-      if (audioCtxRef.current) return; // Already running
-
+      if (audioCtxRef.current) return;
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       const ctx = new AudioContextClass();
       audioCtxRef.current = ctx;
-
-      const osc = ctx.createOscillator();
+      const osc  = ctx.createOscillator();
       const gainNode = ctx.createGain();
-
       osc.type = 'sine';
-      osc.frequency.value = 40; // 40Hz sub-bass drone
-
-      // Set volume to 0 initially
+      osc.frequency.value = 40;
       gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      // Volume ramps from 0 to -22dB (approx 0.08 linear gain) over 2.0s
       gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 2.0);
-
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
-
       osc.start();
-
-      oscRef.current = osc;
+      oscRef.current  = osc;
       gainRef.current = gainNode;
     } catch (e) {
-      console.warn("Web Audio drone failed to start:", e);
+      console.warn('Web Audio drone failed to start:', e);
     }
   };
 
   const stopDrone = (fadeOutTime = 0.5) => {
-    const ctx = audioCtxRef.current;
+    const ctx      = audioCtxRef.current;
     const gainNode = gainRef.current;
-    const osc = oscRef.current;
-
+    const osc      = oscRef.current;
     if (ctx && gainNode && osc) {
       try {
         gainNode.gain.setValueAtTime(gainNode.gain.value, ctx.currentTime);
         gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + fadeOutTime);
-        
         setTimeout(() => {
-          try {
-            osc.stop();
-            ctx.close();
-          } catch(e) {}
+          try { osc.stop(); ctx.close(); } catch (e) {}
           audioCtxRef.current = null;
-          oscRef.current = null;
-          gainRef.current = null;
+          oscRef.current      = null;
+          gainRef.current     = null;
         }, fadeOutTime * 1000);
       } catch (e) {
-        console.warn("Error stopping drone:", e);
+        console.warn('Error stopping drone:', e);
       }
     }
   };
 
-  // Toggle sound mid-sequence
   const toggleSound = () => {
     if (soundEnabled) {
       setSoundEnabled(false);
       stopDrone(0.2);
     } else {
       setSoundEnabled(true);
-      // Need user gesture, which this click is
       startDrone();
     }
   };
@@ -111,7 +92,7 @@ export default function Landing() {
     setTimeout(() => {
       enterSanctum();
       navigate('/home');
-    }, 600);
+    }, 650);
   };
 
   const handleSkipClick = () => {
@@ -121,7 +102,7 @@ export default function Landing() {
   };
 
   return (
-    <div 
+    <div
       style={{
         position: 'fixed',
         top: 0,
@@ -134,7 +115,7 @@ export default function Landing() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        transition: 'opacity 0.6s ease',
+        transition: 'opacity 0.65s var(--ease-luxury)',
         opacity: fadeOut ? 0 : 1,
       }}
     >
@@ -142,81 +123,86 @@ export default function Landing() {
       {step >= 1 && <SilverRain />}
 
       {/* Main Content Area */}
-      <div 
-        style={{ 
-          zIndex: 10, 
-          textAlign: 'center', 
-          maxWidth: '640px', 
+      <div
+        style={{
+          zIndex: 10,
+          textAlign: 'center',
+          maxWidth: '640px',
           padding: '0 24px',
           height: '180px',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
+        {/* Step 1 — intro text with breathing pulse */}
         {step === 1 && (
-          <p 
-            className="fade-in"
+          <p
+            className="fade-in text-breathe"
             style={{
               fontFamily: 'var(--font-display)',
               fontSize: '32px',
               color: 'var(--bone-white)',
               letterSpacing: '0.05em',
-              transition: 'opacity 0.6s ease',
-              animationDuration: '0.8s'
+              animationDuration: '0.8s',
+              transformOrigin: 'center',
             }}
           >
             Before the Sanctum, there was only the world.
           </p>
         )}
 
+        {/* Step 2 — "Enter." button with silver shimmer */}
         {step === 2 && (
-          <div className="fade-in">
+          <div className="fade-in" style={{ animationDuration: '0.6s' }}>
             <button
               onClick={handleEnterClick}
-              className="silver-hover"
+              className="btn-liquid"
               style={{
                 background: 'none',
                 border: 'none',
+                borderBottom: '1px solid var(--cold-silver)',
                 fontFamily: 'var(--font-display)',
                 fontSize: '96px',
-                color: 'var(--bone-white)',
                 paddingBottom: '8px',
-                borderBottom: '1px solid var(--cold-silver)',
-                cursor: 'pointer',
                 outline: 'none',
-                transition: 'border-width 0.2s, border-bottom-color 0.2s',
+                transition: 'border-width 0.25s ease, border-bottom-color 0.25s ease',
+                lineHeight: 1,
               }}
               onMouseEnter={(e) => {
-                e.target.style.borderBottomWidth = '2px';
-                e.target.style.borderBottomColor = 'var(--bone-white)';
+                e.currentTarget.style.borderBottomWidth = '2px';
+                e.currentTarget.style.borderBottomColor = 'var(--bone-white)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.borderBottomWidth = '1px';
-                e.target.style.borderBottomColor = 'var(--cold-silver)';
+                e.currentTarget.style.borderBottomWidth = '1px';
+                e.currentTarget.style.borderBottomColor = 'var(--cold-silver)';
               }}
             >
-              Enter.
+              {/* Silver shimmer applied to text span */}
+              <span className="silver-shimmer-text">Enter.</span>
             </button>
           </div>
         )}
       </div>
 
-      {/* Bottom left corner: Logo branding */}
-      <div 
-        className="ui-text"
+      {/* Bottom left: Logo branding */}
+      <div
+        className="ui-text fade-in"
         style={{
           position: 'absolute',
           bottom: '40px',
           left: '40px',
           color: 'var(--ash-grey)',
+          letterSpacing: '0.3em',
+          animationDelay: '0.3s',
+          animationFillMode: 'both',
         }}
       >
         GAUDDLY
       </div>
 
-      {/* Bottom right corner: Controls */}
-      <div 
+      {/* Bottom right: Controls */}
+      <div
         style={{
           position: 'absolute',
           bottom: '40px',
@@ -224,34 +210,31 @@ export default function Landing() {
           display: 'flex',
           alignItems: 'center',
           gap: '24px',
-          zIndex: 20
+          zIndex: 20,
         }}
       >
-        {/* Sound toggle button */}
-        <button 
+        <button
           onClick={toggleSound}
           className="ui-text silver-hover"
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: 'var(--ash-grey)', 
-            cursor: 'pointer',
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--ash-grey)',
             fontSize: '12px',
+            transition: 'color 0.3s ease',
           }}
         >
           {soundEnabled ? 'Sound: On' : 'Sound: Off'}
         </button>
-
-        {/* Skip button */}
-        <button 
+        <button
           onClick={handleSkipClick}
           className="ui-text silver-hover"
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: 'var(--ash-grey)', 
-            cursor: 'pointer',
-            fontSize: '12px'
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--ash-grey)',
+            fontSize: '12px',
+            transition: 'color 0.3s ease',
           }}
         >
           Skip

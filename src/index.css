@@ -38,6 +38,10 @@
   --spacing-text-mobile: 24px;
   --spacing-element-desktop: 16px;
   --spacing-element-mobile: 12px;
+
+  /* Animation Easings */
+  --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
 }
 
 /* Base Body Styling */
@@ -45,19 +49,36 @@ html, body {
   background-color: var(--void-black);
   color: var(--bone-white);
   font-family: var(--font-body), Georgia, serif;
-  font-size: 18px; /* Body M standard */
+  font-size: 18px;
   line-height: 1.7;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  cursor: none; /* custom cursor takes over */
+}
+
+/* Grain texture overlay — analog warmth */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0.03;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 9998;
 }
 
 /* Interactive elements default cursor */
 a, button {
-  cursor: pointer;
+  cursor: none;
 }
 
-/* Native <select> dropdown theming (popup list otherwise renders with browser default white/blue) */
+/* Native <select> dropdown theming */
 select, video {
   color-scheme: dark;
 }
@@ -72,14 +93,14 @@ option:checked {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: var(--void-black);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
-  border-radius: 3px;
+  background: #1e1e1e;
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--ash-grey);
@@ -88,8 +109,9 @@ option:checked {
 /* Headings & Typography Scale */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 300; /* Light is standard for large display */
+  font-weight: 300;
   color: var(--bone-white);
+  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 .display-xl {
@@ -97,39 +119,33 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 300;
   line-height: 1.1;
 }
-
 .display-l {
   font-size: 64px;
   font-weight: 300;
   line-height: 1.2;
 }
-
 .display-m {
   font-size: 48px;
   font-weight: 300;
   line-height: 1.2;
 }
-
 .display-s {
   font-size: 32px;
   font-weight: 300;
   line-height: 1.3;
 }
-
 .body-l {
   font-family: var(--font-body);
   font-size: 22px;
   font-weight: 400;
   line-height: 1.7;
 }
-
 .body-m {
   font-family: var(--font-body);
   font-size: 18px;
   font-weight: 400;
   line-height: 1.7;
 }
-
 .body-s {
   font-family: var(--font-body);
   font-size: 15px;
@@ -138,17 +154,20 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--ash-grey);
 }
 
-/* UI Text: EB Garamond, tracking +80, small caps */
+/* UI Text */
 .ui-text {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.15em; /* Tracked wide */
+  letter-spacing: 0.15em;
   color: var(--ash-grey);
 }
 
-/* Links & CTAs */
+/* ====================================================
+   LINKS & CTAs
+   ==================================================== */
+
 a {
   color: inherit;
   text-decoration: none;
@@ -161,7 +180,6 @@ a {
   color: var(--bone-white);
   padding-bottom: 2px;
 }
-
 .underlined-link::after {
   content: '';
   position: absolute;
@@ -172,13 +190,45 @@ a {
   background-color: var(--cold-silver);
   transition: height 0.2s ease, background-color 0.2s ease;
 }
-
 .underlined-link:hover::after {
   height: 2px;
   background-color: var(--bone-white);
 }
 
-/* Custom Dividers */
+/* ====================================================
+   NAV LINK — UNDERLINE SLIDE EFFECT
+   ==================================================== */
+
+.nav-link {
+  position: relative;
+  display: inline-block;
+  letter-spacing: 0.15em;
+  transition: letter-spacing 0.3s var(--ease-luxury), color 0.3s ease;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: var(--cold-silver);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s var(--ease-luxury);
+}
+.nav-link:hover {
+  letter-spacing: 0.25em;
+  color: var(--bone-white);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* ====================================================
+   CUSTOM DIVIDERS
+   ==================================================== */
+
 .hairline {
   height: 1px;
   background-color: var(--cold-silver);
@@ -186,7 +236,6 @@ a {
   opacity: 0.4;
   margin: 40px 0;
 }
-
 .hairline-centered {
   max-width: 120px;
   margin: 80px auto;
@@ -196,56 +245,191 @@ a {
   border: none;
 }
 
-/* Grid Layouts */
+/* Animated hairline (draw from left on scroll reveal) */
+.hairline-animated {
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.7s var(--ease-luxury);
+}
+.hairline-animated.revealed {
+  transform: scaleX(1);
+}
+
+/* ====================================================
+   GRID LAYOUTS
+   ==================================================== */
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(var(--grid-columns-desktop), 1fr);
   column-gap: var(--grid-gutter-desktop);
   padding: 0 var(--grid-margin-desktop);
 }
-
 .full-bleed {
   grid-column: 1 / -1;
   width: 100%;
 }
 
-/* Mobile Scale Overrides */
-@media (max-width: 1024px) {
-  :root {
-    --spacing-section-desktop: var(--spacing-section-mobile);
-    --spacing-subsection-desktop: var(--spacing-subsection-mobile);
-    --spacing-text-desktop: var(--spacing-text-mobile);
-    --spacing-element-desktop: var(--spacing-element-mobile);
-  }
+/* ====================================================
+   SCROLL REVEAL — INTERSECTION OBSERVER TARGET
+   ==================================================== */
 
-  body, html {
-    font-size: 16px;
-  }
-
-  .display-xl { font-size: 56px; }
-  .display-l { font-size: 44px; }
-  .display-m { font-size: 36px; }
-  .display-s { font-size: 26px; }
-  .body-l { font-size: 18px; }
-  .body-m { font-size: 16px; }
-  .body-s { font-size: 14px; }
-
-  .grid-container {
-    grid-template-columns: repeat(var(--grid-columns-mobile), 1fr);
-    column-gap: var(--grid-gutter-mobile);
-    padding: 0 var(--grid-margin-mobile);
-  }
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s var(--ease-luxury),
+    transform 0.7s var(--ease-luxury);
+  will-change: opacity, transform;
 }
-
-/* Custom Transitions & Animations */
-.fade-in {
-  animation: fadeInEffect 0.4s ease forwards;
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
+.reveal-delay-1 { transition-delay: 80ms; }
+.reveal-delay-2 { transition-delay: 160ms; }
+.reveal-delay-3 { transition-delay: 240ms; }
+.reveal-delay-4 { transition-delay: 320ms; }
+.reveal-delay-5 { transition-delay: 400ms; }
 
+/* ====================================================
+   KEYFRAME ANIMATIONS
+   ==================================================== */
+
+/* Basic fade in */
 @keyframes fadeInEffect {
   from { opacity: 0; }
-  to { opacity: 1; }
+  to   { opacity: 1; }
 }
+.fade-in {
+  animation: fadeInEffect 0.5s var(--ease-luxury) forwards;
+}
+
+/* Page transition wipe */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 0.5s var(--ease-luxury) forwards;
+}
+
+/* Landing intro text breathing pulse */
+@keyframes breathe {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(1.015); opacity: 0.92; }
+}
+.text-breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Silver shimmer sweep (for "Enter." button text) */
+@keyframes shimmerSweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.silver-shimmer-text {
+  background: linear-gradient(
+    105deg,
+    var(--bone-white) 40%,
+    var(--cold-silver) 50%,
+    #fff 55%,
+    var(--cold-silver) 60%,
+    var(--bone-white) 70%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerSweep 3s linear infinite;
+}
+
+/* Button liquid silver fill sweep */
+@keyframes liquidFill {
+  0%   { transform: scaleX(0) skewX(-4deg); opacity: 0.8; }
+  100% { transform: scaleX(1) skewX(0deg);  opacity: 1; }
+}
+
+/* Skeleton shimmer loader */
+@keyframes skeletonShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #141414 25%,
+    #1e1e1e 50%,
+    #141414 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+}
+
+/* Ripple click effect */
+@keyframes rippleOut {
+  0%   { transform: scale(0); opacity: 0.3; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Cart drawer slide-in */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Footer brand letter drop */
+@keyframes letterDrop {
+  from { transform: translateY(-24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ====================================================
+   BUTTON — LIQUID SILVER FILL
+   ==================================================== */
+
+.btn-liquid {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s ease, color 0.3s ease;
+  z-index: 0;
+}
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(200, 204, 209, 0.12) 0%,
+    rgba(200, 204, 209, 0.06) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease-luxury);
+  z-index: -1;
+}
+.btn-liquid:hover::before {
+  transform: scaleX(1);
+}
+.btn-liquid:active {
+  transform: scale(0.98);
+}
+
+/* ====================================================
+   SILVER HOVER (legacy class — keep for compatibility)
+   ==================================================== */
+
+.silver-hover {
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+.silver-hover:hover {
+  color: var(--bone-white);
+  opacity: 1;
+}
+
+/* ====================================================
+   SILVER RAIN BACKDROP
+   ==================================================== */
 
 .silver-rain-backdrop {
   position: absolute;
@@ -258,7 +442,10 @@ a {
   pointer-events: none;
 }
 
-/* Custom Cursor styling wrapper */
+/* ====================================================
+   CUSTOM CURSOR
+   ==================================================== */
+
 #custom-cursor-root {
   position: fixed;
   top: 0;
@@ -266,5 +453,84 @@ a {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 99999;
+}
+
+/* ====================================================
+   IMAGE BLUR-UP LOAD EFFECT
+   ==================================================== */
+
+.img-reveal {
+  filter: blur(8px);
+  transform: scale(1.02);
+  transition: filter 0.5s ease, transform 0.5s ease;
+}
+.img-reveal.loaded {
+  filter: blur(0px);
+  transform: scale(1);
+}
+
+/* ====================================================
+   GLASSMORPHISM PANEL
+   ==================================================== */
+
+.glass-panel {
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 204, 209, 0.1);
+}
+
+/* ====================================================
+   FOCUS STATES (editorial — no border-radius)
+   ==================================================== */
+
+:focus-visible {
+  outline: 1px solid var(--cold-silver);
+  outline-offset: 3px;
+}
+
+/* ====================================================
+   MOBILE SCALE OVERRIDES
+   ==================================================== */
+
+@media (max-width: 1024px) {
+  :root {
+    --spacing-section-desktop: var(--spacing-section-mobile);
+    --spacing-subsection-desktop: var(--spacing-subsection-mobile);
+    --spacing-text-desktop: var(--spacing-text-mobile);
+    --spacing-element-desktop: var(--spacing-element-mobile);
+  }
+
+  body, html { font-size: 16px; }
+
+  .display-xl { font-size: 56px; }
+  .display-l  { font-size: 44px; }
+  .display-m  { font-size: 36px; }
+  .display-s  { font-size: 26px; }
+  .body-l     { font-size: 18px; }
+  .body-m     { font-size: 16px; }
+  .body-s     { font-size: 14px; }
+
+  .grid-container {
+    grid-template-columns: repeat(var(--grid-columns-mobile), 1fr);
+    column-gap: var(--grid-gutter-mobile);
+    padding: 0 var(--grid-margin-mobile);
+  }
+}
+
+/* ====================================================
+   PREFERS-REDUCED-MOTION — DISABLE ALL ANIMATIONS
+   ==================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal, .hairline-animated {
+    opacity: 1;
+    transform: none;
+  }
 }
