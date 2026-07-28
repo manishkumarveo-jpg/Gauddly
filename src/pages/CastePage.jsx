@@ -71,16 +71,31 @@ export default function CastePage() {
   return (
     <div style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', overflowX: 'hidden' }} className="fade-in">
       
-      {/* SECTION A — Hero Image (80vh, full bleed, atmospheric) */}
-      <section 
-        style={{
-          width: '100%',
-          height: '80vh',
-          backgroundImage: `linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0) 40%), url("${data.image}")`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      {/* SECTION A — Hero Video (80vh, full bleed, atmospheric) */}
+      {/* Placeholder: reusing the Home page video until a caste-specific one is ready */}
+      <section style={{ position: 'relative', width: '100%', height: '80vh', overflow: 'hidden', backgroundColor: 'var(--void-black)' }}>
+        <video
+          src="https://pub-024f5faf2e2c4757970fbb447e537ac1.r2.dev/Gauddly%20Music%20Video.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0) 40%)',
+          }}
+        />
+      </section>
 
       {/* Pinned Caste Title Header (Spec 3.4) */}
       <div 
