@@ -262,6 +262,105 @@ function AnimatedCTA({ to, delay, children }) {
   );
 }
 
+/* ─────────────────────────────────────────────
+   SCROLL PROGRESS HOOK
+   0 → 1 across the element's own scrollable
+   range (its height minus one viewport).
+───────────────────────────────────────────── */
+function useScrollProgress() {
+  const ref = useRef(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = ref.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      setProgress(total > 0 ? scrolled / total : 0);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return [ref, progress];
+}
+
+/* ─────────────────────────────────────────────
+   HERO SECTION — extended, background pinned via
+   position: sticky for a longer scroll hold, with
+   a closing dark fade in the final stretch before
+   the page releases into the next section.
+───────────────────────────────────────────── */
+function HeroSection() {
+  const [sectionRef, progress] = useScrollProgress();
+  const fadeStart = 0.7;
+  const closingFade = progress <= fadeStart ? 0 : (progress - fadeStart) / (1 - fadeStart);
+
+  return (
+    <section ref={sectionRef} style={{ position: 'relative', height: '170vh', width: '100%' }}>
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          height: '100vh',
+          width: '100%',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          padding: '0 var(--grid-margin-desktop) 120px var(--grid-margin-desktop)',
+        }}
+      >
+        <video
+          src="https://pub-5d519c8dedf642f59a07d4b6cbc2b766.r2.dev/silver-rain/Abandoned_cathedral_molten_silve%E2%80%A6_1080p_202607281849.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%', height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        />
+        {/* Richer gradient overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%', height: '100%',
+            background: `
+              linear-gradient(to top,  rgba(10,10,10,1) 0%,  rgba(10,10,10,0.15) 50%, rgba(10,10,10,0.55) 100%),
+              linear-gradient(to right, rgba(10,10,10,0.6) 0%, transparent 60%)
+            `,
+            zIndex: 1,
+          }}
+        />
+        {/* Closing fade - darkens as the pinned moment nears its end */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%', height: '100%',
+            backgroundColor: 'var(--void-black)',
+            opacity: closingFade,
+            zIndex: 2,
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* ── Animated hero text block ── */}
+        <HeroText />
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const [hoveredCaste, setHoveredCaste] = useState(null);
   const [castes, setCastes] = useState([]);
@@ -289,49 +388,7 @@ export default function Home() {
     >
 
       {/* SECTION B — Hero: Current Chapter */}
-      <section
-        style={{
-          position: 'relative',
-          height: '100vh',
-          width: '100%',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          padding: '0 var(--grid-margin-desktop) 120px var(--grid-margin-desktop)',
-        }}
-      >
-        <video
-          src="https://pub-024f5faf2e2c4757970fbb447e537ac1.r2.dev/Gauddly%20Music%20Video.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          style={{
-            position: 'absolute',
-            top: 0, left: 0,
-            width: '100%', height: '100%',
-            objectFit: 'cover',
-            zIndex: 0,
-          }}
-        />
-        {/* Richer gradient overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0, left: 0,
-            width: '100%', height: '100%',
-            background: `
-              linear-gradient(to top,  rgba(10,10,10,1) 0%,  rgba(10,10,10,0.15) 50%, rgba(10,10,10,0.55) 100%),
-              linear-gradient(to right, rgba(10,10,10,0.6) 0%, transparent 60%)
-            `,
-            zIndex: 1,
-          }}
-        />
-
-        {/* ── Animated hero text block ── */}
-        <HeroText />
-      </section>
+      <HeroSection />
 
       {/* SECTION C — Next Episode */}
       <section
@@ -392,21 +449,21 @@ export default function Home() {
           className="castes-container"
         >
           {castes.map((caste, i) => {
-            const isAnyHovered    = hoveredCaste !== null;
-            const isThisHovered   = hoveredCaste === caste.id;
+            const isAnyHovered = hoveredCaste !== null;
+            const isThisHovered = hoveredCaste === caste.id;
 
-            let opacity      = 0.85;
-            let blur         = '2px';
+            let opacity = 0.85;
+            let blur = '2px';
             let titleOpacity = 0.6;
 
             if (isAnyHovered) {
               if (isThisHovered) {
-                opacity      = 1.0;
-                blur         = '0px';
+                opacity = 1.0;
+                blur = '0px';
                 titleOpacity = 1.0;
               } else {
-                opacity      = 0.55;
-                blur         = '3px';
+                opacity = 0.55;
+                blur = '3px';
                 titleOpacity = 0.35;
               }
             }
@@ -513,7 +570,8 @@ export default function Home() {
         </div>
       </section>
 
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media (max-width: 1024px) {
           .castes-container {
             flex-direction: column !important;

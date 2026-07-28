@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
-import SilverRain from '../components/SilverRain';
 
 export default function Landing() {
   const { enterSanctum, skipEntry, soundEnabled, setSoundEnabled } = useContext(AppContext);
@@ -119,8 +118,25 @@ export default function Landing() {
         opacity: fadeOut ? 0 : 1,
       }}
     >
-      {/* Background canvas Silver Rain */}
-      {step >= 1 && <SilverRain />}
+      {/* Background video: falling silver */}
+      {step >= 1 && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          src="https://pub-5d519c8dedf642f59a07d4b6cbc2b766.r2.dev/silver-rain/Falling_liquid_silver_in_darkness_202607281829.mp4"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        />
+      )}
 
       {/* Main Content Area */}
       <div
