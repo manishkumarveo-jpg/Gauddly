@@ -45,21 +45,21 @@ export default function Navigation() {
     <nav style={navStyle}>
       {/* Left Column: Pages */}
       <div style={{ display: 'flex', gap: '32px' }}>
-        <Link to="/store"       className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Store</Link>
+        <Link to="/store" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Store</Link>
         <Link to="/the-sanctum" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Sanctum</Link>
-        <Link to="/codex"       className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Codex</Link>
-        <Link to="/episodes"    className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Episodes</Link>
-        <Link to="/old-world"   className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Archive</Link>
+        <Link to="/codex" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Codex</Link>
+        <Link to="/episodes" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Episodes</Link>
+        <Link to="/old-world" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Archive</Link>
       </div>
 
       {/* Center: Brand Name */}
       <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-        <Link
-          to="/home"
-          className="nav-link"
-          style={{ fontSize: '15px', fontFamily: 'var(--font-body)', fontWeight: 400, textTransform: 'uppercase', letterSpacing: '0.25em', color: 'var(--bone-white)', textDecoration: 'none' }}
-        >
-          GAUDDLY
+        <Link to="/home" style={{ display: 'block' }}>
+          <img
+            src="/LOGO%20BLACK.png"
+            alt="Gauddly"
+            style={{ height: '120px', width: 'auto', filter: 'invert(1)' }}
+          />
         </Link>
       </div>
 

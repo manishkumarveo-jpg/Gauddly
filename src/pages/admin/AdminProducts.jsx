@@ -3,6 +3,7 @@ import { supabase, mediaUrl } from '../../lib/supabase';
 import { uploadToR2, safeFileName, deleteFromR2 } from './uploadToR2';
 import { inputStyle, cardStyle, badgeStyle, iconButtonStyle, primaryButtonStyle } from './adminStyles';
 import { PencilIcon, TrashIcon, PlusIcon } from './Icons';
+import UploadLink from './UploadLink';
 import Pagination from './Pagination';
 import ProgressBar from './ProgressBar';
 import { useConfirm } from './useConfirm';
@@ -117,6 +118,35 @@ export default function AdminProducts() {
       setUploadError(err.message);
     }
     setIsBusy(false);
+  };
+
+  const handleVideoUpload = async (productId, file) => {
+    setUploadError('');
+    setIsBusy(true);
+    try {
+      const key = `products/${productId}/${Date.now()}-${safeFileName(file.name)}`;
+      await uploadToR2(key, file);
+      const { error } = await supabase.from('products').update({ video_r2_key: key }).eq('id', productId);
+      if (error) throw new Error(error.message);
+      load();
+    } catch (err) {
+      setUploadError(err.message);
+    }
+    setIsBusy(false);
+  };
+
+  const deleteVideo = async (product) => {
+    if (!(await requestConfirm(`Remove the video for "${product.name}"? This deletes the file permanently.`, { danger: true }))) return;
+    setIsBusy(true);
+    try {
+      await deleteFromR2(product.video_r2_key);
+      const { error } = await supabase.from('products').update({ video_r2_key: null }).eq('id', product.id);
+      if (error) throw new Error(error.message);
+    } catch (err) {
+      setUploadError(err.message);
+    }
+    setIsBusy(false);
+    load();
   };
 
   const deleteImage = async (image) => {
@@ -259,6 +289,25 @@ export default function AdminProducts() {
                     <PlusIcon width={14} height={14} />
                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => e.target.files[0] && handleUpload(p.id, e.target.files[0])} />
                   </label>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div className="ui-text" style={{ fontSize: '9px' }}>Video</div>
+                  {p.video_r2_key ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <video src={mediaUrl(p.video_r2_key)} controls style={{ width: '80px', height: '48px', objectFit: 'cover', backgroundColor: '#000' }} />
+                      <UploadLink label="Replace →" accept="video/*" onFile={(file) => handleVideoUpload(p.id, file)} />
+                      <button
+                        onClick={() => deleteVideo(p)}
+                        className="ui-text silver-hover"
+                        style={{ background: 'none', border: 'none', color: '#ff5555', fontSize: '11px', cursor: 'pointer' }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <UploadLink label="Upload video →" accept="video/*" onFile={(file) => handleVideoUpload(p.id, file)} />
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>

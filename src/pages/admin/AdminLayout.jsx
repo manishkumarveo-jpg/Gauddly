@@ -55,7 +55,7 @@ export default function AdminLayout() {
           borderBottom: '1px solid rgba(200, 204, 209, 0.15)',
         }}
       >
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: '22px', letterSpacing: '0.05em' }}>GAUDDLY</span>
+        <img src="/LOGO%20BLACK.png" alt="Gauddly" style={{ height: '26px', width: 'auto', filter: 'invert(1)' }} />
 
         <div style={{ display: 'flex', gap: '16px' }}>
           {links.map((l) => {

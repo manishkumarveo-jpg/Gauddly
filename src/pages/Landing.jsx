@@ -187,18 +187,16 @@ export default function Landing() {
 
       {/* Bottom left: Logo branding */}
       <div
-        className="ui-text fade-in"
+        className="fade-in"
         style={{
           position: 'absolute',
           bottom: '40px',
           left: '40px',
-          color: 'var(--ash-grey)',
-          letterSpacing: '0.3em',
           animationDelay: '0.3s',
           animationFillMode: 'both',
         }}
       >
-        GAUDDLY
+        <img src="/LOGO%20BLACK.png" alt="Gauddly" style={{ height: '18px', width: 'auto', filter: 'invert(1)', opacity: 0.85 }} />
       </div>
 
       {/* Bottom right: Controls */}
