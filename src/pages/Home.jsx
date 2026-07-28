@@ -315,7 +315,7 @@ function HeroSection() {
         }}
       >
         <video
-          src="https://pub-5d519c8dedf642f59a07d4b6cbc2b766.r2.dev/silver-rain/Abandoned_cathedral_molten_silve%E2%80%A6_1080p_202607281849.mp4"
+          src="https://pub-5d519c8dedf642f59a07d4b6cbc2b766.r2.dev/silver-rain/Initial_Scene_-_2026-07-28_202607281856.mp4"
           autoPlay
           loop
           muted
