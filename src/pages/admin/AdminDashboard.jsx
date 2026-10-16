@@ -1,11 +1,43 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase, mediaUrl } from '../../lib/supabase';
-import { kpiCardStyle, pillStyle } from './adminStyles';
-import { DownloadIcon } from './Icons';
+import { AlertIcon, DownloadIcon, PlusIcon } from './Icons';
 import RevenueChart from './RevenueChart';
 
 const formatPrice = (p) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(p || 0);
+
+const DAY = 86_400_000;
+const RANGES = [[7, 'Last 7 days'], [30, 'Last 30 days'], [90, 'Last 90 days']];
+const PAID = ['paid', 'fulfilled'];
+
+const SHORTCUTS = [
+  ['/admin/homepage', 'Edit homepage'],
+  ['/admin/products', 'Manage garments'],
+  ['/admin/castes', 'Update castes'],
+  ['/admin/episodes', 'Manage episodes'],
+];
+
+const orderRef = (id) => `#GDLY-${id.slice(0, 4).toUpperCase()}`;
+const titleCase = (s) => s[0].toUpperCase() + s.slice(1);
+
+// Daily points for a week, weekly points for longer windows
+function revenueBuckets(orders, days) {
+  const size = days <= 7 ? 1 : 7;
+  const n = Math.ceil(days / size);
+  const start = Date.now() - days * DAY;
+  const buckets = Array.from({ length: n }, (_, i) => ({
+    label: size === 1
+      ? new Date(start + (i + 1) * DAY).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+      : `Week ${i + 1}`,
+    revenue: 0,
+  }));
+  for (const o of orders) {
+    const i = Math.floor((Date.parse(o.created_at) - start) / (size * DAY));
+    if (i >= 0) buckets[Math.min(n - 1, i)].revenue += o.total;
+  }
+  return buckets;
+}
 
 function downloadCsv(topProducts) {
   const header = 'Product,SKU,Units Sold,Revenue (INR)\n';
@@ -21,16 +53,53 @@ function downloadCsv(topProducts) {
   URL.revokeObjectURL(url);
 }
 
+// PostgREST caps each response (1000 rows by default), so page through the whole window
+const PAGE = 1000;
+async function fetchPaidOrders(since) {
+  const rows = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('total, created_at')
+      .in('status', PAID)
+      .gte('created_at', since)
+      .order('created_at')
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    rows.push(...data);
+    if (data.length < PAGE) return rows;
+  }
+}
+
 export default function AdminDashboard() {
-  const [paidOrders, setPaidOrders] = useState([]);
-  const [statusCounts, setStatusCounts] = useState([]);
-  const [salesByDay, setSalesByDay] = useState([]);
+  const [days, setDays] = useState(30);
+  const [paid, setPaid] = useState([]);
+  const [recent, setRecent] = useState([]);
+  const [awaiting, setAwaiting] = useState(0);
   const [topProducts, setTopProducts] = useState([]);
 
   useEffect(() => {
-    supabase.from('orders').select('total').eq('status', 'paid').then(({ data }) => setPaidOrders(data || []));
-    supabase.from('order_status_counts').select('*').then(({ data }) => setStatusCounts(data || []));
-    supabase.from('sales_by_day').select('*').then(({ data }) => setSalesByDay(data || []));
+    let active = true;
+    const since = new Date(Date.now() - days * DAY).toISOString();
+    fetchPaidOrders(since)
+      .then((rows) => { if (active) setPaid(rows); })
+      .catch(() => { if (active) setPaid([]); });
+    supabase
+      .from('orders')
+      .select('id, status, total, created_at, order_items(product_name)')
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => { if (active) setRecent(data || []); });
+    return () => { active = false; };
+  }, [days]);
+
+  useEffect(() => {
+    supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'paid')
+      .then(({ count }) => setAwaiting(count || 0));
 
     supabase
       .from('top_products')
@@ -55,97 +124,130 @@ export default function AdminDashboard() {
       });
   }, []);
 
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
-  const orderCount = paidOrders.length;
-  const avgOrderValue = orderCount ? totalRevenue / orderCount : 0;
+  const revenue = paid.reduce((sum, o) => sum + o.total, 0);
+  const rangeLabel = RANGES.find(([d]) => d === days)[1];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-      <div>
-        <h1 className="display-s">Dashboard</h1>
-        <p className="body-s">Performance Overview — Last 30 Days</p>
-      </div>
+    <div className="dash">
+      <header className="dash-head">
+        <div>
+          <h1>Dashboard</h1>
+          <p>A clear view of your store and what needs attention.</p>
+        </div>
+        <div className="dash-actions">
+          <select value={days} onChange={(e) => setDays(Number(e.target.value))} aria-label="Date range">
+            {RANGES.map(([d, label]) => <option key={d} value={d}>{label}</option>)}
+          </select>
+          <Link to="/admin/products" className="dash-primary"><PlusIcon width={18} height={18} /> Add product</Link>
+        </div>
+      </header>
 
-      {/* KPI tiles */}
-      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+      <div className="dash-kpis">
         {[
-          ['Total Revenue', formatPrice(totalRevenue)],
-          ['Paid Orders (Last 30D)', orderCount],
-          ['Avg Order Value', formatPrice(avgOrderValue)],
+          ['Paid revenue', formatPrice(revenue)],
+          ['Paid orders', paid.length],
+          ['Average order', formatPrice(paid.length ? revenue / paid.length : 0)],
+          ['Awaiting dispatch', awaiting],
         ].map(([label, value]) => (
-          <div key={label} style={kpiCardStyle}>
-            <div className="ui-text">{label}</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '32px', marginTop: '12px' }}>{value}</div>
+          <div key={label} className="dash-card">
+            <span>{label}</span>
+            <strong>{value}</strong>
           </div>
         ))}
       </div>
 
-      {/* Order status breakdown */}
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-        {statusCounts.length === 0 ? (
-          <span className="body-s">No orders yet.</span>
+      {awaiting > 0 && (
+        <div className="dash-alert" role="status">
+          <AlertIcon width={22} height={22} />
+          <span>{awaiting} paid {awaiting === 1 ? 'order' : 'orders'} awaiting dispatch</span>
+          <Link to="/admin/orders">Review orders →</Link>
+        </div>
+      )}
+
+      <div className="dash-split">
+        <section className="dash-card">
+          <h2>Revenue</h2>
+          <p className="dash-sub">Paid orders · {rangeLabel}</p>
+          <RevenueChart data={revenueBuckets(paid, days)} />
+        </section>
+
+        <section className="dash-card">
+          <h2>Studio shortcuts</h2>
+          <ul className="dash-shortcuts">
+            {SHORTCUTS.map(([to, label]) => (
+              <li key={to}><Link to={to}>{label} <span aria-hidden="true">↗</span></Link></li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      <section className="dash-card">
+        <div className="dash-card-head">
+          <h2>Recent orders</h2>
+          <Link to="/admin/orders">View all orders →</Link>
+        </div>
+        {recent.length === 0 ? (
+          <p className="dash-sub">No orders in this window yet.</p>
         ) : (
-          statusCounts.map((s) => (
-            <span key={s.status} style={pillStyle}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--cold-silver)' }} />
-              {s.status[0].toUpperCase() + s.status.slice(1)} {s.count}
-            </span>
-          ))
+          <div className="dash-table-wrap">
+            <table className="dash-table">
+              <thead>
+                <tr><th>Order</th><th>Garment</th><th>Status</th><th>Total</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                {recent.map((o) => {
+                  const items = o.order_items || [];
+                  return (
+                    <tr key={o.id}>
+                      <td>{orderRef(o.id)}</td>
+                      <td>{items[0]?.product_name || '—'}{items.length > 1 && ` +${items.length - 1}`}</td>
+                      <td><span className="dash-pill">{titleCase(o.status)}</span></td>
+                      <td>{formatPrice(o.total)}</td>
+                      <td><Link to="/admin/orders">View →</Link></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </section>
 
-      {/* Revenue chart */}
-      <div style={{ border: '1px solid rgba(200, 204, 209, 0.15)', padding: '24px' }}>
-        <div className="ui-text" style={{ marginBottom: '20px' }}>Revenue — Last 30 Days</div>
-        <RevenueChart data={salesByDay} />
-      </div>
-
-      {/* Top products */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '20px' }}>
-          <div className="ui-text">Top Performance Products</div>
+      <section className="dash-card">
+        <div className="dash-card-head">
+          <h2>Top garments</h2>
           {topProducts.length > 0 && (
-            <button
-              onClick={() => downloadCsv(topProducts)}
-              className="underlined-link"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px' }}
-            >
-              <DownloadIcon width={12} height={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-              Export CSV
+            <button type="button" onClick={() => downloadCsv(topProducts)}>
+              Export CSV <DownloadIcon width={16} height={16} />
             </button>
           )}
         </div>
         {topProducts.length === 0 ? (
-          <span className="body-s">No paid orders yet.</span>
+          <p className="dash-sub">No paid orders yet.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(200, 204, 209, 0.15)' }}>
-                <th className="ui-text" style={{ textAlign: 'left', padding: '0 0 12px' }}>Product</th>
-                <th className="ui-text" style={{ textAlign: 'left', padding: '0 0 12px' }}>Units Sold</th>
-                <th className="ui-text" style={{ textAlign: 'right', padding: '0 0 12px' }}>Revenue (INR)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topProducts.map((p) => (
-                <tr key={p.product_id} style={{ borderBottom: '1px solid rgba(200, 204, 209, 0.1)' }}>
-                  <td style={{ padding: '14px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '40px', height: '40px', backgroundColor: '#151515', flexShrink: 0 }}>
-                      {p.image && <img src={p.image} alt={p.product_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-body)' }}>{p.product_name}</div>
-                      {p.sku && <div className="body-s" style={{ fontSize: '11px' }}>SKU: {p.sku}</div>}
-                    </div>
-                  </td>
-                  <td className="body-s">{p.units_sold}</td>
-                  <td className="body-s" style={{ textAlign: 'right' }}>{formatPrice(p.revenue)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="dash-table-wrap">
+            <table className="dash-table">
+              <thead>
+                <tr><th>Garment</th><th>Units sold</th><th>Revenue</th></tr>
+              </thead>
+              <tbody>
+                {topProducts.map((p) => (
+                  <tr key={p.product_id}>
+                    <td>
+                      <div className="dash-garment">
+                        <span className="dash-thumb">{p.image && <img src={p.image} alt="" loading="lazy" onError={(e) => { e.target.style.visibility = 'hidden'; }} />}</span>
+                        {p.product_name}
+                      </div>
+                    </td>
+                    <td>{p.units_sold}</td>
+                    <td>{formatPrice(p.revenue)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

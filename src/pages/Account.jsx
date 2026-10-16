@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/app-context';
 import { supabase } from '../lib/supabase';
 
 const formatPrice = (p) =>

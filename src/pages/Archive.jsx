@@ -152,6 +152,8 @@ export default function Archive() {
                 <img 
                   src={piece.image} 
                   alt={piece.name} 
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: '100%',
                     height: '100%',

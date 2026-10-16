@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/app-context';
 
 export default function Codex() {
   const { unlockedChapters, unlockChapter } = useContext(AppContext);
@@ -9,15 +9,15 @@ export default function Codex() {
   const [fadingSealed, setFadingSealed] = useState(false);
   const [tweeningColor, setTweeningColor] = useState(false);
 
-  const chapterRefs = {
-    1: useRef(null),
-    2: useRef(null),
-    3: useRef(null),
-    4: useRef(null),
-    5: useRef(null),
-    6: useRef(null),
-    7: useRef(null),
-  };
+  const chapterRefs = useRef({
+    1: React.createRef(),
+    2: React.createRef(),
+    3: React.createRef(),
+    4: React.createRef(),
+    5: React.createRef(),
+    6: React.createRef(),
+    7: React.createRef(),
+  }).current;
 
   const chapters = [
     {
@@ -111,7 +111,7 @@ export default function Codex() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [chapterRefs]);
 
   const handleIndexClick = (id) => {
     if (!unlockedChapters.includes(id)) return;
@@ -259,6 +259,14 @@ export default function Codex() {
               <div 
                 key={ch.id} 
                 onClick={() => handleIndexClick(ch.id)}
+                onKeyDown={(event) => {
+                  if (isUnlocked && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    handleIndexClick(ch.id);
+                  }
+                }}
+                role={isUnlocked ? 'button' : undefined}
+                tabIndex={isUnlocked ? 0 : undefined}
                 className={isUnlocked ? 'silver-hover' : ''}
                 style={{
                   position: 'relative',

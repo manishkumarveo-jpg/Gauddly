@@ -6,6 +6,8 @@ import { supabase } from '../lib/supabase';
 export default function Await() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,8 +23,16 @@ export default function Await() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (email.trim()) {
-      // Ignore errors here (e.g. duplicate signup) - either way the visitor gets the same confirmation
-      await supabase.from('waitlist_signups').insert({ email: email.trim() });
+      setError('');
+      setIsSubmitting(true);
+      const { error: insertError } = await supabase.from('waitlist_signups').insert({ email: email.trim().toLowerCase() });
+      setIsSubmitting(false);
+      if (insertError) {
+        // A unique-email conflict means the visitor is already safely on the list.
+        if (insertError.code === '23505') setIsSubmitted(true);
+        else setError('Your address could not be recorded. Please try again.');
+        return;
+      }
       setIsSubmitted(true);
     }
   };
@@ -63,8 +73,10 @@ export default function Await() {
             </div>
 
             {/* Email form */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', marginTop: '20px', width: '100%' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '20px', alignItems: 'flex-end', marginTop: '20px', width: '100%', flexWrap: 'wrap' }}>
+              <label htmlFor="waitlist-email" className="sr-only">Email address</label>
               <input 
+                id="waitlist-email"
                 type="email" 
                 required
                 placeholder="your address"
@@ -86,6 +98,7 @@ export default function Await() {
               
               <button 
                 type="submit" 
+                disabled={isSubmitting}
                 className="silver-hover"
                 style={{
                   background: 'none',
@@ -99,8 +112,9 @@ export default function Await() {
                   outline: 'none',
                 }}
               >
-                Enter.
+                {isSubmitting ? 'Entering…' : 'Enter.'}
               </button>
+              {error && <p role="alert" className="body-s" style={{ width: '100%', color: 'var(--bone-white)' }}>{error}</p>}
             </form>
           </>
         ) : (

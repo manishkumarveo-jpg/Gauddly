@@ -62,7 +62,7 @@ export default function AdminEpisodes() {
       const { error } = await supabase.from('episodes').insert(payload);
       if (error) { setIsBusy(false); return alert(error.message); }
     } else {
-      const { id, ...rest } = payload;
+      const { id: _id, ...rest } = payload;
       const { error } = await supabase.from('episodes').update(rest).eq('id', editingId);
       if (error) { setIsBusy(false); return alert(error.message); }
     }

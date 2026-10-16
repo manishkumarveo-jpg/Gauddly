@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { safeInternalPath } from '../lib/navigation';
 
 export default function Signup() {
   const [fullName, setFullName] = useState('');
@@ -11,7 +12,7 @@ export default function Signup() {
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/home';
+  const redirect = safeInternalPath(searchParams.get('redirect'));
 
   const handleSubmit = async (e) => {
     e.preventDefault();

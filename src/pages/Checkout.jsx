@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { AppContext } from '../context/app-context';
 import { supabase, edgeFunctionErrorMessage } from '../lib/supabase';
 
 export default function Checkout() {
@@ -85,9 +85,12 @@ export default function Checkout() {
                   <div className="ui-text" style={{ fontSize: '10px', borderBottom: '1px solid rgba(200, 204, 209, 0.15)', paddingBottom: '6px' }}>
                     Identity & Location
                   </div>
+                  <label htmlFor="checkout-name" className="sr-only">Full name</label>
                   <input 
+                    id="checkout-name"
                     type="text" 
                     name="name" 
+                    autoComplete="name"
                     required 
                     placeholder="full name"
                     value={form.name} 
@@ -95,9 +98,12 @@ export default function Checkout() {
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
                     className="silver-hover system-cursor-override"
                   />
+                  <label htmlFor="checkout-email" className="sr-only">Email address</label>
                   <input 
+                    id="checkout-email"
                     type="email" 
                     name="email" 
+                    autoComplete="email"
                     required 
                     placeholder="email address"
                     value={form.email} 
@@ -105,9 +111,12 @@ export default function Checkout() {
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
                     className="silver-hover system-cursor-override"
                   />
+                  <label htmlFor="checkout-address" className="sr-only">Shipping address</label>
                   <input 
+                    id="checkout-address"
                     type="text" 
                     name="address" 
+                    autoComplete="street-address"
                     required 
                     placeholder="shipping address"
                     value={form.address} 
@@ -115,9 +124,12 @@ export default function Checkout() {
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
                     className="silver-hover system-cursor-override"
                   />
+                  <label htmlFor="checkout-city" className="sr-only">City, state, and postal code</label>
                   <input 
+                    id="checkout-city"
                     type="text" 
                     name="city" 
+                    autoComplete="address-level2"
                     required 
                     placeholder="city, state, pin"
                     value={form.city} 
@@ -128,7 +140,7 @@ export default function Checkout() {
                 </div>
 
                 {error && (
-                  <span className="body-s" style={{ color: 'var(--ash-grey)' }}>{error}</span>
+                  <span role="alert" className="body-s" style={{ color: 'var(--bone-white)' }}>{error}</span>
                 )}
 
                 {/* CTA Submit */}
@@ -151,6 +163,9 @@ export default function Checkout() {
                   >
                     {isProcessing ? 'Crossing...' : 'Confirm claim →'}
                   </button>
+                  <p className="body-s" style={{ marginTop: '16px', maxWidth: '520px' }}>
+                    By confirming, you agree to the <Link to="/terms" className="underlined-link">terms</Link> and acknowledge the <Link to="/returns" className="underlined-link">made-to-order returns policy</Link>.
+                  </p>
                 </div>
               </form>
             </div>
@@ -193,6 +208,8 @@ export default function Checkout() {
                     <img 
                       src={item.image} 
                       alt={item.name} 
+                      loading="lazy"
+                      decoding="async"
                       style={{ width: '48px', height: '72px', objectFit: 'cover', border: '1px solid rgba(200, 204, 209, 0.1)' }}
                     />
                     <div style={{ flex: 1 }}>
@@ -215,6 +232,11 @@ export default function Checkout() {
                 <span style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--bone-white)' }}>
                   {formatPrice(total)}
                 </span>
+              </div>
+              <div className="body-s" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span>Made to order in Delhi.</span>
+                <span>Expected dispatch: 14–21 days.</span>
+                <span>Order support: contact@gauddly.com</span>
               </div>
             </div>
           </div>

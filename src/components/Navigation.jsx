@@ -1,11 +1,39 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/app-context';
 
 export default function Navigation() {
   const { cart, setIsCartOpen, user } = useContext(AppContext);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const firstMenuLinkRef = useRef(null);
   const location = useLocation();
+
+  useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    firstMenuLinkRef.current?.focus();
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    // Matches the breakpoint in index.css that shows the mobile menu
+    const mobile = window.matchMedia('(max-width: 1100px)');
+    const onResize = (e) => { if (!e.matches) setMenuOpen(false); };
+    mobile.addEventListener('change', onResize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+      mobile.removeEventListener('change', onResize);
+    };
+  }, [menuOpen]);
 
   const isHome = location.pathname === '/home' || location.pathname === '/';
 
@@ -19,6 +47,15 @@ export default function Navigation() {
 
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const links = [
+    ['/store', 'Store'],
+    ['/the-sanctum', 'Sanctum'],
+    ['/codex', 'Codex'],
+    ['/episodes', 'Episodes'],
+    ['/old-world', 'Archive'],
+  ];
+  const accountLink = user ? ['/account', 'Account'] : ['/login', 'Sign In'];
+
   const navStyle = {
     position: 'fixed',
     top: 0,
@@ -31,8 +68,8 @@ export default function Navigation() {
     padding: '0 var(--grid-margin-desktop)',
     zIndex: 1000,
     transition: 'background-color 0.5s var(--ease-luxury), border-bottom 0.5s ease, backdrop-filter 0.5s ease',
-    backgroundColor: isHome
-      ? (isScrolled ? 'rgba(10, 10, 10, 0.92)' : 'transparent')
+    backgroundColor: isHome && !isScrolled && !menuOpen
+      ? 'transparent'
       : 'rgba(10, 10, 10, 0.92)',
     backdropFilter: (isScrolled || !isHome) ? 'blur(12px)' : 'none',
     WebkitBackdropFilter: (isScrolled || !isHome) ? 'blur(12px)' : 'none',
@@ -42,15 +79,26 @@ export default function Navigation() {
   };
 
   return (
-    <nav style={navStyle}>
+    <nav className="site-nav" style={navStyle}>
       {/* Left Column: Pages */}
-      <div style={{ display: 'flex', gap: '32px' }}>
-        <Link to="/store" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Store</Link>
-        <Link to="/the-sanctum" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Sanctum</Link>
-        <Link to="/codex" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Codex</Link>
-        <Link to="/episodes" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Episodes</Link>
-        <Link to="/old-world" className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>Archive</Link>
+      <div className="nav-desktop" style={{ display: 'flex', gap: '32px' }}>
+        {links.map(([to, label]) => (
+          <Link key={to} to={to} className="ui-text nav-link" style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}>{label}</Link>
+        ))}
       </div>
+
+      {/* Mobile: menu toggle */}
+      <button
+        ref={menuButtonRef}
+        className="ui-text nav-burger"
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-expanded={menuOpen}
+        aria-controls="mobile-menu"
+        aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+        style={{ background: 'none', border: 'none', color: 'var(--bone-white)', padding: '8px 0' }}
+      >
+        {menuOpen ? 'Close' : 'Menu'}
+      </button>
 
       {/* Center: Brand Name */}
       <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
@@ -66,14 +114,15 @@ export default function Navigation() {
       {/* Right Column: Account + Cart */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
         <Link
-          to={user ? '/account' : '/login'}
-          className="ui-text nav-link"
+          to={accountLink[0]}
+          className="ui-text nav-link nav-desktop"
           style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}
         >
-          {user ? 'Account' : 'Sign In'}
+          {accountLink[1]}
         </Link>
         <button
           onClick={() => setIsCartOpen(true)}
+          aria-label={`Cart, ${totalItems} ${totalItems === 1 ? 'item' : 'items'}`}
           className="ui-text nav-link btn-liquid"
           style={{
             background: 'none',
@@ -104,6 +153,33 @@ export default function Navigation() {
           )}
         </button>
       </div>
+
+      {/* Mobile: dropdown menu */}
+      {menuOpen && (
+        <div
+          id="mobile-menu"
+          className="nav-mobile-menu"
+          style={{
+            position: 'absolute',
+            top: '64px',
+            left: 0,
+            width: '100%',
+            height: 'calc(100vh - 64px)',
+            backgroundColor: 'rgba(10, 10, 10, 0.97)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '28px',
+            padding: '40px var(--grid-margin-mobile)',
+            animation: 'fadeInEffect 0.3s ease forwards',
+          }}
+        >
+          {[...links, accountLink].map(([to, label], index) => (
+            <Link ref={index === 0 ? firstMenuLinkRef : undefined} key={to} to={to} style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--bone-white)', textDecoration: 'none' }}>
+              {label}
+            </Link>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

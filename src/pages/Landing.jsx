@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { AppContext } from '../context/app-context';
 
 export default function Landing() {
-  const { enterSanctum, skipEntry, soundEnabled, setSoundEnabled } = useContext(AppContext);
+  const { isEntered, enterSanctum, skipEntry, soundEnabled, setSoundEnabled } = useContext(AppContext);
   const [step, setStep] = useState(0); // 0: Black, 1: Rain & First Text, 2: Enter button
   const [fadeOut, setFadeOut] = useState(false);
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ export default function Landing() {
         gainNode.gain.setValueAtTime(gainNode.gain.value, ctx.currentTime);
         gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + fadeOutTime);
         setTimeout(() => {
-          try { osc.stop(); ctx.close(); } catch (e) {}
+          try { osc.stop(); ctx.close(); } catch {}
           audioCtxRef.current = null;
           oscRef.current      = null;
           gainRef.current     = null;
@@ -99,6 +99,9 @@ export default function Landing() {
     skipEntry();
     navigate('/home');
   };
+
+  // Returning visitors (entered within 30 days) skip the 5s intro
+  if (isEntered) return <Navigate to="/home" replace />;
 
   return (
     <div
