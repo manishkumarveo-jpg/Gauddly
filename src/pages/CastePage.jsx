@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase, mediaUrl } from '../lib/supabase';
+import Seo from '../components/Seo';
 
 export default function CastePage() {
   const { casteId } = useParams();
@@ -60,10 +61,24 @@ export default function CastePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  if (loading) {
+    return (
+      <div aria-busy="true" aria-label="Loading caste">
+        <div className="skeleton" style={{ width: '100%', height: '80vh' }} />
+        <div style={{ padding: '48px var(--grid-margin-mobile)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <div className="skeleton" style={{ width: '40%', maxWidth: '360px', height: '44px' }} />
+          <div className="skeleton" style={{ width: '60%', maxWidth: '520px', height: '18px' }} />
+        </div>
+      </div>
+    );
+  }
+
   if (!data) {
     return (
       <div style={{ padding: '160px', textAlign: 'center', color: 'var(--ash-grey)' }}>
-        {loading ? '' : 'Caste room not found in the Sanctum.'}
+        <Seo title="Chamber Not Found" description="The requested chamber could not be found." noIndex />
+        <p>Caste room not found in the Sanctum.</p>
+        <Link to="/home" className="underlined-link" style={{ display: 'inline-block', marginTop: '24px' }}>Return home →</Link>
       </div>
     );
   }
@@ -192,6 +207,8 @@ export default function CastePage() {
                 <img 
                   src={piece.image} 
                   alt={piece.name} 
+                  loading="lazy"
+                  decoding="async"
                   style={{
                     width: '100%',
                     height: '100%',

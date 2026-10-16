@@ -1,14 +1,20 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import { AppContext } from './app-context';
 
-export const AppContext = createContext();
+function readStoredJson(key, fallback) {
+  try {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : fallback;
+  } catch {
+    localStorage.removeItem(key);
+    return fallback;
+  }
+}
 
 export function AppProvider({ children }) {
   // Cart state
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('gauddly_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState(() => readStoredJson('gauddly_cart', []));
 
   // Auth session
   const [session, setSession] = useState(null);
@@ -46,9 +52,8 @@ export function AppProvider({ children }) {
 
   // Codex unlocked chapters state (unlocked over time / release cycle)
   const [unlockedChapters, setUnlockedChapters] = useState(() => {
-    const saved = localStorage.getItem('gauddly_unlocked_chapters');
     // Default: Chapter 1 is always unlocked.
-    return saved ? JSON.parse(saved) : [1]; 
+    return readStoredJson('gauddly_unlocked_chapters', [1]);
   });
 
   // Cart Drawer open state

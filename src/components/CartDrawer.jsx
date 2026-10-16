@@ -1,11 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../context/app-context';
 
 export default function CartDrawer() {
   const { cart, removeFromCart, isCartOpen, setIsCartOpen } = useContext(AppContext);
   const navigate = useNavigate();
   const [itemsVisible, setItemsVisible] = useState(false);
+  const panelRef = useRef(null);
+  const closeButtonRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
+  const closeDrawer = useCallback(() => setIsCartOpen(false), [setIsCartOpen]);
 
   // Stagger item list appearance after drawer slides in
   useEffect(() => {
@@ -16,6 +21,45 @@ export default function CartDrawer() {
       setItemsVisible(false);
     }
   }, [isCartOpen]);
+
+  useEffect(() => {
+    if (!isCartOpen) return undefined;
+
+    previousFocusRef.current = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusTimer = setTimeout(() => closeButtonRef.current?.focus(), 0);
+
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        closeDrawer();
+        return;
+      }
+      if (event.key !== 'Tab' || !panelRef.current) return;
+
+      const focusable = [...panelRef.current.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )];
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      clearTimeout(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      previousFocusRef.current?.focus?.();
+    };
+  }, [isCartOpen, closeDrawer]);
 
   if (!isCartOpen) return null;
 
@@ -29,7 +73,7 @@ export default function CartDrawer() {
     }).format(p);
 
   const handleCheckoutClick = () => {
-    setIsCartOpen(false);
+    closeDrawer();
     navigate('/checkout');
   };
 
@@ -65,6 +109,7 @@ export default function CartDrawer() {
         {/* Backdrop */}
         <div
           onClick={() => setIsCartOpen(false)}
+          aria-hidden="true"
           style={{
             position: 'absolute',
             top: 0,
@@ -80,6 +125,10 @@ export default function CartDrawer() {
 
         {/* Drawer panel */}
         <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cart-drawer-title"
           className="glass-panel"
           style={{
             position: 'relative',
@@ -101,11 +150,13 @@ export default function CartDrawer() {
           <div>
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.05em' }}>
+              <h2 id="cart-drawer-title" style={{ fontFamily: 'var(--font-display)', fontSize: '24px', letterSpacing: '0.05em' }}>
                 Your claim
               </h2>
               <button
-                onClick={() => setIsCartOpen(false)}
+                ref={closeButtonRef}
+                onClick={closeDrawer}
+                aria-label="Close cart"
                 className="ui-text silver-hover btn-liquid"
                 style={{ background: 'none', border: 'none', color: 'var(--ash-grey)', padding: '5px' }}
               >
@@ -137,6 +188,8 @@ export default function CartDrawer() {
                     <img
                       src={item.image}
                       alt={item.name}
+                      loading="lazy"
+                      decoding="async"
                       className="img-reveal loaded"
                       style={{ width: '80px', height: '120px', objectFit: 'cover', border: '1px solid rgba(200, 204, 209, 0.08)' }}
                     />

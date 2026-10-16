@@ -7,7 +7,6 @@ import React, { useEffect, useRef, useState } from 'react';
  *  - Larger 32px outer ring that follows with a 100ms lerp lag
  *  - On interactive hover: ring expands to 56px and inverts color
  *  - On image hover: ring shows "VIEW" label
- *  - Magnetic pull: interactive elements subtly shift toward cursor
  */
 export default function SilverDropCursor() {
   const dotRef   = useRef(null);
@@ -73,32 +72,6 @@ export default function SilverDropCursor() {
       rafRef.current = requestAnimationFrame(animate);
     };
 
-    // Magnetic pull on buttons/links
-    const magneticEls = [];
-    const applyMagnetic = () => {
-      document.querySelectorAll('button, a').forEach((el) => {
-        const onMEnter = (e) => {
-          const rect = el.getBoundingClientRect();
-          const cx = rect.left + rect.width / 2;
-          const cy = rect.top + rect.height / 2;
-          const dx = (e.clientX - cx) * 0.12;
-          const dy = (e.clientY - cy) * 0.12;
-          el.style.transform = `translate(${dx}px, ${dy}px)`;
-          el.style.transition = 'transform 0.2s ease';
-        };
-        const onMLeave = () => {
-          el.style.transform = '';
-          el.style.transition = 'transform 0.4s ease';
-        };
-        el.addEventListener('mousemove', onMEnter);
-        el.addEventListener('mouseleave', onMLeave);
-        magneticEls.push({ el, onMEnter, onMLeave });
-      });
-    };
-
-    // Slight delay so DOM is populated
-    const magneticTimer = setTimeout(applyMagnetic, 800);
-
     window.addEventListener('mousemove', onMove);
     document.addEventListener('mouseover', onEnter);
     rafRef.current = requestAnimationFrame(animate);
@@ -107,11 +80,6 @@ export default function SilverDropCursor() {
       window.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseover', onEnter);
       cancelAnimationFrame(rafRef.current);
-      clearTimeout(magneticTimer);
-      magneticEls.forEach(({ el, onMEnter, onMLeave }) => {
-        el.removeEventListener('mousemove', onMEnter);
-        el.removeEventListener('mouseleave', onMLeave);
-      });
     };
   }, []);
 

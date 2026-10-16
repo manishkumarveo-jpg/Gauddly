@@ -81,7 +81,7 @@ export default function AdminProducts() {
       if (error) { setIsBusy(false); return alert(error.message); }
       await supabase.from('product_sizes').insert(SIZES.map((size) => ({ product_id: payload.id, size, in_stock: true })));
     } else {
-      const { id, ...rest } = payload;
+      const { id: _id, ...rest } = payload;
       const { error } = await supabase.from('products').update(rest).eq('id', editingId);
       if (error) { setIsBusy(false); return alert(error.message); }
     }

@@ -1,28 +1,33 @@
-import React, { useContext } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AppProvider, AppContext } from './context/AppContext';
+import { AppProvider } from './context/AppContext';
 
 // Pages
-import Landing from './pages/Landing';
-import Home from './pages/Home';
-import Store from './pages/Store';
-import Codex from './pages/Codex';
-import CastePage from './pages/CastePage';
-import PieceDetail from './pages/PieceDetail';
-import Sanctum from './pages/Sanctum';
-import Archive from './pages/Archive';
-import Episodes from './pages/Episodes';
-import Await from './pages/Await';
-import Checkout from './pages/Checkout';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Account from './pages/Account';
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminCastes from './pages/admin/AdminCastes';
-import AdminEpisodes from './pages/admin/AdminEpisodes';
-import AdminOrders from './pages/admin/AdminOrders';
+const Landing = lazy(() => import('./pages/Landing'));
+const Home = lazy(() => import('./pages/Home'));
+const Store = lazy(() => import('./pages/Store'));
+const Codex = lazy(() => import('./pages/Codex'));
+const CastePage = lazy(() => import('./pages/CastePage'));
+const PieceDetail = lazy(() => import('./pages/PieceDetail'));
+const Sanctum = lazy(() => import('./pages/Sanctum'));
+const Archive = lazy(() => import('./pages/Archive'));
+const Episodes = lazy(() => import('./pages/Episodes'));
+const Await = lazy(() => import('./pages/Await'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Login = lazy(() => import('./pages/Login'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Account = lazy(() => import('./pages/Account'));
+const InfoPage = lazy(() => import('./pages/InfoPage'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminCastes = lazy(() => import('./pages/admin/AdminCastes'));
+const AdminEpisodes = lazy(() => import('./pages/admin/AdminEpisodes'));
+const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminHomepage = lazy(() => import('./pages/admin/AdminHomepage'));
 
 // Components
 import Navigation from './components/Navigation';
@@ -30,17 +35,25 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import SilverDropCursor from './components/SilverDropCursor';
 import PageTransition from './components/PageTransition';
+import RouteSeo from './components/RouteSeo';
+import ScrollToTop from './components/ScrollToTop';
+
+// Must match the media query in index.css that hides the native cursor
+const useCustomCursor = window.matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
 
 function AppContent() {
   const location = useLocation();
 
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAuthRoute = ['/login', '/forgot-password', '/reset-password'].includes(location.pathname);
   const showHeaderFooter = !isAdminRoute && location.pathname !== '/' && location.pathname !== '/await';
 
   return (
     <>
       {/* Global luxury custom cursor */}
-      <SilverDropCursor />
+      {useCustomCursor && <SilverDropCursor />}
+      <RouteSeo />
+      <ScrollToTop />
 
       {/* Header bar */}
       {showHeaderFooter && <Navigation />}
@@ -49,8 +62,9 @@ function AppContent() {
       {!isAdminRoute && <CartDrawer />}
 
       {/* Main content body with page transitions */}
-      <main style={{ minHeight: showHeaderFooter ? 'calc(100vh - 64px)' : '100vh' }}>
-        <PageTransition>
+      <main id="main-content" style={{ minHeight: showHeaderFooter ? 'calc(100vh - 64px)' : '100vh' }}>
+        <Suspense fallback={<div className="route-loader" role="status">Opening the chamber…</div>}>
+          <PageTransition>
           <Routes>
             <Route path="/"           element={<Landing />} />
             <Route path="/home"       element={<Home />} />
@@ -75,8 +89,17 @@ function AppContent() {
 
             {/* Accounts */}
             <Route path="/login"   element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/signup"  element={<Signup />} />
             <Route path="/account" element={<Account />} />
+
+            {/* Customer care and legal */}
+            <Route path="/shipping" element={<InfoPage />} />
+            <Route path="/returns" element={<InfoPage />} />
+            <Route path="/privacy" element={<InfoPage />} />
+            <Route path="/terms" element={<InfoPage />} />
+            <Route path="/size-care" element={<InfoPage />} />
 
             {/* Admin */}
             <Route path="/admin" element={<AdminLayout />}>
@@ -85,13 +108,17 @@ function AppContent() {
               <Route path="castes"   element={<AdminCastes />} />
               <Route path="episodes" element={<AdminEpisodes />} />
               <Route path="orders"   element={<AdminOrders />} />
+              <Route path="homepage" element={<AdminHomepage />} />
             </Route>
+
+            <Route path="*" element={<NotFound />} />
           </Routes>
-        </PageTransition>
+          </PageTransition>
+        </Suspense>
       </main>
 
       {/* Footer bar */}
-      {showHeaderFooter && <Footer />}
+      {showHeaderFooter && !isAuthRoute && <Footer />}
     </>
   );
 }

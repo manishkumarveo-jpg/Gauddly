@@ -1,19 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Navigate, Link, Outlet, useLocation } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { AppContext } from '../../context/app-context';
 import { supabase } from '../../lib/supabase';
-import { BellIcon, UserIcon } from './Icons';
+import { GridIcon, BagIcon, BoxIcon, HomeIcon, UsersIcon, FilmIcon, ExternalIcon, SignOutIcon } from './Icons';
+import './admin.css';
 
-const links = [
-  { to: '/admin', label: 'Dashboard' },
-  { to: '/admin/products', label: 'Products' },
-  { to: '/admin/castes', label: 'Castes' },
-  { to: '/admin/episodes', label: 'Episodes' },
-  { to: '/admin/orders', label: 'Orders' },
+const groups = [
+  ['Overview', [
+    { to: '/admin', label: 'Dashboard', Icon: GridIcon },
+  ]],
+  ['Commerce', [
+    { to: '/admin/orders', label: 'Orders', Icon: BagIcon },
+    { to: '/admin/products', label: 'Products', Icon: BoxIcon },
+  ]],
+  ['Content', [
+    { to: '/admin/homepage', label: 'Homepage', Icon: HomeIcon },
+    { to: '/admin/castes', label: 'Castes', Icon: UsersIcon },
+    { to: '/admin/episodes', label: 'Episodes', Icon: FilmIcon },
+  ]],
 ];
 
+const isActive = (to, path) => (to === '/admin' ? path === '/admin' || path === '/admin/' : path.startsWith(to));
+
 export default function AdminLayout() {
-  const { user, sessionLoaded } = useContext(AppContext);
+  const { user, sessionLoaded, signOut } = useContext(AppContext);
   const [isAdmin, setIsAdmin] = useState(null); // null = checking
   const location = useLocation();
 
@@ -44,62 +54,39 @@ export default function AdminLayout() {
     );
   }
 
+  const current = groups.flatMap(([, links]) => links).find((l) => isActive(l.to, location.pathname));
+
   return (
-    <div style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', minHeight: '100vh' }} className="fade-in">
-      <nav
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '20px var(--grid-margin-desktop)',
-          borderBottom: '1px solid rgba(200, 204, 209, 0.15)',
-        }}
-      >
-        <img src="/LOGO%20BLACK.png" alt="Gauddly" style={{ height: '26px', width: 'auto', filter: 'invert(1)' }} />
+    <div className="admin fade-in">
+      <aside className="admin-side">
+        <Link to="/admin" className="admin-brand">
+          <span className="admin-logo" role="img" aria-label="Gauddly" />
+          <span>Studio Admin</span>
+        </Link>
 
-        <div style={{ display: 'flex', gap: '16px' }}>
-          {links.map((l) => {
-            const active = location.pathname === l.to;
-            return (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="ui-text"
-                style={{
-                  textDecoration: 'none',
-                  color: active ? 'var(--bone-white)' : 'var(--ash-grey)',
-                  padding: '6px 12px',
-                  border: active ? '1px solid transparent' : '1px dashed rgba(200, 204, 209, 0.3)',
-                  borderBottom: active ? '1px solid var(--bone-white)' : '1px dashed rgba(200, 204, 209, 0.3)',
-                }}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
+        <nav className="admin-nav" aria-label="Admin">
+          {groups.map(([title, links]) => (
+            <div key={title} className="admin-nav-group">
+              <span className="admin-nav-title">{title}</span>
+              {links.map(({ to, label, Icon }) => (
+                <Link key={to} to={to} aria-current={isActive(to, location.pathname) ? 'page' : undefined}>
+                  <Icon width={20} height={20} /> {label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        <div className="admin-side-foot">
+          <Link to="/home"><ExternalIcon width={20} height={20} /> View storefront ↗</Link>
+          <button type="button" onClick={signOut}><SignOutIcon width={20} height={20} /> Sign out</button>
         </div>
+      </aside>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', color: 'var(--ash-grey)' }}>
-          <BellIcon />
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              border: '1px solid var(--cold-silver)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <UserIcon width={14} height={14} />
-          </div>
-        </div>
-      </nav>
-
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px var(--grid-margin-desktop)' }}>
+      <main className="admin-main">
+        <div className="admin-crumb">Admin / {current?.label === 'Dashboard' ? 'Overview' : current?.label}</div>
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }

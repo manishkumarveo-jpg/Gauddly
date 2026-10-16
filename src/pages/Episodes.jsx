@@ -213,6 +213,15 @@ export default function Episodes() {
             <div 
               key={ep.id}
               onClick={() => handleTileClick(ep)}
+              onKeyDown={(event) => {
+                if (isReleased && (event.key === 'Enter' || event.key === ' ')) {
+                  event.preventDefault();
+                  handleTileClick(ep);
+                }
+              }}
+              role={isReleased ? 'button' : undefined}
+              tabIndex={isReleased ? 0 : undefined}
+              aria-label={isReleased ? `Play ${ep.title}` : undefined}
               className={isReleased ? 'episode-tile silver-hover' : ''}
               style={{
                 display: 'grid',
@@ -244,6 +253,8 @@ export default function Episodes() {
                 <img 
                   src={ep.still} 
                   alt={ep.title} 
+                  loading="lazy"
+                  decoding="async"
                   style={{ 
                     width: '100%', 
                     height: '100%', 

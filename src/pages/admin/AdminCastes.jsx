@@ -43,7 +43,7 @@ export default function AdminCastes() {
       const { error } = await supabase.from('castes').insert(payload);
       if (error) { setIsBusy(false); return alert(error.message); }
     } else {
-      const { id, ...rest } = payload;
+      const { id: _id, ...rest } = payload;
       const { error } = await supabase.from('castes').update(rest).eq('id', editingId);
       if (error) { setIsBusy(false); return alert(error.message); }
     }

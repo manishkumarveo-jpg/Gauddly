@@ -1,0 +1,173 @@
+.store {
+  min-height: 100vh;
+  padding: 120px var(--grid-margin-desktop) 140px;
+  background: var(--void-black);
+  color: var(--bone-white);
+  font-family: var(--font-body);
+}
+
+.store button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.store-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash-grey);
+}
+.store-eyebrow a { color: inherit; }
+.store-eyebrow a:hover { color: var(--bone-white); }
+
+/* Header */
+.store-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+.store-head h1 {
+  margin: 14px 0 6px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(40px, 4.4vw, 64px);
+  line-height: 1.05;
+}
+.store-head p {
+  margin: 0;
+  font-style: italic;
+  font-size: 20px;
+  color: rgba(244, 241, 234, 0.8);
+}
+
+/* Caste tabs */
+.store-tabs {
+  display: flex;
+  gap: 48px;
+  margin-top: 40px;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.14);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.store-tabs button {
+  flex-shrink: 0;
+  padding-bottom: 12px;
+  margin-bottom: -1px;
+  border-bottom: 1px solid transparent;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--ash-grey);
+  transition: color 0.3s ease;
+}
+.store-tabs button:hover { color: var(--bone-white); }
+.store-tabs button[aria-selected="true"] {
+  color: var(--bone-white);
+  border-bottom-color: var(--bone-white);
+}
+
+/* Count + Size/Sort */
+.store-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 24px;
+}
+.store-controls { display: flex; gap: 32px; }
+.store-controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--ash-grey);
+}
+.store-controls select {
+  appearance: none;
+  field-sizing: content;
+  padding-right: 16px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23F4F1EA'/%3E%3C/svg%3E") right center no-repeat;
+  border: none;
+  color: var(--bone-white);
+  font: inherit;
+  cursor: pointer;
+}
+.store-controls option { background: var(--void-black); }
+
+/* Grid */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px 16px;
+}
+.store-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+.store-card-img {
+  aspect-ratio: 4 / 5;
+  margin-bottom: 8px;
+  overflow: hidden;
+  background: #151515;
+}
+.store-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s var(--ease-luxury);
+}
+.store-card:hover .store-card-img img { transform: scale(1.03); }
+.store-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+.store-card-row h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+}
+.store-card-row span { font-size: 17px; letter-spacing: 0.04em; }
+.store-card-link {
+  width: fit-content;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(244, 241, 234, 0.4);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--ash-grey);
+  transition: color 0.3s ease;
+}
+.store-card:hover .store-card-link { color: var(--bone-white); }
+
+.store-message { color: var(--ash-grey); }
+
+.store-pages {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  margin-top: 64px;
+}
+.store-pages button:disabled { opacity: 0.3; cursor: default; }
+
+@media (max-width: 1024px) {
+  .store { padding-inline: var(--grid-margin-mobile); }
+  .store-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .store-head { flex-direction: column; align-items: flex-start; }
+  .store-tabs { gap: 28px; margin-top: 28px; }
+  .store-meta { flex-direction: column; align-items: flex-start; }
+  .store-grid { grid-template-columns: 1fr; }
+}
