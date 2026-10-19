@@ -3,7 +3,7 @@
 All diagrams are Mermaid and render on GitHub and in most Markdown previews. Each one reflects the code as of 2026-10-19. Dashed lines and "(not in repo)" mark components whose source is outside the repository (ADR-010).
 
 | Diagram | Shows |
-|---|---|
+| --- | --- |
 | [system-context.md](system-context.md) | Browser, Vercel, Supabase, R2 and the trust boundaries |
 | [data-model.md](data-model.md) | Entity relationships, versioned vs inferred |
 | [auth-flow.md](auth-flow.md) | Sign-in, admin redirect and admin guard |

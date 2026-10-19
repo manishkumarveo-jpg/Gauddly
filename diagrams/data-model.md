@@ -38,7 +38,7 @@ erDiagram
     int sort_order
   }
   PRODUCT_IMAGES {
-    id id PK
+    bigint id PK "inferred type"
     text product_id FK
     text r2_key
     int sort_order

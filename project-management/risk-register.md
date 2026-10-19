@@ -3,7 +3,7 @@
 Severity = impact × likelihood, each on a 1–3 scale: 9 Critical, 6 High, 3–4 Medium, 1–2 Low. Risks are ranked by severity. Bugs and inconsistencies found in the code are logged here and in [implementation/documentation-audit.md](../implementation/documentation-audit.md). None were fixed, because this was documentation-only work.
 
 | ID | Risk | Impact | Likelihood | Severity | Evidence | Mitigation | Phase |
-|---|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | R-02 | RLS policies for orders, profiles and catalog tables are not in the repo and cannot be reviewed. A permissive policy would let customers read other customers' orders, mark their own order `paid`, edit the catalog, or set their own `profiles.is_admin = true`. | 3 | 3 | **9 Critical** | `Account.jsx` selects `orders` with no user filter and updates `profiles`; admin screens write tables directly; no migrations for these tables | Pull and review the policies; add SQL permission tests (TC-050) | PH-7 |
 | R-01 | No payment integration, but orders use `paid` and `failed` statuses and the dashboard reports "Paid revenue". Garments could be made for unpaid orders, and revenue figures depend on manual status edits. | 3 | 3 | **9 Critical** | No payment SDK, redirect or webhook; `AdminOrders.jsx` sets any status | Implement FR-011 with webhook-only `paid` transitions (TC-021) | PH-4 |
 | R-03 | Order totals may be trusted from the client. The cart stores prices in `localStorage`, and whether `create-order` recomputes them is unverifiable. | 3 | 2 | **6 High** | `Checkout.jsx` total computed client-side; function source missing (ASSUMPTION-007) | Commit and review the `create-order` source; add a server-side price test | PH-7 |

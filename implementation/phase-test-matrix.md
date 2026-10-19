@@ -5,7 +5,7 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 ## Phase status
 
 | Phase | Status | Evidence | Tests | Passing | Not run | Not implemented |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | PH-1 | Complete | Code present for every requirement; TC-052 and TC-053 automated | 8 | 2 | 6 | 0 |
 | PH-2 | Complete | Code present; FR-016 in the uncommitted working tree | 9 | 0 | 9 | 0 |
 | PH-3 | Complete | Code present | 7 | 0 | 7 | 0 |
@@ -21,7 +21,7 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 ## Test case detail
 
 | Test | Phase | Requirement | Type | Priority | Status |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | TC-001 | PH-1 | FR-001 | Manual browser | P2 | Not run |
 | TC-002 | PH-1 | FR-001 | Manual browser | P3 | Not run |
 | TC-003 | PH-1 | FR-002 | Manual browser | P3 | Not run |

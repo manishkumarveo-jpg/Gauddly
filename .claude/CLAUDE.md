@@ -4,12 +4,12 @@
 
 Gauddly is a storefront and story world for made-to-order garments. It is a Vite 8 + React 19 **JavaScript** SPA with React Router 7. The backend is Supabase (Auth, Postgres with RLS, RPC, Edge Functions), media is on Cloudflare R2, and hosting is on Vercel. There is no application server in this repo, and no AI features.
 
-Do not propose replacing the stack (Next.js, TypeScript, Tailwind and so on) unless the user asks. See ADR-001, ADR-002 and ADR-014 in [architecture/architecture-decisions.md](../architecture/architecture-decisions.md). The root `.txt` file describes a different stack and is not a spec.
+Do not propose replacing the stack (Next.js, TypeScript, Tailwind and so on) unless the user asks. See ADR-001, ADR-002 and ADR-014 in [architecture/architecture-decisions.md](../architecture/architecture-decisions.md). The root `.txt` file describes a different stack and is not a spec (R-18).
 
 ## Where things are
 
 | Need | Look at |
-|---|---|
+| --- | --- |
 | What exists and its status | [docs/repo-inventory.md](../docs/repo-inventory.md) |
 | Requirements (FR/NFR) and stories (US/AC) | [product/](../product/requirements.md) |
 | Routes, components, conventions | [architecture/frontend.md](../architecture/frontend.md) |
@@ -50,18 +50,18 @@ Detailed rules are in [rules/](rules/):
 ## Workflows
 
 | Slash command | Use when |
-|---|---|
+| --- | --- |
 | `/verify` | Before saying a change is done. Runs lint, unit tests and build. |
 | `/update-docs <what changed>` | After changing behaviour. Updates requirements, stories, tests and matrices. |
 | `/add-test-case <AC id>` | Adding a test case in the required format |
 
 | Skill | Use when |
-|---|---|
+| --- | --- |
 | [supabase-change](skills/supabase-change/SKILL.md) | Adding or changing tables, policies, RPCs or Edge Functions |
 | [traceability](skills/traceability/SKILL.md) | Adding or renumbering any FR/NFR/US/AC/TC/PH ID |
 
 | Agent | Use when |
-|---|---|
+| --- | --- |
 | [doc-auditor](agents/doc-auditor.md) | Checking that docs match the code and that every ID and link resolves |
 | [security-reviewer](agents/security-reviewer.md) | Reviewing any change touching auth, RLS, Edge Functions, uploads or checkout |
 

@@ -10,7 +10,7 @@ Traceability to features, stories, tests and phases is in [traceability-matrix.m
 ## Functional requirements
 
 | ID | Requirement | Feature | Status | Source of truth |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | FR-001 | A first-time visitor to `/` sees the entry sequence. Entering or skipping records an entry timestamp in `localStorage` and opens `/home`. A visitor who entered within the last 30 days is redirected from `/` to `/home`. | FEAT-01 | Built | `src/pages/Landing.jsx`, `src/context/AppContext.jsx` |
 | FR-002 | The visitor can toggle an ambient sound drone on the entry sequence. The preference persists across visits. | FEAT-01 | Built | `Landing.jsx`, `gauddly_sound_enabled` key |
 | FR-003 | `/home` renders the published homepage document from `get_homepage()`. Without one, it renders nine default sections. Saved sections are normalized: unknown and duplicate sections are dropped, missing defaults are appended, unsafe media keys and links are rejected, and focal points are clamped to 0–100. | FEAT-02 | Built | `src/lib/homepage.js`, `src/pages/Home.jsx` |
@@ -27,10 +27,10 @@ Traceability to features, stories, tests and phases is in [traceability-matrix.m
 | FR-014 | A user can request a password-reset email and set a new password from the emailed link. An invalid or expired link offers a new request. | FEAT-05 | Built | `ForgotPassword.jsx`, `ResetPassword.jsx`, [docs/authentication.md](../docs/authentication.md) |
 | FR-015 | A signed-in customer can edit their full name and default address, view their order history newest first, and sign out. Signed-out access to `/account` redirects to sign-in. | FEAT-05 | Built | `src/pages/Account.jsx` |
 | FR-016 | An administrator who signs in lands on `/admin`, unless the sign-in was requested by an `/admin…` page, in which case they return to that page. Signed-in administrators see an "Admin" link in the site navigation (desktop and mobile) and an "Admin dashboard →" link on `/account`. | FEAT-05 | Built (working tree) | `Login.jsx`, `Navigation.jsx`, `Account.jsx` |
-| FR-017 | The Codex shows seven chapters. Chapter 1 is unlocked by default. Chapters 2 and 3 unlock through interaction, with an unlock animation, and stay unlocked in that browser. | FEAT-06 | Built | `src/pages/Codex.jsx` |
+| FR-017 | The Codex shows seven chapters. Chapter 1 is unlocked by default. Chapters 2 and 3 unlock through interaction, with an unlock animation, and stay unlocked in that browser. | FEAT-06 | Built | `src/pages/Codex.jsx`; ASSUMPTION-017 |
 | FR-018 | `/episodes` lists episodes. Released episodes with a video open an in-page player with play/pause and mute controls. Other episodes do not open a player. | FEAT-06 | Built | `src/pages/Episodes.jsx` |
 | FR-019 | Visitors can join the waitlist from `/await` or the homepage waitlist section. Emails are trimmed and lowercased, and a duplicate email counts as success. `/await` returns to `/home` 3 seconds after success. | FEAT-06 | Built | `src/pages/Await.jsx`, `src/components/HomeExperience.jsx` |
-| FR-020 | `/shipping`, `/returns`, `/privacy`, `/terms` and `/size-care` each render their own customer-care content. | FEAT-06 | Built | `src/pages/InfoPage.jsx` |
+| FR-020 | `/shipping`, `/returns`, `/privacy`, `/terms` and `/size-care` each render their own customer-care content. | FEAT-06 | Built | `src/pages/InfoPage.jsx`; copy conflicts in R-17 |
 | FR-021 | Every `/admin` route needs a session and `profiles.is_admin = true`. Signed-out users are sent to sign-in with the current path as the redirect. Signed-in non-admins see "Not authorized." Nothing renders while the check is pending. | FEAT-07 | Built | `src/pages/admin/AdminLayout.jsx` |
 | FR-022 | The dashboard shows paid revenue, order count and average order value over a 7-, 30- or 90-day range (paid means `paid` or `fulfilled`). It also shows a revenue chart, recent orders, a count of paid orders awaiting dispatch, and top products with CSV export. | FEAT-07 | Built | `AdminDashboard.jsx` |
 | FR-023 | Admins can create, edit and delete products. A new product gets sizes S, M, L and XL in stock. Admins can toggle stock per size, upload and remove product images and video in R2, and publish or unpublish. Only published products appear on the storefront. | FEAT-07 | Built | `AdminProducts.jsx` |
@@ -43,7 +43,7 @@ Traceability to features, stories, tests and phases is in [traceability-matrix.m
 ## Non-functional requirements
 
 | ID | Requirement | Feature | Status | Source of truth |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | NFR-001 | Every route sets its title as `<Page> — GAUDDLY`, along with description, Open Graph and canonical tags. `/login`, `/forgot-password`, `/reset-password` and all `/admin` routes are `noindex, nofollow`. | FEAT-08 | Built | `src/components/RouteSeo.jsx`, `Seo.jsx` |
 | NFR-002 | No server secret (R2 keys, Supabase service role) appears in frontend code or the built bundle. Authorization is enforced in the database or Edge Functions, never only in the UI. Redirects accept internal paths only. | FEAT-08 | Partial: client is compliant, but RLS for most tables is unverifiable from the repo | [architecture/security.md](../architecture/security.md) |
 | NFR-003 | Interactive elements are keyboard reachable. The mobile menu and cart drawer close on Escape, and the cart traps and restores focus. Form fields have labels. The custom cursor and motion effects are disabled for reduced-motion and coarse-pointer users. | FEAT-08 | Built | `Navigation.jsx`, `CartDrawer.jsx`, `App.jsx` |

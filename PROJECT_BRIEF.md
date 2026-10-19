@@ -3,7 +3,7 @@
 ## 1. Summary
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Project name | Gauddly (ASSUMPTION-001) |
 | One-line description | A storefront and story world for a house of hand-dyed, made-to-order garments from Delhi. (ASSUMPTION-002) |
 | Problem it solves | A small fashion label needs to sell made-to-order garments online while presenting them inside a narrative world (the Sanctum: castes, a Codex, films). It also needs to run catalog, content and orders without a developer for each change. (ASSUMPTION-004) |
@@ -30,7 +30,7 @@
 ## 4. Users and roles
 
 | Role | How identified | Can do |
-|---|---|---|
+| --- | --- | --- |
 | Visitor | No session | Browse all public pages, use the cart, join the waitlist |
 | Customer | Supabase Auth session | Everything a visitor can, plus check out, edit their profile and view their order history |
 | Administrator | Session plus `profiles.is_admin = true` | Everything a customer can, plus the `/admin` studio |
@@ -67,7 +67,7 @@ Existing topic guides stay authoritative for their areas: [docs/authentication.m
 ## 6. ID conventions
 
 | Prefix | Meaning | Defined in |
-|---|---|---|
+| --- | --- | --- |
 | `FR-###` | Functional requirement | product/requirements.md |
 | `NFR-###` | Non-functional requirement | product/requirements.md |
 | `FEAT-##` | Feature | product/features.md |
@@ -84,7 +84,7 @@ Existing topic guides stay authoritative for their areas: [docs/authentication.m
 Every assumption the documentation relies on is listed here. An assumption stays in force until the owner confirms or replaces it. Then the dependent documents must be updated.
 
 | ID | Assumption | Basis | Affects |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | ASSUMPTION-001 | The project name is "Gauddly". | `package.json` name, page titles, logo | All docs |
 | ASSUMPTION-002 | The one-line description is "a storefront and story world for a house of hand-dyed, made-to-order garments from Delhi". | `index.html` meta description, manifesto copy in `src/lib/homepage.js` | README, brief |
 | ASSUMPTION-003 | Customers are shoppers for premium garments, primarily in India. | INR formatting, "city, state, pin" fields, "Founded in Delhi" copy | Requirements, NFRs |

@@ -17,7 +17,7 @@ npm run dev
 ## Commands
 
 | Command | Purpose |
-|---|---|
+| --- | --- |
 | `npm run dev` | Start the dev server on port 5173 |
 | `npm run lint` | Run oxlint |
 | `node --test tests/*.test.js` | Run the unit tests (there is no `npm test` script yet) |

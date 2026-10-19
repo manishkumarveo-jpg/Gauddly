@@ -26,7 +26,7 @@ sequenceDiagram
   alt success
     F-->>CK: { orderId }
     CK->>Ctx: clearCart()
-    CK-->>U: "Your claim has been received." Claim #xxxxxxxx
+    CK-->>U: "Your claim has been received." plus claim number
   else error
     F-->>CK: 4xx/5xx { error }
     CK-->>U: role="alert" message, cart kept

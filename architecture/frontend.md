@@ -7,7 +7,7 @@ The route table is in [docs/repo-inventory.md](../docs/repo-inventory.md#3-route
 `src/App.jsx` wraps everything in `AppProvider` and `BrowserRouter`. Every page is `React.lazy` loaded inside a single `Suspense` with the fallback "Opening the chamber…", and pages are wrapped in `PageTransition`.
 
 | Element | Shown on |
-|---|---|
+| --- | --- |
 | `Navigation` | All routes except `/`, `/await` and `/admin/*` |
 | `Footer` | Same as Navigation, minus `/login`, `/forgot-password` and `/reset-password` |
 | `CartDrawer` | All non-admin routes |
@@ -17,7 +17,7 @@ The route table is in [docs/repo-inventory.md](../docs/repo-inventory.md#3-route
 ## Directories
 
 | Path | Contents |
-|---|---|
+| --- | --- |
 | `src/context/` | `app-context.js` (the context object) and `AppContext.jsx` (the provider and all global state) |
 | `src/lib/` | `supabase.js` (client, `mediaUrl`, error helper), `homepage.js` (pure model, unit-tested), `homepage-api.js` (cached loaders), `request-cache.js`, `navigation.js` (`safeInternalPath`), `useScrollReveal.js` |
 | `src/components/` | Site chrome, `HomeExperience` (renders all nine sections, also used for admin preview), auth layout, gallery, effects |

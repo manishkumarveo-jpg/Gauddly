@@ -31,11 +31,11 @@ sequenceDiagram
   Note over C: isAdmin = null until the answer for this user ID arrives
   S-->>C: is_admin
   C-->>B: Navigation shows "Admin" link if isAdmin
-  B->>L: open /admin/...
+  B->>L: open any /admin route
   alt not loaded or isAdmin === null
     L-->>B: render nothing
   else no user
-    L-->>B: Navigate /login?redirect=<path>
+    L-->>B: Navigate to /login with redirect = current path
   else isAdmin false
     L-->>B: "Not authorized."
   else isAdmin true

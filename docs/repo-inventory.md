@@ -11,7 +11,7 @@ Five source files carry uncommitted changes at the time of writing. They make ad
 ## 1. Stack (as built)
 
 | Layer | Technology | Evidence |
-|---|---|---|
+| --- | --- | --- |
 | Build tool | Vite 8 | `package.json`, `vite.config.js` |
 | UI | React 19, JavaScript (JSX), no TypeScript | `package.json`, `src/**/*.jsx` |
 | Routing | React Router 7 (`BrowserRouter`, lazy routes) | `src/App.jsx` |
@@ -52,7 +52,7 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
 ## 3. Routes
 
 | Path | Component | Access |
-|---|---|---|
+| --- | --- | --- |
 | `/` | Landing | Public. Redirects to `/home` if entered within 30 days |
 | `/home` | Home → HomeExperience | Public |
 | `/store` | Store | Public |
@@ -76,7 +76,7 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
 Supabase objects referenced in `src/`:
 
 | Object | Kind | Operations from the client | Defined in repo? |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `profiles` | table | select `is_admin`, `full_name`, `default_address`; update own profile | No |
 | `products` | table | select (public: `is_published = true`); admin insert/update/delete | No |
 | `product_images` | table | select; admin insert/delete | No |
@@ -96,7 +96,7 @@ Supabase objects referenced in `src/`:
 ## 5. Environment variables
 
 | Variable | Used by | In `.env.example`? |
-|---|---|---|
+| --- | --- | --- |
 | `VITE_SUPABASE_URL` | `src/lib/supabase.js` | No |
 | `VITE_SUPABASE_ANON_KEY` | `src/lib/supabase.js` | No |
 | `VITE_R2_PUBLIC_URL` | `src/lib/supabase.js` (`mediaUrl`) | No |
@@ -108,7 +108,7 @@ Real `.env` / `.env.local` files were not read.
 ## 6. Tests and quality gates
 
 | Check | Command | Baseline result (2026-10-19, Node 26.5.0) |
-|---|---|---|
+| --- | --- | --- |
 | Lint | `npm run lint` | Pass, no findings |
 | Unit tests | `node --test tests/*.test.js` | Pass, 7 of 7 |
 | Unit tests (directory form) | `node --test tests/` | Fails on Node 26: the directory is treated as a module path |
@@ -120,7 +120,7 @@ There is no `test` script in `package.json`, no CI configuration (`.github/` abs
 ## 7. Existing documentation
 
 | File | Content | Status |
-|---|---|---|
+| --- | --- | --- |
 | `README.md` | Vite template boilerplate | Rewritten; tooling notes kept |
 | `docs/authentication.md` | Sign-in, redirects, password recovery setup | Accurate. Kept, linked |
 | `docs/homepage.md` | Homepage content studio, migration, verification | Accurate. Kept, linked |
@@ -152,7 +152,7 @@ There is no `test` script in `package.json`, no CI configuration (`.github/` abs
 Phase definitions are in [implementation/phase-plan.md](../implementation/phase-plan.md); evidence is in [implementation/phase-test-matrix.md](../implementation/phase-test-matrix.md).
 
 | Phase | Name | Status |
-|---|---|---|
+| --- | --- | --- |
 | PH-1 | Foundation and design system | Complete |
 | PH-2 | Accounts and authentication | Complete |
 | PH-3 | Catalog and storefront | Complete |

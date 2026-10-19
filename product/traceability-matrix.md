@@ -3,7 +3,7 @@
 Each row traces one acceptance criterion from requirement to phase. Each requirement maps to exactly one story, and each acceptance criterion to at least one test case.
 
 | Requirement | Feature | User story | Acceptance criterion | Test case | Phase |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | FR-001 | FEAT-01 | US-001 | AC-001.1 | TC-001 | PH-1 |
 | FR-001 | FEAT-01 | US-001 | AC-001.2 | TC-002 | PH-1 |
 | FR-002 | FEAT-01 | US-002 | AC-002.1 | TC-003 | PH-1 |

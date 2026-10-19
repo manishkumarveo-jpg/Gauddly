@@ -9,7 +9,7 @@ Most of the product is already built. Testing therefore has two jobs:
 ## 2. Test levels
 
 | Level | Tool | Location | Runs where | Current coverage |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Unit | Node test runner (`node:test`, `node:assert/strict`) | `tests/*.test.js` | Any machine with Node 20+ (ASSUMPTION-019) | `src/lib/homepage.js`, `src/lib/request-cache.js` |
 | Database | `psql` script in a rolled-back transaction | `tests/*.sql` | Against a Supabase database with at least one admin profile | Homepage RLS and RPC |
 | Manual browser | Scripted steps in [test-cases.md](test-cases.md) | — | `npm run dev` or a preview deployment | Every UI requirement |
@@ -54,7 +54,7 @@ Rules:
 ## 5. Test environments and data
 
 | Need | Source |
-|---|---|
+| --- | --- |
 | Customer account | A dedicated test user in the target Supabase project |
 | Administrator account | A test user with `profiles.is_admin = true` |
 | Catalog | At least one published product per caste, one unpublished product, one product with every size out of stock, and one `old-world` product |

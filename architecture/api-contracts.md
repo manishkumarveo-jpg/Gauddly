@@ -13,7 +13,7 @@ The SPA has no REST API of its own. Its interfaces are Supabase table access (Po
 ### `get_homepage`
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Call | `supabase.rpc('get_homepage')` |
 | Auth | anon or authenticated |
 | Returns | The published document `{ sections: Section[] }`, or `null` |
@@ -22,7 +22,7 @@ The SPA has no REST API of its own. Its interfaces are Supabase table access (Po
 ### `save_homepage`
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Call | `supabase.rpc('save_homepage', { content, expected_revision, publish })` |
 | Auth | authenticated admin |
 | Returns | New `revision` (bigint) |
@@ -42,7 +42,7 @@ Request body:
 ```
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Auth | The caller's session JWT, sent automatically by `supabase.functions.invoke` |
 | Success | `{ "orderId": "<uuid>" }` |
 | Failure | Non-2xx with `{ "error": "<message shown to customer>" }` |
@@ -53,7 +53,7 @@ Request body:
 Request body: `{ "key": "<r2 object key>", "method": "PUT" | "DELETE" }`
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Auth | Session JWT; the function must check `profiles.is_admin` |
 | Success | `{ "url": "<presigned R2 URL>" }` |
 | Client use | `PUT` through `XMLHttpRequest` with `Content-Type` set to the file type (progress events); `DELETE` through `fetch` (404 treated as success) |
@@ -62,7 +62,7 @@ Request body: `{ "key": "<r2 object key>", "method": "PUT" | "DELETE" }`
 ## Table access by screen
 
 | Screen | Reads | Writes |
-|---|---|---|
+| --- | --- | --- |
 | Home | `products` (published), `castes` (not `old-world`), `episodes` (released) | `waitlist_signups` insert |
 | Store | `castes`, `products` (published) with images and sizes | none |
 | CastePage | `castes` by ID, `products` by caste (published) | none |

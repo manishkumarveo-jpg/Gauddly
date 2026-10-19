@@ -5,7 +5,7 @@ The phase model is inferred from the code's layers (ASSUMPTION-015). The greenfi
 - A **Partial** phase lists only the remaining work.
 
 | Phase | Name | Requirements | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | PH-1 | Foundation and design system | FR-001, FR-002, NFR-001, NFR-003, NFR-004 | Complete |
 | PH-2 | Accounts and authentication | FR-012, FR-013, FR-014, FR-015, FR-016 | Complete (FR-016 in the working tree, uncommitted) |
 | PH-3 | Catalog and storefront | FR-005, FR-006, FR-007, FR-008 | Complete |
@@ -83,11 +83,11 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 **Status: Partial.** Built: oxlint, 7 unit tests, a passing build.
 
 **Remaining work:**
-1. Add `"test": "node --test tests/*.test.js"` to `package.json` (ADR-012).
+1. Add `"test": "node --test tests/*.test.js"` to `package.json` (ADR-012, R-05).
 2. Add a CI workflow running `npm ci`, lint, test and build on push and pull request.
 3. Add a unit test for `safeInternalPath` (covers TC-024's logic).
 4. Pick an end-to-end tool and automate the P1 manual cases.
-5. Replace the boilerplate parts of the README, and remove or relocate the stray `.txt` design prompt.
+5. Remove or relocate the stray `.txt` design prompt (R-18).
 6. Add client error monitoring (provider to be decided by the owner).
 
 **Exit criteria:** TC-056 and TC-057 pass.

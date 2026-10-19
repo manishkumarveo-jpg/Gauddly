@@ -7,7 +7,7 @@ Diagram: [diagrams/system-context.md](../diagrams/system-context.md).
 ## Components
 
 | Component | Responsibility | Where it runs | In this repo? |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | SPA (`src/`) | All UI, routing, client state (cart, session, preferences), calls to Supabase | Visitor's browser | Yes |
 | Vercel | Serves `dist/`, rewrites every path to `index.html`, long-cache headers for `/assets/*` | Vercel edge | Config only (`vercel.json`) |
 | Supabase Auth | Email/password accounts, sessions, recovery email | Supabase | No (managed service) |
@@ -21,15 +21,15 @@ Diagram: [diagrams/system-context.md](../diagrams/system-context.md).
 ## Request flows
 
 1. **Public browsing.** The browser loads the SPA from Vercel. Pages query Supabase directly with the anon key, and RLS limits results to public rows (ASSUMPTION-008). Media URLs are built by `mediaUrl()` from R2 keys.
-2. **Homepage.** `Home.jsx` loads `get_homepage()` and three catalog queries in parallel through `cachedRequest` (30 s in-memory cache). It renders `HomeExperience` once the content request settles. See [diagrams/homepage-publish-sequence.md](../diagrams/homepage-publish-sequence.md).
-3. **Checkout.** The cart sits in `localStorage`. `Checkout.jsx` invokes `create-order` with item IDs, sizes, quantities and shipping details. See [diagrams/checkout-sequence.md](../diagrams/checkout-sequence.md).
+2. **Homepage.** `Home.jsx` loads `get_homepage()` and three catalog queries in parallel through `cachedRequest` (30 s in-memory cache). It renders `HomeExperience` once the content request settles. The single-document design is ADR-006. See [diagrams/homepage-publish-sequence.md](../diagrams/homepage-publish-sequence.md).
+3. **Checkout.** The cart sits in `localStorage`. `Checkout.jsx` invokes `create-order` with item IDs, sizes, quantities and shipping details (ADR-007). See [diagrams/checkout-sequence.md](../diagrams/checkout-sequence.md).
 4. **Authentication.** Supabase Auth issues the session. `AppContext` subscribes to auth changes and loads `profiles.is_admin` once per user. See [diagrams/auth-flow.md](../diagrams/auth-flow.md).
-5. **Admin media.** The studio asks `admin-upload-url` for a presigned URL, then uploads or deletes directly against R2, so files never pass through Supabase.
+5. **Admin media.** The studio asks `admin-upload-url` for a presigned URL, then uploads or deletes directly against R2, so files never pass through Supabase (ADR-004).
 
 ## Client state
 
 | State | Storage | Owner |
-|---|---|---|
+| --- | --- | --- |
 | Cart | `localStorage` key `gauddly_cart` | `AppContext` |
 | Entry timestamp | `gauddly_entered_at` (30-day bypass) | `AppContext` |
 | Sound preference | `gauddly_sound_enabled` | `AppContext` |

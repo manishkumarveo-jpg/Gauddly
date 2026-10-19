@@ -3,7 +3,7 @@
 Features group requirements into the product's real surface areas. Status is derived from the requirements each feature contains.
 
 | ID | Feature | Requirements | Phase | Status |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | FEAT-01 | Entry sequence | FR-001, FR-002 | PH-1 | Built |
 | FEAT-02 | Editorial homepage | FR-003, FR-004 | PH-5 | Built |
 | FEAT-03 | Catalog and storefront | FR-005, FR-006, FR-007, FR-008 | PH-3 | Built |

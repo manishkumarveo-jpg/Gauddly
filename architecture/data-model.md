@@ -9,7 +9,7 @@ ER diagram: [diagrams/data-model.md](../diagrams/data-model.md).
 ### `homepage_content` (table)
 
 | Column | Type | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `id` | `text` PK | Default `'homepage'`, with `check (id = 'homepage')`, so there is exactly one row |
 | `draft` | `jsonb not null` | Default `{"sections":[]}` |
 | `published` | `jsonb` | `null` until the first publish |
@@ -36,7 +36,7 @@ Otherwise it writes `draft` (and `published` when `publish` is true), increments
 ### `profiles`
 
 | Column | Type (inferred) | Used by |
-|---|---|---|
+| --- | --- | --- |
 | `id` | `uuid` PK, equal to `auth.users.id` | All profile reads |
 | `is_admin` | `boolean` | `AppContext`, `Login`, homepage RLS and RPC |
 | `full_name` | `text` | `Account` (also passed as signup metadata `full_name`) |
@@ -47,7 +47,7 @@ A row presumably exists for each auth user, created by a trigger on signup, beca
 ### `castes`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `id` | `text` PK | URL slug, for example `nimbus` or `old-world` |
 | `name` | `text` | |
 | `hero_r2_key` | `text` | R2 key or URL |
@@ -57,7 +57,7 @@ A row presumably exists for each auth user, created by a trigger on signup, beca
 ### `products`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `id` | `text` PK | Slug entered by the admin |
 | `caste_id` | `text` FK → `castes.id` | `old-world` marks archive pieces |
 | `name`, `num`, `sku`, `passage`, `craft` | `text` | |
@@ -69,7 +69,7 @@ A row presumably exists for each auth user, created by a trigger on signup, beca
 ### `product_images`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `id` | PK | Used when deleting |
 | `product_id` | FK → `products.id` | |
 | `r2_key` | `text` | |
@@ -79,7 +79,7 @@ A row presumably exists for each auth user, created by a trigger on signup, beca
 ### `product_sizes`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `product_id` | FK → `products.id` | |
 | `size` | `text` | The admin creates `S`, `M`, `L`, `XL`; the storefront sorts a wider set, from XXS to ONE SIZE |
 | `in_stock` | `boolean` | |
@@ -89,7 +89,7 @@ Presumably unique on `(product_id, size)`, since updates target that pair.
 ### `episodes`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `id` | `text` PK | |
 | `num`, `title`, `description`, `director_note` | `text` | |
 | `status` | `text` | `released`, `awaiting` or `sealed` |
@@ -100,7 +100,7 @@ Presumably unique on `(product_id, size)`, since updates target that pair.
 ### `orders`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `id` | `uuid` PK | Displayed as `#GDLY-XXXX` (admin) or `Claim #xxxxxxxx` (customer) |
 | `email`, `name`, `phone` | `text` | `phone` is shown in the admin view but not collected by checkout (R-12) |
 | `status` | `text` | `pending`, `paid`, `failed`, `cancelled` or `fulfilled` |
@@ -112,7 +112,7 @@ Presumably unique on `(product_id, size)`, since updates target that pair.
 ### `order_items`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `order_id` | FK → `orders.id` | |
 | `product_name`, `size` | `text` | Snapshot taken at order time |
 | `unit_price` | numeric | Snapshot |
@@ -121,7 +121,7 @@ Presumably unique on `(product_id, size)`, since updates target that pair.
 ### `waitlist_signups`
 
 | Column | Type (inferred) | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `email` | `text`, unique | The client relies on unique violation `23505` |
 
 ### `top_products` (view, ASSUMPTION-009)

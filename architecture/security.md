@@ -3,7 +3,7 @@
 ## Trust boundaries
 
 | Boundary | Trusted side | Enforcement |
-|---|---|---|
+| --- | --- | --- |
 | Browser → Supabase | Postgres RLS and security-definer functions | Anon key only in the browser. RLS policies decide every row (ASSUMPTION-008). |
 | Browser → Edge Functions | Function code | JWT verification. `admin-upload-url` must check `is_admin`. |
 | Browser → R2 | Presigned URL scope | URLs are signed per key and method by the Edge Function. |
@@ -12,7 +12,7 @@
 ## Controls verified in the repository
 
 | Control | Where | Test |
-|---|---|---|
+| --- | --- | --- |
 | Homepage drafts readable only by admins | RLS policy in the homepage migration | TC-045 |
 | Homepage saves need admin status and the current revision | `save_homepage` | TC-045 |
 | `search_path = ''` on security-definer functions | Homepage migration | Review |
@@ -25,8 +25,8 @@
 ## Controls that cannot be verified from the repository
 
 | Control | Why it matters | Risk |
-|---|---|---|
-| RLS on `orders` / `order_items` restricts customers to their own rows | `Account.jsx` selects orders without a user filter | R-02 |
+| --- | --- | --- |
+| RLS on `orders` / `order_items` restricts customers to their own rows | `Account.jsx` selects orders without a user filter. An admin may see every order there (R-15). | R-02, R-15 |
 | Writes to catalog tables (`products`, `castes`, `episodes`, `product_*`) limited to admins | Admin screens write directly from the browser | R-02 |
 | `orders.status` updatable only by admins | Otherwise a customer could mark their own order `paid` | R-02 |
 | `profiles.is_admin` not updatable by its owner | `Account.jsx` updates `profiles`. A permissive update policy would allow self-promotion to admin. | R-02 |

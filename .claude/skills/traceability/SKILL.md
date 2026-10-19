@@ -8,13 +8,13 @@ description: Use when adding, changing or retiring any Gauddly documentation ID 
 ## ID rules
 
 | Prefix | File | Next ID |
-|---|---|---|
+| --- | --- | --- |
 | `FR-###`, `NFR-###` | product/requirements.md | Highest existing + 1 |
 | `FEAT-##` | product/features.md | Highest existing + 1 |
 | `US-###` | product/user-stories.md | Highest existing + 1 |
 | `AC-<US>.<n>` | product/user-stories.md | Next `n` within the story |
 | `TC-###` | testing/test-cases.md | Highest existing + 1 |
-| `PH-#` | implementation/phase-plan.md | Fixed at PH-1 to PH-8; add PH-9+ only with owner approval |
+| `PH-#` | implementation/phase-plan.md | Fixed at PH-1 to PH-8; add a new phase only with owner approval |
 | `ADR-###` | architecture/architecture-decisions.md | Highest existing + 1 |
 | `R-##` | project-management/risk-register.md | Highest existing + 1 |
 | `ASSUMPTION-###` | PROJECT_BRIEF.md §7 | Highest existing + 1 |
