@@ -22,11 +22,9 @@ export default function Login() {
     try {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (signInError) throw signInError;
-      if (!searchParams.get('redirect')) {
-        const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', data.user.id).single();
-        if (profile?.is_admin) { navigate('/admin', { replace: true }); return; }
-      }
-      navigate(redirect, { replace: true });
+      // Admins always land on the dashboard, unless they were sent here from a specific admin page
+      const { data: profile } = await supabase.from('profiles').select('is_admin').eq('id', data.user.id).single();
+      navigate(profile?.is_admin && !redirect.startsWith('/admin') ? '/admin' : redirect, { replace: true });
     } catch (signInError) {
       setError(signInError?.code === 'invalid_credentials' ? 'The email or password is incorrect. Please try again.' : signInError?.message || 'We could not sign you in. Please check your connection and try again.');
     } finally { setBusy(false); }

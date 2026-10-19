@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, mediaUrl } from '../lib/supabase';
+import { publicRead, mediaUrl } from '../lib/supabase';
 import './store.css';
 
 const formatPrice = (p) =>
@@ -31,18 +31,9 @@ export default function Store() {
     setLoading(true);
     setLoadError('');
     try {
-      const [castesRes, productsRes] = await Promise.all([
-      supabase.from('castes').select('id, name, sort_order').order('sort_order'),
-      supabase
-        .from('products')
-        .select('id, name, price, caste_id, sort_order, product_images(r2_key, sort_order), product_sizes(size, in_stock)')
-        .eq('is_published', true)
-        .order('sort_order'),
-      ]);
-      if (castesRes.error) throw castesRes.error;
-      if (productsRes.error) throw productsRes.error;
-      setCastes(castesRes.data || []);
-      setProducts(productsRes.data || []);
+      const [casteRows, productRows] = await publicRead('store');
+      setCastes(casteRows);
+      setProducts(productRows);
     } catch {
       setLoadError('The garments could not be gathered. Please try again.');
     } finally {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, mediaUrl } from '../lib/supabase';
+import { publicRead, mediaUrl } from '../lib/supabase';
 
 export default function Archive() {
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
@@ -8,15 +8,11 @@ export default function Archive() {
   const [pieces, setPieces] = useState([]);
 
   useEffect(() => {
-    supabase
-      .from('products')
-      .select('id, num, name, price, passage, product_images(r2_key, sort_order)')
-      .eq('caste_id', 'old-world')
-      .eq('is_published', true)
-      .order('sort_order')
-      .then(({ data }) => {
+    publicRead('archive')
+      .catch(() => [[]])
+      .then(([data]) => {
         setPieces(
-          (data || []).map((p) => ({
+          data.map((p) => ({
             id: p.id,
             num: p.num,
             name: p.name,

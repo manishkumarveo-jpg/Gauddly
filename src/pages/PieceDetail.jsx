@@ -2,21 +2,14 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { AppContext } from '../context/app-context';
-import { supabase, mediaUrl } from '../lib/supabase';
+import { publicRead, mediaUrl } from '../lib/supabase';
 import Seo from '../components/Seo';
 import ProductGallery, { ProductDialog, ProductImage } from '../components/ProductGallery';
 import ProductDetailGrid from '../components/ProductDetailGrid';
+import { shapeProduct } from '../lib/products';
 import './piece-detail.css';
 
-const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL', '4XL', 'ONE SIZE'];
 const formatPrice = value => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
-
-function sortSizes(first, second) {
-  const firstRank = sizeOrder.indexOf(first.size.toUpperCase());
-  const secondRank = sizeOrder.indexOf(second.size.toUpperCase());
-  if (firstRank === -1 && secondRank === -1) return first.size.localeCompare(second.size, undefined, { numeric: true });
-  return (firstRank === -1 ? sizeOrder.length : firstRank) - (secondRank === -1 ? sizeOrder.length : secondRank);
-}
 
 export default function PieceDetail() {
   const { pieceId } = useParams();
@@ -32,19 +25,8 @@ export default function PieceDetail() {
     setProduct(null);
     async function loadProduct() {
       try {
-        const { data, error: loadError } = await supabase.from('products')
-          .select('id, name, num, price, passage, craft, caste_id, video_r2_key, castes(name), product_images(r2_key, sort_order, alt), product_sizes(size, in_stock)')
-          .eq('id', pieceId).eq('is_published', true)
-          .order('sort_order', { foreignTable: 'product_images', ascending: true }).maybeSingle();
-        if (loadError) throw loadError;
-        if (active && data) setProduct({
-          ...data,
-          images: (data.product_images || []).filter(image => image.r2_key).map(image => ({ src: mediaUrl(image.r2_key), alt: image.alt || data.name })),
-          sizes: [...(data.product_sizes || [])].sort(sortSizes),
-          video: mediaUrl(data.video_r2_key),
-          caste: data.castes?.name || 'The Sanctum',
-          castePath: data.caste_id === 'old-world' ? '/old-world' : `/the-${data.caste_id}`,
-        });
+        const [[data]] = await publicRead(`piece/${encodeURIComponent(pieceId)}`);
+        if (active && data) setProduct(shapeProduct(data, mediaUrl));
       } catch {
         if (active) setError('This garment could not be opened. Please try again.');
       } finally {
@@ -70,7 +52,8 @@ export default function PieceDetail() {
   return <PieceDetailView key={product.id} product={product} />;
 }
 
-function PieceDetailView({ product }) {
+// Draws a garment from shaped data; the admin's live preview renders it with unsaved changes.
+export function PieceDetailView({ product }) {
   const { addToCart, setIsCartOpen, isCartOpen } = useContext(AppContext);
   const [selectedSize, setSelectedSize] = useState(null);
   const [sizeNotice, setSizeNotice] = useState('');

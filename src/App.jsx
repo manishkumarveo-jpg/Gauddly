@@ -28,6 +28,9 @@ const AdminCastes = lazy(() => import('./pages/admin/AdminCastes'));
 const AdminEpisodes = lazy(() => import('./pages/admin/AdminEpisodes'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminHomepage = lazy(() => import('./pages/admin/AdminHomepage'));
+const HomepagePreview = lazy(() => import('./pages/admin/HomepagePreview'));
+const ProductPreview = lazy(() => import('./pages/admin/ProductPreview'));
+const AdminProductEditor = lazy(() => import('./pages/admin/AdminProductEditor'));
 
 // Components
 import Navigation from './components/Navigation';
@@ -44,7 +47,9 @@ const useCustomCursor = window.matchMedia('(hover: hover) and (pointer: fine) an
 function AppContent() {
   const location = useLocation();
 
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  // The editors' live previews show the real site chrome, so they are not treated as admin screens.
+  const isPreviewRoute = ['/admin/homepage/preview', '/admin/products/preview'].includes(location.pathname);
+  const isAdminRoute = location.pathname.startsWith('/admin') && !isPreviewRoute;
   const isAuthRoute = ['/login', '/forgot-password', '/reset-password'].includes(location.pathname);
   const showHeaderFooter = !isAdminRoute && location.pathname !== '/' && location.pathname !== '/await';
 
@@ -59,7 +64,7 @@ function AppContent() {
       {showHeaderFooter && <Navigation />}
 
       {/* Cart Slider */}
-      {!isAdminRoute && <CartDrawer />}
+      {!isAdminRoute && !isPreviewRoute && <CartDrawer />}
 
       {/* Main content body with page transitions */}
       <main id="main-content" style={{ minHeight: showHeaderFooter ? 'calc(100vh - 64px)' : '100vh' }}>
@@ -102,9 +107,13 @@ function AppContent() {
             <Route path="/size-care" element={<InfoPage />} />
 
             {/* Admin */}
+            <Route path="/admin/homepage/preview" element={<HomepagePreview />} />
+            <Route path="/admin/products/preview" element={<ProductPreview />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index        element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="products/new" element={<AdminProductEditor />} />
+              <Route path="products/:productId" element={<AdminProductEditor />} />
               <Route path="castes"   element={<AdminCastes />} />
               <Route path="episodes" element={<AdminEpisodes />} />
               <Route path="orders"   element={<AdminOrders />} />
