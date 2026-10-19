@@ -4,7 +4,7 @@
 
 This list is authoritative until `.env.example` is corrected (R-06) ([ADR-013](../architecture/architecture-decisions.md#adr-013--envexample-lists-server-variables-and-omits-client-variables)).
 
-### Frontend (Vite, set locally in `.env.local` and in the Cloudflare Pages project settings)
+### Frontend build (Vite, set locally in `.env.local` and as build variables in the Worker's Workers Builds settings)
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
@@ -13,16 +13,20 @@ This list is authoritative until `.env.example` is corrected (R-06) ([ADR-013](.
 | `VITE_R2_PUBLIC_URL` | Yes, for media | Public base URL of the R2 bucket. A bare media key is resolved as `<VITE_R2_PUBLIC_URL>/<key>`. |
 | `VITE_AUTH_IMAGE_URL` | No | Overrides the sign-in page photograph ([docs/authentication.md](../docs/authentication.md)) |
 
-`VITE_*` values are embedded in the public bundle. Never put a secret in one. The Pages Function also reads `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` at runtime (ASSUMPTION-023).
+`VITE_*` values are embedded in the public bundle. Never put a secret in one.
 
-### Cloudflare Pages Function (encrypted variables in the Cloudflare Pages project; `.env.local` for `npm run dev`)
+### Worker runtime (the Worker's Settings → Variables and Secrets; `.env.local` for `npm run dev`)
 
-| Variable | Used by |
-| --- | --- |
-| `UPSTASH_REDIS_REST_URL` | `functions/api/[[path]].js` through `src/lib/public-api.js` |
-| `UPSTASH_REDIS_REST_TOKEN` | Same. Server-only: never give it a `VITE_` prefix. |
+Build variables are not visible to the Worker at runtime, so the two Supabase values are set again here (ASSUMPTION-024). `wrangler.jsonc` sets `keep_vars`, so deploys keep them.
 
-Without them, `/api/*` still works and reads Supabase on every request.
+| Variable | Kind | Used by |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | Plain text | `worker/index.js` through `src/lib/public-api.js` |
+| `VITE_SUPABASE_ANON_KEY` | Plain text (public key) | Same |
+| `UPSTASH_REDIS_REST_URL` | Secret | Same |
+| `UPSTASH_REDIS_REST_TOKEN` | Secret. Server-only: never give it a `VITE_` prefix. | Same |
+
+Without the Upstash pair, `/api/*` reads Supabase on every request. Without the Supabase pair, `/api/*` answers 502 and the browser reads Supabase directly.
 
 ### Server (Supabase Edge Function secrets)
 
@@ -57,7 +61,7 @@ npm run dev          # http://localhost:5173, also serves /api/* through the sam
 1. Run `npm run lint`, `node --test tests/*.test.js` and `npm run build`. All must pass (TC-056).
 2. Apply any new migration in `supabase/migrations/` to the target project before deploying frontend code that depends on it. Database changes go out before frontend changes.
 3. Deploy any changed Edge Function (`supabase functions deploy <name>`).
-4. Push to the branch Cloudflare Pages deploys from. Pages runs `vite build`, serves `dist/` with the headers in `public/_headers`, falls back to `index.html` for unknown paths, and deploys `functions/` as the `/api/*` Pages Function (ADR-016).
+4. Push to `main`. Workers Builds runs `npm run build`, then `npx wrangler deploy`, which reads `wrangler.jsonc`: `dist/` becomes static assets with the headers in `public/_headers` and `index.html` for unknown paths, and `worker/index.js` handles `/api/*` (ADR-016). The `name` in `wrangler.jsonc` must match the Worker in the dashboard. To check a change before pushing, run `npm run build && npx wrangler deploy --dry-run`.
 5. Smoke-test `/home`, `/store`, a product page, sign-in and `/admin` on the deployment. Check that a second request to `/api/store` returns `X-Cache: HIT`.
 6. Homepage content is published from `/admin/homepage`, separately from code deploys ([docs/homepage.md](../docs/homepage.md)).
 
@@ -79,7 +83,7 @@ Rate limits (Authentication → Rate Limits) protect sign-in, sign-up and recove
 One-time setup for NFR-008 (ADR-016):
 
 1. Create an Upstash Redis database and copy its REST URL and token.
-2. Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as encrypted variables in the Cloudflare Pages project, for production and preview.
+2. Add `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` as secrets on the Worker, next to the Supabase variables in [Worker runtime](#worker-runtime-the-workers-settings--variables-and-secrets-envlocal-for-npm-run-dev).
 3. In Upstash, create an ACL user whose token may only run `INCR` on `catalog:version`. Store the REST URL and that restricted token in Supabase Vault as `upstash_redis_rest_url` and `upstash_redis_rest_token`. The token also sits in `net.http_request_queue` until `pg_net` sends it, so it must not be the full-access token. Set the Vault secrets before step 2 is live, or admin edits will not clear the cache.
 4. Apply migration `202610190001_rate_limits_and_catalog_cache.sql`, which enables `pg_net`. Then confirm that `select has_table_privilege('anon', 'net.http_request_queue', 'select'), has_function_privilege('anon', 'net.http_post(text,jsonb,jsonb,jsonb,integer)', 'execute');` returns `false, false`, and that `net` is not in the API's exposed schemas.
 5. Run TC-085. Failed invalidation calls are recorded in `net._http_response`.
@@ -90,8 +94,8 @@ To empty the cache by hand, send `INCR catalog:version` from the Upstash console
 
 | Layer | How |
 | --- | --- |
-| Frontend | Roll back to the previous deployment in Cloudflare Pages |
-| Catalog cache | Unset the Upstash variables in Cloudflare Pages to bypass Redis, or send `INCR catalog:version` to discard every entry |
+| Frontend | Roll back to the previous version in the Worker's Deployments tab |
+| Catalog cache | Remove the Upstash secrets from the Worker to bypass Redis, or send `INCR catalog:version` to discard every entry |
 | Homepage content | Publish the previous content from the editor. There is no version history beyond the current draft and published document. |
 | Database | Write a forward migration that reverses the change. Migrations are not automatically reversible. |
 | Edge Functions | Redeploy the previous source, once it is versioned (PH-7) |

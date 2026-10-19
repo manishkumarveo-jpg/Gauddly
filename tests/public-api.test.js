@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { handlePublicRead } from '../src/lib/public-api.js';
+import { handlePublicRead, publicRead } from '../src/lib/public-api.js';
 
 const env = { VITE_SUPABASE_URL: 'https://db', VITE_SUPABASE_ANON_KEY: 'anon', UPSTASH_REDIS_REST_URL: 'https://redis', UPSTASH_REDIS_REST_TOKEN: 't' };
 
@@ -72,4 +72,18 @@ test('a Supabase failure is a 502 and is not cached', async () => {
   const rejecting = (url, init) => url === env.UPSTASH_REDIS_REST_URL ? fetchImpl(url, init) : Promise.reject(new Error('timeout'));
   assert.equal((await handlePublicRead('store', env, rejecting)).status, 502);
   assert.equal(redis.size, 0);
+});
+
+test('the browser reads Supabase directly when /api is missing or failing', async () => {
+  const browserEnv = { VITE_SUPABASE_URL: 'https://db', VITE_SUPABASE_ANON_KEY: 'anon' };
+  const { db, fetchImpl } = fakes();
+  const api = served => async (url, init) => (url.startsWith('/api/') ? served() : fetchImpl(url, init));
+  const viaApi = await publicRead('archive', browserEnv, api(() => Response.json([['cached']])));
+  assert.deepEqual(viaApi, [['cached']]);
+  assert.equal(db.length, 0);
+  // A static host answers /api/* with the SPA page; a Worker without its variables answers 502.
+  for (const served of [() => new Response('<!doctype html>', { headers: { 'Content-Type': 'text/html' } }), () => new Response('{}', { status: 502 }), () => Promise.reject(new Error('offline'))]) {
+    assert.deepEqual(await publicRead('archive', browserEnv, api(served)), [[{ id: 'dust-robe' }]]);
+  }
+  assert.equal(db.length, 3);
 });

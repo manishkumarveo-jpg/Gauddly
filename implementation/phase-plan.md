@@ -82,7 +82,7 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 ## PH-8 — Quality gates, CI and launch readiness
 
-**Status: Partial.** Built: oxlint, 23 unit tests, a passing build. In the working tree: the Redis catalog cache behind `/api/*` (NFR-008).
+**Status: Partial.** Built: oxlint, 24 unit tests, a passing build, and the Redis catalog cache behind `/api/*` (NFR-008).
 
 **Remaining work:**
 1. Add `"test": "node --test tests/*.test.js"` to `package.json` (ADR-012, R-05).
@@ -91,6 +91,6 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 4. Pick an end-to-end tool and automate the P1 manual cases.
 5. Remove or relocate the stray `.txt` design prompt (R-18).
 6. Add client error monitoring (provider to be decided by the owner).
-7. Create the Upstash Redis database, store its URL and token in Supabase Vault and in Cloudflare Pages, and run TC-085 ([operations/deployment.md](../operations/deployment.md#catalog-cache-upstash-redis)).
+7. Create the Upstash Redis database, store its URL and token in Supabase Vault and as Worker secrets, and run TC-085 ([operations/deployment.md](../operations/deployment.md#catalog-cache-upstash-redis)).
 
-**Exit criteria:** TC-056, TC-057 and TC-083 to TC-087 pass.
+**Exit criteria:** TC-056, TC-057, TC-083 to TC-087 and TC-089 pass.

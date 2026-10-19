@@ -191,3 +191,4 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 - AC-043.3: After an administrator saves a garment, the change is visible on its public product page on the next load. [TC-085]
 - AC-043.4: Routes outside the allow-list, malformed IDs and IDs over 100 characters return 404 without querying Supabase, and IDs with no matching row are not cached. [TC-086]
 - AC-043.5: When Redis is unreachable or not configured, `/api/*` still returns the Supabase result; a Supabase failure returns 502 and is not cached. [TC-087]
+- AC-043.6: When `/api/*` is missing, answers with something other than JSON, fails or is unreachable, the storefront reads the same queries from Supabase directly. [TC-089]

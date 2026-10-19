@@ -107,7 +107,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Traces:** NFR-004 · US-032 · AC-032.3 · PH-1
 - **Type:** Manual inspection
 - **Priority:** P3
-- **Preconditions:** A Cloudflare Pages deployment (preview or production) built with `public/_headers`.
+- **Preconditions:** A Cloudflare Workers deployment (preview or production) built with `public/_headers`.
 - **Test data:** Any file name from `dist/assets/` of that build.
 - **Steps:**
   1. Run `curl -sI https://<deployment>/assets/<file>`.
@@ -1139,7 +1139,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
   1. Run `npm run lint`.
   2. Run `node --test tests/*.test.js`.
   3. Run `npm run build`.
-- **Expected result:** All three exit with code 0. The unit tests report 23 passed and 0 failed.
+- **Expected result:** All three exit with code 0. The unit tests report 24 passed and 0 failed.
 - **Automation:** The commands themselves
 - **Status:** Passing (2026-10-19)
 
@@ -1187,7 +1187,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Traces:** NFR-008 · US-043 · AC-043.3 · PH-8
 - **Type:** Manual browser
 - **Priority:** P1
-- **Preconditions:** Migration `202610190001` applied; Vault secrets `upstash_redis_rest_url` and `upstash_redis_rest_token` set; `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` set in Cloudflare Pages; a published garment.
+- **Preconditions:** Migration `202610190001` applied; Vault secrets `upstash_redis_rest_url` and `upstash_redis_rest_token` set; `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` set as runtime variables on the Worker; a published garment.
 - **Test data:** A new name for the garment.
 - **Steps:**
   1. Open the garment's product page twice and confirm `/api/piece/<id>` returns `X-Cache: HIT`.
@@ -1221,4 +1221,17 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
   1. Call `handlePublicRead` in each situation.
 - **Expected result:** Both `archive` reads return 200 (no `X-Cache` header when Redis is not configured). Both `store` reads return 502 and Redis stays empty.
 - **Automation:** `tests/public-api.test.js` › "reads Supabase directly when Redis is down or not configured"; "a Supabase failure is a 502 and is not cached"
+- **Status:** Passing (2026-10-19)
+
+### TC-089 — The storefront reads Supabase directly when /api is unavailable
+
+- **Traces:** NFR-008 · US-043 · AC-043.6 · PH-8
+- **Type:** Automated unit
+- **Priority:** P1
+- **Preconditions:** None (fake `/api`, Redis and Supabase).
+- **Test data:** Route `archive`; `/api/archive` answering JSON `[['cached']]`, then an HTML page, HTTP 502 and a rejected request.
+- **Steps:**
+  1. Call `publicRead('archive', env, fetchImpl)` for each `/api` answer.
+- **Expected result:** The JSON answer is returned with no Supabase request. Each of the other three returns the Supabase rows, with one Supabase request each.
+- **Automation:** `tests/public-api.test.js` › "the browser reads Supabase directly when /api is missing or failing"
 - **Status:** Passing (2026-10-19)

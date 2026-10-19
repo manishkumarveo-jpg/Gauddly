@@ -10,7 +10,7 @@ The SPA has one read-only API of its own, `/api/*`, for public catalog reads. It
 
 ## Public read API (`/api/*`)
 
-Served by the Cloudflare Pages Function `functions/api/[[path]].js` (and by Vite middleware in `npm run dev`) through `handlePublicRead` in `src/lib/public-api.js`. Called from the SPA with `publicRead(path)` in `src/lib/supabase.js`. `GET` only.
+Served by the Cloudflare Worker `worker/index.js` (and by Vite middleware in `npm run dev`) through `handlePublicRead` in `src/lib/public-api.js`. Called from the SPA with `publicRead(path)`, which falls back to running the same queries against Supabase from the browser when `/api` is missing, answers with something other than JSON, or fails. `GET` only; other methods get 405 from the Worker.
 
 | Route | Supabase queries (anon key), in response order | Used by |
 | --- | --- | --- |

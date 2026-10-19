@@ -3,7 +3,8 @@ paths:
   - "src/**"
   - "supabase/**"
   - "tests/**/*.sql"
-  - "functions/**"
+  - "worker/**"
+  - "wrangler.jsonc"
   - "public/_headers"
   - ".env.example"
 ---

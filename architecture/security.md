@@ -47,8 +47,8 @@ These checks are the first task of PH-7 ([phase-plan.md](../implementation/phase
 
 - Browser-safe values (`VITE_*`) are public by design.
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and `R2_BUCKET_NAME` belong only in Supabase Edge Function secrets. They must never get a `VITE_` prefix.
-- The Supabase service-role key must never appear in this repository or in Cloudflare Pages environment variables.
-- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are Cloudflare Pages encrypted variables read only by the Pages Function. The same values are stored in Supabase Vault for the cache-clearing trigger. They must never get a `VITE_` prefix.
+- The Supabase service-role key must never appear in this repository or in the Cloudflare Worker's variables.
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are Cloudflare Worker secrets read only by the Worker. The same values are stored in Supabase Vault for the cache-clearing trigger. They must never get a `VITE_` prefix.
 - `.env`, `.env.local` and every `*.local` file are git-ignored.
 
 ## Client-side data

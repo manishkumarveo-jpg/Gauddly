@@ -10,8 +10,8 @@
 | Target users | Customers shopping for premium garments, priced in INR and shipped within India (ASSUMPTION-003, ASSUMPTION-005). Store administrators who manage catalog, content and orders (ASSUMPTION-013). |
 | Features already built | Inferred from code; see [docs/repo-inventory.md](docs/repo-inventory.md#8-implemented-vs-missing) |
 | Planned, not built | Online payment collection (FR-011). Schema and Edge Functions under version control (NFR-005). CI and end-to-end tests (NFR-006). |
-| Constraints | No deadline, budget or hackathon scope was given (ASSUMPTION-012). Hosting is already fixed: Cloudflare Pages, Supabase, Cloudflare R2 and Upstash Redis (ADR-016). |
-| Tech stack | Vite 8, React 19 (JavaScript), React Router 7, Supabase, Cloudflare R2, Cloudflare Pages (with one Pages Function), Upstash Redis. This is the stack the repo already uses, and it is not proposed for replacement. See [ADR-001](architecture/architecture-decisions.md#adr-001--keep-vite--react-spa-instead-of-nextjs-app-router). |
+| Constraints | No deadline, budget or hackathon scope was given (ASSUMPTION-012). Hosting is already fixed: Cloudflare Workers (static assets plus one Worker), Supabase, Cloudflare R2 and Upstash Redis (ADR-016). |
+| Tech stack | Vite 8, React 19 (JavaScript), React Router 7, Supabase, Cloudflare R2, Cloudflare Workers (static assets plus one `/api/*` Worker), Upstash Redis. This is the stack the repo already uses, and it is not proposed for replacement. See [ADR-001](architecture/architecture-decisions.md#adr-001--keep-vite--react-spa-instead-of-nextjs-app-router). |
 
 ## 2. Goals
 
@@ -107,4 +107,5 @@ Every assumption the documentation relies on is listed here. An assumption stays
 | ASSUMPTION-020 | Admins who sign in from a non-admin page (for example `/checkout`) should still land on `/admin`. Only an explicit `/admin…` redirect is preserved. | Behaviour of the working-tree change; owner confirmation is pending | FR-016, TC-028 |
 | ASSUMPTION-021 | Supabase's API gateway puts the real client IP first in `x-forwarded-for`, so the waitlist limit is per visitor. | Not verified; the global 200-per-hour cap is the backstop | NFR-007, TC-078, R-19 |
 | ASSUMPTION-022 | The Supabase Auth rate limits are set in the dashboard to the values in operations/deployment.md. | The settings live outside the repo and cannot be read from it | NFR-007, TC-082 |
-| ASSUMPTION-023 | The frontend is deployed by Cloudflare Pages' Git integration, which builds with `vite build`, serves `dist/` and exposes the project's environment variables to Pages Functions at runtime. | Owner states the frontend is on Cloudflare; no `wrangler` config in the repo | NFR-008, ADR-016 |
+| ASSUMPTION-023 | Retired (2026-10-19, wrong: the frontend deploys through Cloudflare Workers Builds with `npx wrangler deploy`, not Cloudflare Pages). | Deploy log of 2026-10-19 | ADR-016 |
+| ASSUMPTION-024 | The Worker is named `gauddly` in the Cloudflare dashboard, and its runtime Variables and Secrets hold `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and the Upstash pair. Without them `/api/*` answers 502 and the browser reads Supabase directly. | `wrangler.jsonc`; dashboard settings are outside the repo | NFR-008, ADR-016, TC-085 |
