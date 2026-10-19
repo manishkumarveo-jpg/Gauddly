@@ -14,7 +14,7 @@ Status values:
 - **Status:** Accepted (discrepancy)
 - **Context:** The documentation brief defaults to Next.js (App Router) wherever the repo has not decided. This repo has decided: it is a Vite 8 + React 19 SPA with React Router 7 (`package.json`, `src/App.jsx`).
 - **Decision:** Keep Vite + React Router. Do not propose a migration.
-- **Justification:** The whole UI, routing, lazy loading and Vercel config are built around a static SPA. A migration would rewrite every page without any open requirement that needs server rendering.
+- **Justification:** The whole UI, routing, lazy loading and hosting config are built around a static SPA. A migration would rewrite every page without any open requirement that needs server rendering.
 - **Consequences:** No server-side rendering. SEO depends on client-set meta tags (NFR-001), which some crawlers and link-preview bots do not execute (R-09). All server logic must live in Supabase (ADR-003).
 
 ## ADR-002 — JavaScript, not TypeScript
@@ -41,7 +41,7 @@ Status values:
 
 ## ADR-005 — Static hosting on Vercel with SPA rewrites
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-016 (2026-10-19, the frontend is hosted on Cloudflare Pages)
 - **Decision:** `vercel.json` rewrites every path to `/index.html` and marks `/assets/*` immutable for one year.
 - **Consequences:** Unknown paths return HTTP 200 and render `NotFound` client-side. Hashed asset names make the long cache safe.
 
@@ -108,3 +108,11 @@ Status values:
 - **Status:** Accepted
 - **Context:** `/:casteId` matches any single-segment path not claimed by an earlier route, and strips a `the-` prefix to find the caste ID.
 - **Consequences:** A mistyped path such as `/stor` shows "Caste room not found in the Sanctum." instead of the generic 404 page. Because `replace('the-', '')` removes the first occurrence anywhere in the slug, a caste ID containing `the-` would not resolve (R-10).
+
+## ADR-016 — Cloudflare Pages hosting with a Redis-cached read API
+
+- **Status:** Accepted
+- **Context:** The frontend is deployed on Cloudflare Pages, not Vercel as ADR-005 recorded, so `vercel.json` has no effect in production. The owner asked for Redis caching of public reads, with admin edits visible immediately. Redis cannot be reached from the browser without exposing its token, and the repo had no server layer (ADR-001, ADR-003).
+- **Decision:** A single Cloudflare Pages Function, `functions/api/[[path]].js`, serves an allow-list of public catalog reads through `src/lib/public-api.js`. It reads Supabase with the anon key and caches responses in Upstash Redis under `catalog:<version>:<route>` for 10 minutes. Statement triggers on the catalog tables call Upstash through `pg_net` to increment `catalog:version`, using credentials from Supabase Vault. `public/_headers` replaces `vercel.json` for the `/assets/*` cache header, and Cloudflare Pages serves `index.html` for unknown paths.
+- **Justification:** Versioned keys make invalidation a single `INCR` with no race: a response read before an edit is written under the old version and never served again. Only anon-key reads are cached, so the cache cannot hold anything RLS hides from the public. Cloudflare KV was rejected because it propagates in up to about a minute, which fails the immediate-update requirement.
+- **Consequences:** The repo now has a thin, read-only server layer. All writes and authorization still go through Supabase (ADR-003). `vercel.json` is unused but kept until the owner removes it. Cache invalidation depends on `pg_net`, the Vault secrets and Upstash being available; if any fails, entries expire within 10 minutes (R-20). `npm run dev` serves `/api/*` through Vite middleware with the same handler.

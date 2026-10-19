@@ -10,8 +10,8 @@ Features group requirements into the product's real surface areas. Status is der
 | FEAT-04 | Cart, checkout and payments | FR-009, FR-010, FR-011 | PH-4 | Partial (payments planned) |
 | FEAT-05 | Accounts and authentication | FR-012, FR-013, FR-014, FR-015, FR-016 | PH-2 | Built |
 | FEAT-06 | Story and engagement content | FR-017, FR-018, FR-019, FR-020 | PH-5 | Built |
-| FEAT-07 | Admin studio | FR-021 to FR-028 | PH-6 | Built |
-| FEAT-08 | Platform quality | NFR-001 to NFR-006 | PH-1, PH-7, PH-8 | Partial |
+| FEAT-07 | Admin studio | FR-021 to FR-035 | PH-6 | Built |
+| FEAT-08 | Platform quality | NFR-001 to NFR-008 | PH-1, PH-7, PH-8 | Partial |
 
 ## FEAT-01 — Entry sequence
 

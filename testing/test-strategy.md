@@ -10,8 +10,8 @@ Most of the product is already built. Testing therefore has two jobs:
 
 | Level | Tool | Location | Runs where | Current coverage |
 | --- | --- | --- | --- | --- |
-| Unit | Node test runner (`node:test`, `node:assert/strict`) | `tests/*.test.js` | Any machine with Node 20+ (ASSUMPTION-019) | `src/lib/homepage.js`, `src/lib/request-cache.js` |
-| Database | `psql` script in a rolled-back transaction | `tests/*.sql` | Against a Supabase database with at least one admin profile | Homepage RLS and RPC |
+| Unit | Node test runner (`node:test`, `node:assert/strict`) | `tests/*.test.js` | Any machine with Node 20+ (ASSUMPTION-019) | `src/lib/homepage.js`, `src/lib/products.js`, `src/lib/public-api.js`, `src/lib/request-cache.js` |
+| Database | `psql` script in a rolled-back transaction | `tests/*.sql` | Against a Supabase database with at least one admin profile | Homepage RLS and RPC (`homepage-permissions.sql`); waitlist and pending-order rate limits and browser-role grants (`rate-limits-permissions.sql`) |
 | Manual browser | Scripted steps in [test-cases.md](test-cases.md) | — | `npm run dev` or a preview deployment | Every UI requirement |
 | Static | oxlint | `.oxlintrc.json` | Any machine | All `src/` |
 | Build | Vite | — | Any machine | Compile errors, missing imports |

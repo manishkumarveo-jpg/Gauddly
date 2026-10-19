@@ -10,9 +10,11 @@ flowchart LR
     SPA --- LS
   end
 
-  subgraph Vercel
-    Static["Static dist/<br/>rewrite /* → index.html<br/>/assets/* immutable"]
+  subgraph Pages["Cloudflare Pages"]
+    Static["Static dist/<br/>SPA fallback → index.html<br/>/assets/* immutable"]
+    API["/api/* Pages Function<br/>public catalog reads"]
   end
+  Redis[("Upstash Redis<br/>catalog:version + entries")]
 
   subgraph Supabase
     Auth["Auth<br/>email + password"]
@@ -30,8 +32,12 @@ flowchart LR
 
   Static -->|HTML/JS/CSS| SPA
   SPA -->|anon key + session JWT| Auth
-  SPA -->|PostgREST queries| PG
-  SPA -->|rpc| RPC
+  SPA -->|catalog reads| API
+  API -->|GET / SET| Redis
+  API -->|anon PostgREST + rpc on miss| PG
+  PG -. pg_net INCR on catalog writes .-> Redis
+  SPA -->|PostgREST queries: account, admin, waitlist| PG
+  SPA -->|rpc save_homepage| RPC
   SPA -->|functions.invoke| CO
   SPA -->|functions.invoke| UP
   UP -. presigned URL .-> SPA

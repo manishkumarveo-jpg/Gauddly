@@ -10,8 +10,8 @@
 | Target users | Customers shopping for premium garments, priced in INR and shipped within India (ASSUMPTION-003, ASSUMPTION-005). Store administrators who manage catalog, content and orders (ASSUMPTION-013). |
 | Features already built | Inferred from code; see [docs/repo-inventory.md](docs/repo-inventory.md#8-implemented-vs-missing) |
 | Planned, not built | Online payment collection (FR-011). Schema and Edge Functions under version control (NFR-005). CI and end-to-end tests (NFR-006). |
-| Constraints | No deadline, budget or hackathon scope was given (ASSUMPTION-012). Hosting is already fixed: Vercel, Supabase and Cloudflare R2. |
-| Tech stack | Vite 8, React 19 (JavaScript), React Router 7, Supabase, Cloudflare R2, Vercel. This is the stack the repo already uses, and it is not proposed for replacement. See [ADR-001](architecture/architecture-decisions.md#adr-001--keep-vite--react-spa-instead-of-nextjs-app-router). |
+| Constraints | No deadline, budget or hackathon scope was given (ASSUMPTION-012). Hosting is already fixed: Cloudflare Pages, Supabase, Cloudflare R2 and Upstash Redis (ADR-016). |
+| Tech stack | Vite 8, React 19 (JavaScript), React Router 7, Supabase, Cloudflare R2, Cloudflare Pages (with one Pages Function), Upstash Redis. This is the stack the repo already uses, and it is not proposed for replacement. See [ADR-001](architecture/architecture-decisions.md#adr-001--keep-vite--react-spa-instead-of-nextjs-app-router). |
 
 ## 2. Goals
 
@@ -105,3 +105,6 @@ Every assumption the documentation relies on is listed here. An assumption stays
 | ASSUMPTION-018 | The production domain is gauddly.com. | `<title>GAUDDLY.COM</title>`, `contact@gauddly.com` in checkout | Deployment, auth redirects |
 | ASSUMPTION-019 | Node.js 20 or newer is used for local tests. The baseline was recorded on Node 26.5.0. | `node:test`, `structuredClone` | NFR-006, TC-056 |
 | ASSUMPTION-020 | Admins who sign in from a non-admin page (for example `/checkout`) should still land on `/admin`. Only an explicit `/admin…` redirect is preserved. | Behaviour of the working-tree change; owner confirmation is pending | FR-016, TC-028 |
+| ASSUMPTION-021 | Supabase's API gateway puts the real client IP first in `x-forwarded-for`, so the waitlist limit is per visitor. | Not verified; the global 200-per-hour cap is the backstop | NFR-007, TC-078, R-19 |
+| ASSUMPTION-022 | The Supabase Auth rate limits are set in the dashboard to the values in operations/deployment.md. | The settings live outside the repo and cannot be read from it | NFR-007, TC-082 |
+| ASSUMPTION-023 | The frontend is deployed by Cloudflare Pages' Git integration, which builds with `vite build`, serves `dist/` and exposes the project's environment variables to Pages Functions at runtime. | Owner states the frontend is on Cloudflare; no `wrangler` config in the repo | NFR-008, ADR-016 |

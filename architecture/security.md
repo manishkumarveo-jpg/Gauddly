@@ -21,6 +21,12 @@
 | Search input stripped of `,` and `%` before `or()` filter | `AdminOrders.jsx` | TC-043 |
 | No R2 secrets referenced from `src/` | Code search | TC-049 |
 | Auth pages and admin routes are `noindex` | `RouteSeo` | TC-048 |
+| Waitlist signups limited per IP and overall; malformed emails refused | `limit_waitlist_signups()`, `waitlist_signups_email_format` | TC-078, TC-079 |
+| Pending orders limited per customer, including those inserted by `create-order` with the service role | `limit_pending_orders()` | TC-080 |
+| Browser roles cannot read `waitlist_attempts` or truncate `orders` / `waitlist_signups` | Rate-limit migration | TC-081 |
+| The catalog cache holds only anon-visible rows from allow-listed queries; unknown IDs are not cached | `src/lib/public-api.js` | TC-086 |
+| Only admins and server roles can clear the catalog cache, so zero-row updates from other accounts cannot keep it empty | `clear_catalog_cache()` | Review |
+| `anon` holds no write or truncate grant on catalog tables | Rate-limit migration | Review |
 
 ## Controls that cannot be verified from the repository
 
@@ -32,6 +38,8 @@
 | `profiles.is_admin` not updatable by its owner | `Account.jsx` updates `profiles`. A permissive update policy would allow self-promotion to admin. | R-02 |
 | `create-order` recomputes prices server-side | The cart price is client-controlled | R-03 |
 | `admin-upload-url` checks `is_admin` and restricts key prefixes | Otherwise anyone could write to the bucket | R-04 |
+| The first `x-forwarded-for` entry is the real client IP | Otherwise the per-IP waitlist limit can be bypassed (ASSUMPTION-021) | R-19 |
+| Supabase Auth rate limits for sign-in, sign-up and email are set | These endpoints are called straight from the browser (ASSUMPTION-022) | TC-082 |
 
 These checks are the first task of PH-7 ([phase-plan.md](../implementation/phase-plan.md#ph-7--data-layer-reproducibility-and-security-hardening)).
 
@@ -39,7 +47,8 @@ These checks are the first task of PH-7 ([phase-plan.md](../implementation/phase
 
 - Browser-safe values (`VITE_*`) are public by design.
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` and `R2_BUCKET_NAME` belong only in Supabase Edge Function secrets. They must never get a `VITE_` prefix.
-- The Supabase service-role key must never appear in this repository or in Vercel client environment variables.
+- The Supabase service-role key must never appear in this repository or in Cloudflare Pages environment variables.
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are Cloudflare Pages encrypted variables read only by the Pages Function. The same values are stored in Supabase Vault for the cache-clearing trigger. They must never get a `VITE_` prefix.
 - `.env`, `.env.local` and every `*.local` file are git-ignored.
 
 ## Client-side data

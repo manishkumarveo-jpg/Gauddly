@@ -11,10 +11,10 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | PH-3 | Complete | Code present | 7 | 0 | 7 | 0 |
 | PH-4 | Partial | Cart and checkout present; payment absent | 5 | 0 | 4 | 1 |
 | PH-5 | Complete | Code present; TC-004 to TC-008 automated | 10 | 5 | 5 | 0 |
-| PH-6 | Complete | Code present | 13 | 0 | 13 | 0 |
-| PH-7 | Partial | Homepage migration only | 3 | 0 | 2 | 1 |
-| PH-8 | Partial | Lint, unit tests and build pass; no CI | 2 | 1 | 0 | 1 |
-| **Total** | | | **57** | **8** | **46** | **3** |
+| PH-6 | Complete | Code present; homepage editor (FR-029 to FR-031) and products redesign (FR-032 to FR-035) in the working tree | 34 | 17 | 17 | 0 |
+| PH-7 | Partial | Homepage migration; rate-limit migration in the working tree, not applied | 8 | 0 | 7 | 1 |
+| PH-8 | Partial | Lint, unit tests and build pass; Redis catalog cache in the working tree; no CI | 7 | 5 | 1 | 1 |
+| **Total** | | | **88** | **29** | **56** | **3** |
 
 "Complete" means every requirement in the phase is implemented in code. The manual verification cases still need to be run and signed off, as defined in [test-strategy.md §6](../testing/test-strategy.md#6-entry-and-exit-criteria-per-phase).
 
@@ -74,8 +74,39 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | TC-045 | PH-6 | FR-027 | Automated SQL | P1 | Not run |
 | TC-046 | PH-6 | FR-027 | Manual browser | P2 | Not run |
 | TC-047 | PH-6 | FR-028 | Manual browser | P1 | Not run |
+| TC-058 | PH-6 | FR-029 | Manual browser | P1 | Passing |
+| TC-059 | PH-6 | FR-029 | Manual browser | P2 | Passing |
+| TC-060 | PH-6 | FR-029 | Manual browser | P2 | Passing |
+| TC-061 | PH-6 | FR-030 | Automated unit | P1 | Passing |
+| TC-062 | PH-6 | FR-030 | Automated unit | P1 | Passing |
+| TC-063 | PH-6 | FR-030 | Manual browser | P1 | Not run |
+| TC-064 | PH-6 | FR-031 | Automated unit | P2 | Passing |
+| TC-065 | PH-6 | FR-031 | Manual browser | P2 | Passing |
+| TC-066 | PH-6 | FR-031 | Automated unit | P3 | Passing |
+| TC-067 | PH-6 | FR-032 | Manual browser | P1 | Passing |
+| TC-068 | PH-6 | FR-032 | Manual browser | P2 | Not run |
+| TC-069 | PH-6 | FR-033 | Manual browser | P1 | Passing |
+| TC-070 | PH-6 | FR-033 | Manual browser | P1 | Passing |
+| TC-071 | PH-6 | FR-023 | Automated unit | P2 | Passing |
+| TC-072 | PH-6 | FR-034 | Automated unit | P1 | Passing |
+| TC-073 | PH-6 | FR-034 | Manual browser | P1 | Passing |
+| TC-074 | PH-6 | FR-035 | Manual browser | P1 | Not run |
+| TC-075 | PH-6 | FR-032 | Automated unit | P2 | Passing |
+| TC-076 | PH-6 | FR-033 | Automated unit | P2 | Passing |
+| TC-077 | PH-6 | FR-033 | Automated unit | P3 | Passing |
+| TC-088 | PH-6 | FR-033 | Manual browser | P2 | Not run |
 | TC-049 | PH-7 | NFR-002 | Manual inspection | P1 | Not run |
 | TC-050 | PH-7 | NFR-002 | Manual browser | P1 | Not run |
 | TC-055 | PH-7 | NFR-005 | Manual inspection | P1 | Not implemented |
+| TC-078 | PH-7 | NFR-007 | Automated SQL | P1 | Not run |
+| TC-079 | PH-7 | NFR-007 | Automated SQL | P3 | Not run |
+| TC-080 | PH-7 | NFR-007 | Automated SQL | P2 | Not run |
+| TC-081 | PH-7 | NFR-007 | Automated SQL | P1 | Not run |
+| TC-082 | PH-7 | NFR-007 | Manual inspection | P2 | Not run |
 | TC-056 | PH-8 | NFR-006 | Automated unit | P1 | Passing |
 | TC-057 | PH-8 | NFR-006 | Manual inspection | P2 | Not implemented |
+| TC-083 | PH-8 | NFR-008 | Automated unit | P2 | Passing |
+| TC-084 | PH-8 | NFR-008 | Automated unit | P1 | Passing |
+| TC-085 | PH-8 | NFR-008 | Manual browser | P1 | Not run |
+| TC-086 | PH-8 | NFR-008 | Automated unit | P1 | Passing |
+| TC-087 | PH-8 | NFR-008 | Automated unit | P2 | Passing |

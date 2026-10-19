@@ -3,7 +3,8 @@ paths:
   - "src/**"
   - "supabase/**"
   - "tests/**/*.sql"
-  - "vercel.json"
+  - "functions/**"
+  - "public/_headers"
   - ".env.example"
 ---
 

@@ -4,7 +4,7 @@ All diagrams are Mermaid and render on GitHub and in most Markdown previews. Eac
 
 | Diagram | Shows |
 | --- | --- |
-| [system-context.md](system-context.md) | Browser, Vercel, Supabase, R2 and the trust boundaries |
+| [system-context.md](system-context.md) | Browser, Cloudflare Pages, Upstash Redis, Supabase, R2 and the trust boundaries |
 | [data-model.md](data-model.md) | Entity relationships, versioned vs inferred |
 | [auth-flow.md](auth-flow.md) | Sign-in, admin redirect and admin guard |
 | [checkout-sequence.md](checkout-sequence.md) | Cart to order, plus the planned payment step |

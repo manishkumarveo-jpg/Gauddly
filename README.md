@@ -4,7 +4,7 @@ A storefront and story world for a house of hand-dyed, made-to-order garments fr
 
 ## Stack
 
-Vite 8 · React 19 (JavaScript) · React Router 7 · Supabase (Auth, Postgres, RLS, Edge Functions) · Cloudflare R2 (media) · Vercel (hosting).
+Vite 8 · React 19 (JavaScript) · React Router 7 · Supabase (Auth, Postgres, RLS, Edge Functions) · Cloudflare R2 (media) · Cloudflare Pages (hosting, one `/api/*` function) · Upstash Redis (catalog cache).
 
 ## Quick start
 

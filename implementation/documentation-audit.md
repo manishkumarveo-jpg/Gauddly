@@ -2,6 +2,8 @@
 
 Run on 2026-10-19 against branch `dev-satyam` at commit `e8f740c`, plus the documentation commits and the uncommitted admin-redirect change in `src/` (see [repo-inventory](../docs/repo-inventory.md#working-tree-note)).
 
+Checks 2 to 8 and 10 were re-run on 2026-10-19 on branch `feat/homepage-studio`, after the homepage studio, products redesign, rate limits and catalog cache were added to the working tree. The counts below are from that re-run.
+
 The master spec `prompts/project-generator.md` does not exist in the repository (ASSUMPTION-014). The file tree, phase model, test case format and these audit checks were therefore inferred from the documentation brief. Each check below says how it was run, so it can be repeated.
 
 ## Summary
@@ -10,14 +12,14 @@ The master spec `prompts/project-generator.md` does not exist in the repository 
 | --- | --- | --- |
 | 1 | Every path in the documentation tree exists or is marked Not Applicable | Pass |
 | 2 | Every internal markdown link and anchor resolves | Pass (0 broken across 45 files) |
-| 3 | No placeholder text | Pass (4 hits, all justified) |
+| 3 | No placeholder text | Pass (5 hits, all justified) |
 | 4 | IDs are unique and each is referenced at least once outside its definition | Pass |
 | 5 | Traceability chain complete: requirement → feature → story → AC → test → phase | Pass |
-| 6 | Every test case uses the required format | Pass (57 of 57) |
-| 7 | Docs match the code; discrepancies recorded as ADRs | Pass (9 discrepancies recorded) |
-| 8 | Unverifiable facts labelled as assumptions | Pass (20 assumptions) |
+| 6 | Every test case uses the required format | Pass (88 of 88) |
+| 7 | Docs match the code; discrepancies recorded as ADRs | Pass (12 discrepancies recorded) |
+| 8 | Unverifiable facts labelled as assumptions | Pass (23 assumptions) |
 | 9 | No invented metrics | Pass |
-| 10 | No application code changed; lint, tests and build unchanged | Pass |
+| 10 | Lint, unit tests and build pass | Pass (the original documentation pass changed no application code; later feature work did, see §10) |
 | 11 | No secret files read | Pass |
 
 ## 1. Documentation tree
@@ -60,6 +62,7 @@ Searched for `TBD|TODO|lorem|\[insert|\.\.\.` in every markdown file outside `do
 | `.claude/commands/update-docs.md:17` | The same instruction |
 | `.claude/rules/documentation.md:13` | The rule forbidding them |
 | `diagrams/auth-flow.md` `open /admin/...` | **Fixed**: reworded to "open any /admin route" |
+| `implementation/documentation-audit.md`, two lines | This file quoting the search pattern and the fixed hit above |
 
 No placeholder sections and no "to be added" content remain.
 
@@ -67,16 +70,16 @@ No placeholder sections and no "to be added" content remain.
 
 | Prefix | Defined | Duplicates | Referenced outside definition |
 | --- | --- | --- | --- |
-| FR | 28 | 0 | All |
-| NFR | 6 | 0 | All |
+| FR | 35 | 0 | All |
+| NFR | 8 | 0 | All |
 | FEAT | 8 | 0 | All |
-| US | 34 | 0 | All |
-| AC | 57 | 0 | All |
-| TC | 57 | 0 | All |
+| US | 43 | 0 | All |
+| AC | 88 | 0 | All |
+| TC | 88 | 0 | All |
 | PH | 8 | 0 | All |
-| ADR | 15 | 0 | All |
-| R | 18 | 0 | All |
-| ASSUMPTION | 20 | 0 | All |
+| ADR | 16 | 0 | All |
+| R | 21 | 0 | All |
+| ASSUMPTION | 23 | 0 | All |
 
 The first run found ADR-004, ADR-005, ADR-006, ADR-007, R-05, R-06, R-15, R-17, R-18 and ASSUMPTION-017 referenced only at their definitions. It also found a stray `PH-9` mention. Each one got a reference in the document it governs, and the `PH-9` wording was removed.
 
@@ -85,11 +88,11 @@ The first run found ADR-004, ADR-005, ADR-006, ADR-007, R-05, R-06, R-15, R-17, 
 - Every FR and NFR appears in exactly one story heading (`**US-###** (FR-###)`).
 - Every `AC-###.#` line ends with a `[TC-###]` reference. The command `grep -E '^- AC-' product/user-stories.md | grep -v '\[TC-'` prints nothing.
 - Each test case's `Traces` line was compared programmatically with its row in [traceability-matrix.md](../product/traceability-matrix.md) and [phase-test-matrix.md](phase-test-matrix.md). There were 0 mismatches.
-- The phase counts in the matrix (57 total, 8 passing, 46 not run, 3 not implemented) match the test case statuses.
+- The phase counts in the matrix (88 total, 29 passing, 56 not run, 3 not implemented) match the test case statuses.
 
 ## 6. Test case format
 
-A script checked that each of the 57 `### TC-` blocks has exactly these fields in order: Traces, Type, Priority, Preconditions, Test data, Steps, Expected result, Automation, Status. It also checked that Traces has the form `<req> · US · AC · PH`. Result: 0 failures. Quoted UI strings were spot-checked against the source (Codex, Episodes, InfoPage, Checkout, ResetPassword, AdminOrders, AdminEpisodes, AdminHomepage, Home).
+A script checked that each of the 88 `### TC-` blocks has exactly these fields in order: Traces, Type, Priority, Preconditions, Test data, Steps, Expected result, Automation, Status. It also checked that Traces has the form `<req> · US · AC · PH`. Result: 0 failures. Quoted UI strings were spot-checked against the source (Codex, Episodes, InfoPage, Checkout, ResetPassword, AdminOrders, AdminEpisodes, AdminHomepage, Home).
 
 ## 7. Discrepancies between the code and the docs or assumptions
 
@@ -105,6 +108,9 @@ These are recorded, not fixed.
 | `.env.example` lists server-only R2 variables and omits the required `VITE_*` variables | ADR-013, R-06 |
 | The catch-all `/:casteId` route hides 404s; `replace('the-', '')` is not anchored | ADR-015, R-10 |
 | `README.md` was Vite template boilerplate | Rewritten; tooling notes kept |
+| The frontend is hosted on Cloudflare Pages, not Vercel; `vercel.json` has no effect | ADR-016 |
+| `orders` has Razorpay payment columns although no payment integration is documented | R-21 |
+| FR-035 said orders referring to a garment block its deletion; the live schema sets `order_items.product_id` to null, so the garment is deleted and order lines keep their own name and price | FR-035, AC-041.1 and TC-074 corrected |
 | [docs/authentication.md](../docs/authentication.md) says direct admin sign-ins open `/admin`. With the working-tree change, admins also go to `/admin` when the redirect is a non-admin page. | FR-016, ASSUMPTION-020. The guide is still accurate for direct sign-ins. Update it when the change is committed. |
 
 ### Bugs and inconsistencies found in code (logged, not fixed)
@@ -121,7 +127,7 @@ These are recorded, not fixed.
 
 ## 8. Assumptions
 
-All 20 assumptions are in the table at the end of [PROJECT_BRIEF.md](../PROJECT_BRIEF.md#7-assumptions). Every statement about an object not visible in the repo cites an assumption, an ADR or a risk. Examples: Edge Function behaviour cites ASSUMPTION-007, RLS cites ASSUMPTION-008, and `top_products` cites ASSUMPTION-009.
+All 23 assumptions are in the table at the end of [PROJECT_BRIEF.md](../PROJECT_BRIEF.md#7-assumptions). Every statement about an object not visible in the repo cites an assumption, an ADR or a risk. Examples: Edge Function behaviour cites ASSUMPTION-007, RLS cites ASSUMPTION-008, and `top_products` cites ASSUMPTION-009.
 
 ## 9. Metrics
 
@@ -129,16 +135,16 @@ No performance, traffic or capacity numbers were invented. Every number in the d
 
 ## 10. Code and quality gates
 
-- Only documentation and `.claude/` files were created or edited. The five modified `src/` files predate this work: they are the admin-redirect change, left uncommitted at the owner's request. They were never staged in a docs commit.
-- Baseline and final results are identical:
+- The original documentation pass created or edited only documentation and `.claude/` files. The five modified `src/` files predate it: they are the admin-redirect change, left uncommitted at the owner's request. They were never staged in a docs commit.
+- Later feature work in the working tree did change application code: the homepage studio, the products redesign (FR-029 to FR-035), rate limits (NFR-007) and the catalog cache (NFR-008).
 
-| Command | Before | After |
+| Command | Original pass | Re-run (2026-10-19) |
 | --- | --- | --- |
 | `npm run lint` | Pass, no findings | Pass, no findings |
-| `node --test tests/*.test.js` | 7 pass, 0 fail | 7 pass, 0 fail |
+| `node --test tests/*.test.js` | 7 pass, 0 fail | 23 pass, 0 fail |
 | `npm run build` | Pass | Pass |
 
-- `tests/homepage-permissions.sql` was not run, because there was no database URL. TC-045 is "Not run".
+- `tests/homepage-permissions.sql` and `tests/rate-limits-permissions.sql` were not run, because there was no database URL. TC-045 and TC-078 to TC-081 are "Not run".
 
 ## 11. Secrets
 

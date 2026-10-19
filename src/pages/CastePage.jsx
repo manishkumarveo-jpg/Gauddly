@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase, mediaUrl } from '../lib/supabase';
+import { publicRead, mediaUrl } from '../lib/supabase';
 import Seo from '../components/Seo';
 
 export default function CastePage() {
@@ -15,21 +15,13 @@ export default function CastePage() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      supabase.from('castes').select('id, name, hero_r2_key, passage').eq('id', key).single(),
-      supabase
-        .from('products')
-        .select('id, num, name, price, passage, product_images(r2_key, sort_order)')
-        .eq('caste_id', key)
-        .eq('is_published', true)
-        .order('sort_order'),
-    ]).then(([casteRes, productsRes]) => {
-      if (casteRes.data) {
+    publicRead(`caste/${encodeURIComponent(key)}`).catch(() => [[], []]).then(([[caste], productRows]) => {
+      if (caste) {
         setData({
-          title: casteRes.data.name.toUpperCase(),
-          image: mediaUrl(casteRes.data.hero_r2_key),
-          passage: casteRes.data.passage,
-          pieces: (productsRes.data || []).map((p) => ({
+          title: caste.name.toUpperCase(),
+          image: mediaUrl(caste.hero_r2_key),
+          passage: caste.passage,
+          pieces: productRows.map((p) => ({
             id: p.id,
             num: p.num,
             name: p.name,

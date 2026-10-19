@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '../context/app-context';
 
 export default function Navigation() {
-  const { cart, setIsCartOpen, user } = useContext(AppContext);
+  const { cart, setIsCartOpen, user, isAdmin } = useContext(AppContext);
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef(null);
@@ -35,7 +35,7 @@ export default function Navigation() {
     };
   }, [menuOpen]);
 
-  const isHome = location.pathname === '/home' || location.pathname === '/';
+  const isHome = ['/home', '/', '/admin/homepage/preview'].includes(location.pathname);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +54,9 @@ export default function Navigation() {
     ['/episodes', 'Episodes'],
     ['/old-world', 'Archive'],
   ];
-  const accountLink = user ? ['/account', 'Account'] : ['/login', 'Sign In'];
+  const accountLinks = !user ? [['/login', 'Sign In']]
+    : isAdmin ? [['/admin', 'Admin'], ['/account', 'Account']]
+    : [['/account', 'Account']];
 
   const navStyle = {
     position: 'fixed',
@@ -113,13 +115,16 @@ export default function Navigation() {
 
       {/* Right Column: Account + Cart */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-        <Link
-          to={accountLink[0]}
-          className="ui-text nav-link nav-desktop"
-          style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}
-        >
-          {accountLink[1]}
-        </Link>
+        {accountLinks.map(([to, label]) => (
+          <Link
+            key={to}
+            to={to}
+            className="ui-text nav-link nav-desktop"
+            style={{ textDecoration: 'none', color: 'var(--ash-grey)' }}
+          >
+            {label}
+          </Link>
+        ))}
         <button
           onClick={() => setIsCartOpen(true)}
           aria-label={`Cart, ${totalItems} ${totalItems === 1 ? 'item' : 'items'}`}
@@ -173,7 +178,7 @@ export default function Navigation() {
             animation: 'fadeInEffect 0.3s ease forwards',
           }}
         >
-          {[...links, accountLink].map(([to, label], index) => (
+          {[...links, ...accountLinks].map(([to, label], index) => (
             <Link ref={index === 0 ? firstMenuLinkRef : undefined} key={to} to={to} style={{ fontFamily: 'var(--font-display)', fontSize: '32px', color: 'var(--bone-white)', textDecoration: 'none' }}>
               {label}
             </Link>

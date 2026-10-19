@@ -1,6 +1,6 @@
 # System overview
 
-Gauddly is a client-rendered single-page application. Vercel serves it as static files. All data and authorization live in Supabase, and media is stored in Cloudflare R2. There is no application server in this repository. Server-side logic runs as Postgres functions and Supabase Edge Functions.
+Gauddly is a client-rendered single-page application. Cloudflare Pages serves it as static files, plus one read-only Pages Function that serves public catalog reads from an Upstash Redis cache (ADR-016). All writes, data and authorization live in Supabase, and media is stored in Cloudflare R2. Other server-side logic runs as Postgres functions and Supabase Edge Functions.
 
 Diagram: [diagrams/system-context.md](../diagrams/system-context.md).
 
@@ -9,9 +9,11 @@ Diagram: [diagrams/system-context.md](../diagrams/system-context.md).
 | Component | Responsibility | Where it runs | In this repo? |
 | --- | --- | --- | --- |
 | SPA (`src/`) | All UI, routing, client state (cart, session, preferences), calls to Supabase | Visitor's browser | Yes |
-| Vercel | Serves `dist/`, rewrites every path to `index.html`, long-cache headers for `/assets/*` | Vercel edge | Config only (`vercel.json`) |
+| Cloudflare Pages | Serves `dist/`, falls back to `index.html` for unknown paths, long-cache headers for `/assets/*` | Cloudflare edge | Config only (`public/_headers`) |
+| `/api/*` Pages Function | Allow-listed public catalog reads with the anon key, cached in Redis for 10 minutes | Cloudflare edge (Workers runtime) | Yes (`functions/api/[[path]].js`, `src/lib/public-api.js`) |
+| Upstash Redis | Cached `/api/*` responses under `catalog:<version>:<route>` | Upstash | No (managed service) |
 | Supabase Auth | Email/password accounts, sessions, recovery email | Supabase | No (managed service) |
-| Supabase Postgres | Catalog, orders, profiles, waitlist and homepage tables, with RLS | Supabase | Homepage migration only |
+| Supabase Postgres | Catalog, orders, profiles, waitlist and homepage tables, with RLS; rate-limit and cache-clearing triggers | Supabase | Homepage and rate-limit migrations only |
 | `get_homepage`, `save_homepage` | Published-homepage read, and admin save/publish with revision check | Postgres (security definer) | Yes |
 | `create-order` Edge Function | Validates the cart and creates `orders` / `order_items` | Supabase Edge (Deno) | No |
 | `admin-upload-url` Edge Function | Checks `is_admin`, signs R2 PUT/DELETE URLs | Supabase Edge (Deno) | No |
@@ -20,8 +22,8 @@ Diagram: [diagrams/system-context.md](../diagrams/system-context.md).
 
 ## Request flows
 
-1. **Public browsing.** The browser loads the SPA from Vercel. Pages query Supabase directly with the anon key, and RLS limits results to public rows (ASSUMPTION-008). Media URLs are built by `mediaUrl()` from R2 keys.
-2. **Homepage.** `Home.jsx` loads `get_homepage()` and three catalog queries in parallel through `cachedRequest` (30 s in-memory cache). It renders `HomeExperience` once the content request settles. The single-document design is ADR-006. See [diagrams/homepage-publish-sequence.md](../diagrams/homepage-publish-sequence.md).
+1. **Public browsing.** The browser loads the SPA from Cloudflare Pages. Catalog pages call `publicRead()`, which fetches `/api/<route>`. The Pages Function returns the Redis entry for the current `catalog:version`, or reads Supabase with the anon key (so RLS limits results to public rows, ASSUMPTION-008) and stores the result. Any write to a catalog table bumps `catalog:version` through `pg_net`, so the next read is fresh (NFR-008). Media URLs are built by `mediaUrl()` from R2 keys.
+2. **Homepage.** `Home.jsx` loads `/api/home` (`get_homepage()`) and `/api/home-catalog` (three catalog queries) in parallel through `cachedRequest` (30 s in-memory cache). It renders `HomeExperience` once the content request settles. The single-document design is ADR-006. See [diagrams/homepage-publish-sequence.md](../diagrams/homepage-publish-sequence.md).
 3. **Checkout.** The cart sits in `localStorage`. `Checkout.jsx` invokes `create-order` with item IDs, sizes, quantities and shipping details (ADR-007). See [diagrams/checkout-sequence.md](../diagrams/checkout-sequence.md).
 4. **Authentication.** Supabase Auth issues the session. `AppContext` subscribes to auth changes and loads `profiles.is_admin` once per user. See [diagrams/auth-flow.md](../diagrams/auth-flow.md).
 5. **Admin media.** The studio asks `admin-upload-url` for a presigned URL, then uploads or deletes directly against R2, so files never pass through Supabase (ADR-004).

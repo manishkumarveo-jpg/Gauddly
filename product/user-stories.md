@@ -100,7 +100,8 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 
 **US-023** (FR-023): As an administrator, I want to manage the catalog without a developer.
 - AC-023.1: Creating a product creates sizes S, M, L and XL, all in stock. The product appears on `/store` only while "Published" is checked. [TC-039]
-- AC-023.2: Toggling a size changes its stock state on the storefront. Uploading an image adds it to the product, and removing an image deletes both the row and the R2 object. [TC-040]
+- AC-023.2: After Save, a size switched to sold out is disabled on the product page, an uploaded photo appears, and a removed photo is gone from the page and from storage. [TC-040]
+- AC-023.3: Craft notes are edited as headed lines and saved as the text the product page already splits, so existing garments display unchanged. [TC-071]
 
 **US-024** (FR-024): As an administrator, I want caste deletion to protect existing products.
 - AC-024.1: Deleting a caste that has products is refused with "This caste has N product(s). Reassign or delete them first." An empty caste is deleted after confirmation. [TC-041]
@@ -114,10 +115,44 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 
 **US-027** (FR-027): As an administrator, I want to stage homepage changes safely.
 - AC-027.1: Only administrators can save. A draft save does not change public content, publishing does, and a save with a stale revision is rejected. [TC-045]
-- AC-027.2: Preview renders the draft with navigation and the email signup disabled. [TC-046]
+- AC-027.2: The preview shows the draft with links paused and the email sign-up disabled, while `/home` keeps the published version. [TC-046]
 
 **US-028** (FR-028): As an administrator, I want uploads that don't fail on awkward filenames and can't be abused by others.
 - AC-028.1: Uploading `My Photo (1).jpg` stores a key ending in `My-Photo-1-.jpg`. A non-admin call to `admin-upload-url` is rejected. [TC-047]
+
+**US-035** (FR-029): As an administrator, I want to see exactly how my edits will look on the real homepage while I make them.
+- AC-035.1: Typing in a field updates the preview, and the edited element is outlined with an "Editing: <field>" tag. [TC-058]
+- AC-035.2: Clicking an element in the preview opens its tab and focuses its field, and does not follow the link. [TC-059]
+- AC-035.3: The Phone switch shows the homepage in a 390 px window with the site's phone layout. [TC-060]
+
+**US-036** (FR-030): As an administrator, I want to know what I am about to publish and what might be wrong with it.
+- AC-036.1: The review lists hidden sections, text changes, media changes and order changes since the last publication. [TC-061]
+- AC-036.2: An unsafe button link or media address blocks saving and points to the field. Other problems are listed as worth checking without blocking. [TC-062]
+- AC-036.3: "Publish now" makes the draft live and shows "Published. The homepage is now live." If another admin saved first, a banner offers "Load their version" or "Replace theirs with mine". [TC-063]
+
+**US-037** (FR-031): As an administrator, I want arranging and fixing the page to be quick and reversible.
+- AC-037.1: Dragging a section, or pressing Alt + ↑/↓ on it, moves it, without changing the other sections. [TC-064]
+- AC-037.2: Undo steps back through edits; a run of typing in one field undoes in one step. [TC-065]
+- AC-037.3: Moving the focus point changes which part of the image a phone shows, and the outline marks that area. [TC-066]
+
+**US-038** (FR-032): As an administrator, I want to find garments and see at a glance which ones have problems.
+- AC-038.1: Search and the filters narrow the list, and "Needs attention" counts and lists every garment with a missing photo, no price or nothing in stock. [TC-067]
+- AC-038.2: Bulk publish publishes only garments that meet the requirements and says how many were skipped. [TC-068]
+- AC-038.3: The list reports "No photo", "Photo missing", "No price" and "Nothing in stock" correctly. [TC-075]
+
+**US-039** (FR-033): As an administrator, I want to see the real product page while I edit, and never lose or half-save work by accident.
+- AC-039.1: Unsaved edits appear in the preview, and its links and Claim do nothing. [TC-069]
+- AC-039.2: An untouched garment reads "All changes saved"; edits read "Unsaved changes"; Discard restores the saved version and removes unsaved uploads. [TC-070]
+- AC-039.3: The preview and the store draw the same data the same way. [TC-076]
+- AC-039.4: A new garment's page address is generated from its name. [TC-077]
+- AC-039.5: When a later write fails while creating a garment, the garment stays a draft and the editor reopens it at its own address. [TC-088]
+
+**US-040** (FR-034): As the business, I want no garment published without a photo, a price or a size.
+- AC-040.1: The requirements block publishing; stock and description only warn. [TC-072]
+- AC-040.2: Turning on Published is refused with a list of what is missing. [TC-073]
+
+**US-041** (FR-035): As an administrator, I want deleting to be deliberate and complete.
+- AC-041.1: Deleting needs the exact name and removes the garment, its rows and its files; past orders still show the item's name and price. [TC-074]
 
 ## FEAT-08 — Platform quality
 
@@ -142,3 +177,17 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 **US-034** (NFR-006): As a developer, I want automated gates that stop broken changes.
 - AC-034.1: `npm run lint`, `node --test tests/*.test.js` and `npm run build` all pass on the current tree. [TC-056]
 - AC-034.2: A CI workflow runs those three commands on every push and pull request and blocks merging on failure. [TC-057]
+
+**US-042** (NFR-007): As the business, I want public sign-up and order endpoints protected from scripted abuse.
+- AC-042.1: A sixth waitlist signup from the same IP within an hour is refused with "Too many sign-ups. Please try again later.", while a signup from another IP still succeeds. [TC-078]
+- AC-042.2: A waitlist email that is not of the form `name@domain.tld`, or is longer than 254 characters, is refused. [TC-079]
+- AC-042.3: A sixth `pending` order for the same customer within 10 minutes is refused with "Too many orders in a short time. Please wait a few minutes and try again." [TC-080]
+- AC-042.4: The `anon` role cannot read `waitlist_attempts` and cannot truncate `waitlist_signups`. [TC-081]
+- AC-042.5: The Supabase Auth rate limits for the production project match the values in [operations/deployment.md](../operations/deployment.md#supabase-auth-configuration). [TC-082]
+
+**US-043** (NFR-008): As a visitor, I want the storefront to load from a shared cache yet always show the current catalog.
+- AC-043.1: A second request for the same `/api/*` route is served from Redis (`X-Cache: HIT`) without querying Supabase. [TC-083]
+- AC-043.2: After `catalog:version` is incremented, the next request for a cached route is a miss and reads Supabase again. [TC-084]
+- AC-043.3: After an administrator saves a garment, the change is visible on its public product page on the next load. [TC-085]
+- AC-043.4: Routes outside the allow-list, malformed IDs and IDs over 100 characters return 404 without querying Supabase, and IDs with no matching row are not cached. [TC-086]
+- AC-043.5: When Redis is unreachable or not configured, `/api/*` still returns the Supabase result; a Supabase failure returns 502 and is not cached. [TC-087]

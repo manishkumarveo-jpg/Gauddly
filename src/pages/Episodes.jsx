@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { supabase, mediaUrl } from '../lib/supabase';
+import { publicRead, mediaUrl } from '../lib/supabase';
 
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -12,13 +12,11 @@ export default function Episodes() {
   const [episodes, setEpisodes] = useState([]);
 
   useEffect(() => {
-    supabase
-      .from('episodes')
-      .select('id, num, title, status, still_r2_key, video_r2_key, description, director_note')
-      .order('sort_order')
-      .then(({ data }) => {
+    publicRead('episodes')
+      .catch(() => [[]])
+      .then(([data]) => {
         setEpisodes(
-          (data || []).map((ep) => ({
+          data.map((ep) => ({
             id: ep.id,
             num: ep.num,
             title: ep.title,

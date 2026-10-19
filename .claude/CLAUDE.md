@@ -2,7 +2,7 @@
 
 ## What this project is
 
-Gauddly is a storefront and story world for made-to-order garments. It is a Vite 8 + React 19 **JavaScript** SPA with React Router 7. The backend is Supabase (Auth, Postgres with RLS, RPC, Edge Functions), media is on Cloudflare R2, and hosting is on Vercel. There is no application server in this repo, and no AI features.
+Gauddly is a storefront and story world for made-to-order garments. It is a Vite 8 + React 19 **JavaScript** SPA with React Router 7. The backend is Supabase (Auth, Postgres with RLS, RPC, Edge Functions), media is on Cloudflare R2, and hosting is on Cloudflare Pages, with one read-only Pages Function (`/api/*`) that caches public catalog reads in Upstash Redis (ADR-016). Apart from that function, there is no application server in this repo, and no AI features.
 
 Do not propose replacing the stack (Next.js, TypeScript, Tailwind and so on) unless the user asks. See ADR-001, ADR-002 and ADR-014 in [architecture/architecture-decisions.md](../architecture/architecture-decisions.md). The root `.txt` file describes a different stack and is not a spec (R-18).
 

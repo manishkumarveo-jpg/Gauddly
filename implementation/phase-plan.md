@@ -11,9 +11,9 @@ The phase model is inferred from the code's layers (ASSUMPTION-015). The greenfi
 | PH-3 | Catalog and storefront | FR-005, FR-006, FR-007, FR-008 | Complete |
 | PH-4 | Cart, checkout and payments | FR-009, FR-010, FR-011 | Partial |
 | PH-5 | Story and engagement content | FR-003, FR-004, FR-017, FR-018, FR-019, FR-020 | Complete |
-| PH-6 | Admin studio | FR-021 to FR-028 | Complete |
-| PH-7 | Data layer reproducibility and security hardening | NFR-002, NFR-005 | Partial |
-| PH-8 | Quality gates, CI and launch readiness | NFR-006 | Partial |
+| PH-6 | Admin studio | FR-021 to FR-035 | Complete |
+| PH-7 | Data layer reproducibility and security hardening | NFR-002, NFR-005, NFR-007 | Partial |
+| PH-8 | Quality gates, CI and launch readiness | NFR-006, NFR-008 | Partial |
 
 Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. Payments must not go live before order and status RLS has been verified (R-01, R-02).
 
@@ -62,11 +62,11 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 **Status: Complete.** Built: the admin guard, dashboard, products, castes, episodes, orders, homepage editor and R2 uploads.
 
-**Verification work:** run TC-035 to TC-047. TC-045 needs a database URL.
+**Verification work:** run TC-035 to TC-047 and TC-058 to TC-077. TC-045 needs a database URL.
 
 ## PH-7 — Data layer reproducibility and security hardening
 
-**Status: Partial.** Built: the homepage migration and its SQL permissions test.
+**Status: Partial.** Built: the homepage migration and its SQL permissions test. In the working tree: the rate-limit migration (NFR-007) and `tests/rate-limits-permissions.sql`, not yet applied.
 
 **Remaining work:**
 1. Run `supabase db pull` against the live project. Commit the resulting migrations for every table, view, policy and trigger in [data-model.md](../architecture/data-model.md).
@@ -75,12 +75,14 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 4. Extend `tests/` with SQL permission scripts for those policies, following the `homepage-permissions.sql` pattern.
 5. Complete `.env.example` with the `VITE_*` variables (ADR-013).
 6. Confirm or correct ASSUMPTION-007, ASSUMPTION-008 and ASSUMPTION-009.
+7. Apply migration `202610190001_rate_limits_and_catalog_cache.sql`, run `tests/rate-limits-permissions.sql`, and set the Supabase Auth rate limits (TC-078 to TC-082).
+8. Confirm which request header carries the real client IP on Supabase's gateway (ASSUMPTION-021, R-19).
 
-**Exit criteria:** TC-049, TC-050 and TC-055 pass.
+**Exit criteria:** TC-049, TC-050, TC-055 and TC-078 to TC-082 pass.
 
 ## PH-8 — Quality gates, CI and launch readiness
 
-**Status: Partial.** Built: oxlint, 7 unit tests, a passing build.
+**Status: Partial.** Built: oxlint, 23 unit tests, a passing build. In the working tree: the Redis catalog cache behind `/api/*` (NFR-008).
 
 **Remaining work:**
 1. Add `"test": "node --test tests/*.test.js"` to `package.json` (ADR-012, R-05).
@@ -89,5 +91,6 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 4. Pick an end-to-end tool and automate the P1 manual cases.
 5. Remove or relocate the stray `.txt` design prompt (R-18).
 6. Add client error monitoring (provider to be decided by the owner).
+7. Create the Upstash Redis database, store its URL and token in Supabase Vault and in Cloudflare Pages, and run TC-085 ([operations/deployment.md](../operations/deployment.md#catalog-cache-upstash-redis)).
 
-**Exit criteria:** TC-056 and TC-057 pass.
+**Exit criteria:** TC-056, TC-057 and TC-083 to TC-087 pass.

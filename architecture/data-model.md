@@ -1,6 +1,6 @@
 # Data model
 
-**Provenance.** `homepage_content`, `get_homepage` and `save_homepage` are defined in `supabase/migrations/202610150001_homepage.sql`. Every other object below is **inferred** from the columns the frontend selects, inserts or updates ([ADR-010](architecture-decisions.md#adr-010--most-of-the-schema-and-both-edge-functions-live-outside-the-repository)). Types marked "inferred" have not been confirmed against the live database. Constraints not visible from the client are stated only when the code depends on them.
+**Provenance.** `homepage_content`, `get_homepage` and `save_homepage` are defined in `supabase/migrations/202610150001_homepage.sql`. `waitlist_attempts` and the rate-limit and cache-clearing triggers are defined in `supabase/migrations/202610190001_rate_limits_and_catalog_cache.sql`. Every other object below is **inferred** from the columns the frontend selects, inserts or updates ([ADR-010](architecture-decisions.md#adr-010--most-of-the-schema-and-both-edge-functions-live-outside-the-repository)). Types marked "inferred" have not been confirmed against the live database. Constraints not visible from the client are stated only when the code depends on them.
 
 ER diagram: [diagrams/data-model.md](../diagrams/data-model.md).
 
@@ -30,6 +30,26 @@ RLS is enabled. All privileges are revoked from `anon` and `authenticated`. `sel
 - `Another editor saved changes. Reload before saving.` on a revision mismatch.
 
 Otherwise it writes `draft` (and `published` when `publish` is true), increments `revision` and returns the new value.
+
+### `waitlist_attempts` (table)
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `ip` | `text not null` | First `x-forwarded-for` entry, or `unknown` (ASSUMPTION-021) |
+| `created_at` | `timestamptz not null` | Default `now()`; rows older than one hour are deleted on each signup |
+
+RLS is enabled with no policies, and all privileges are revoked from `anon` and `authenticated`. Indexed on `(ip, created_at)`.
+
+### Triggers and constraints on inferred tables
+
+| Object | On | Behaviour |
+| --- | --- | --- |
+| `limit_waitlist_signups()` | `waitlist_signups`, before insert, per row; `security definer` | Raises "Too many sign-ups. Please try again later." after 5 signups from the caller's IP, or 200 overall, in the last hour; otherwise records the attempt |
+| `waitlist_signups_email_format` | `waitlist_signups` check, `not valid` (existing rows unchecked) | `char_length(email) <= 254` and `email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'` |
+| `limit_pending_orders()` | `orders`, before insert, per row | Raises "Too many orders in a short time. Please wait a few minutes and try again." when `user_id` already has 5 `pending` orders created in the last 10 minutes. Supported by index `orders_user_id_created_at`. |
+| `clear_catalog_cache()` | `products`, `product_images`, `product_sizes`, `castes`, `episodes`, `homepage_content`; after any write or truncate, per statement; `security definer` | Returns early unless the writer is an admin or a server role (`auth.role()` not `anon`/`authenticated`), because zero-row statements still fire it. Then reads `upstash_redis_rest_url` and `upstash_redis_rest_token` from Vault and sends `INCR catalog:version` through `pg_net`. Missing secrets and errors become a warning and never block the write. |
+
+`truncate`, `references` and `trigger` are revoked from `anon` and `authenticated` on `orders` and `waitlist_signups`. On `products`, `product_images`, `product_sizes`, `castes` and `episodes`, `insert`, `update`, `delete` and `truncate` are revoked from `anon`, and `truncate` from `authenticated`.
 
 ## Inferred objects (not in the repository)
 
@@ -106,7 +126,7 @@ Presumably unique on `(product_id, size)`, since updates target that pair.
 | `status` | `text` | `pending`, `paid`, `failed`, `cancelled` or `fulfilled` |
 | `subtotal`, `total` | numeric | |
 | `created_at` | `timestamptz` | |
-| owner column | presumably `user_id uuid` | Required for per-customer RLS (ASSUMPTION-008) |
+| `user_id` | `uuid` | Confirmed in the live schema on 2026-10-19; used by RLS and the pending-order limit |
 | shipping address | unknown | Sent by checkout but never displayed in admin (R-12) |
 
 ### `order_items`

@@ -1,12 +1,13 @@
-import { supabase } from './supabase';
+import { supabase, publicRead } from './supabase';
 import { cachedRequest } from './request-cache';
 
-export const loadPublicHomeCatalog = cachedRequest(loadHomeCatalog);
-export const loadPublishedHome = cachedRequest(async () => {
-  const { data, error } = await supabase.rpc('get_homepage');
-  if (error) throw error;
-  return data;
+export const loadPublicHomeCatalog = cachedRequest(async () => {
+  const [products, castes, episodes] = await publicRead('home-catalog');
+  return { products, castes, episodes, failed: false };
 });
+export const loadPublishedHome = cachedRequest(async () => (await publicRead('home'))[0]);
+
+// Admin preview reads Supabase directly so editors always see live rows.
 
 export async function loadHomeCatalog() {
   const results = await Promise.all([

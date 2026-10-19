@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { Navigate, Link, Outlet, useLocation } from 'react-router-dom';
 import { AppContext } from '../../context/app-context';
-import { supabase } from '../../lib/supabase';
 import { GridIcon, BagIcon, BoxIcon, HomeIcon, UsersIcon, FilmIcon, ExternalIcon, SignOutIcon } from './Icons';
 import './admin.css';
 
@@ -23,22 +22,8 @@ const groups = [
 const isActive = (to, path) => (to === '/admin' ? path === '/admin' || path === '/admin/' : path.startsWith(to));
 
 export default function AdminLayout() {
-  const { user, sessionLoaded, signOut } = useContext(AppContext);
-  const [isAdmin, setIsAdmin] = useState(null); // null = checking
+  const { user, sessionLoaded, isAdmin, signOut } = useContext(AppContext);
   const location = useLocation();
-
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-      return;
-    }
-    supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single()
-      .then(({ data }) => setIsAdmin(!!data?.is_admin));
-  }, [user]);
 
   if (!sessionLoaded || isAdmin === null) {
     return null;

@@ -31,6 +31,19 @@ export function AppProvider({ children }) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  // Admin flag, tied to the user id it was fetched for so a stale answer never leaks across sign-ins
+  const userId = session?.user?.id;
+  const [adminCheck, setAdminCheck] = useState({ id: null, isAdmin: false });
+  useEffect(() => {
+    if (!userId) return undefined;
+    let active = true; // a slower answer for a previous user must not overwrite this one
+    supabase.from('profiles').select('is_admin').eq('id', userId).single()
+      .then(({ data }) => !!data?.is_admin, () => false)
+      .then(isAdmin => { if (active) setAdminCheck({ id: userId, isAdmin }); });
+    return () => { active = false; };
+  }, [userId]);
+  const isAdmin = !userId ? false : adminCheck.id === userId ? adminCheck.isAdmin : null; // null = checking
+
   const signOut = () => supabase.auth.signOut();
 
   // Sound preference state
@@ -142,6 +155,7 @@ export function AppProvider({ children }) {
         session,
         user: session?.user ?? null,
         sessionLoaded,
+        isAdmin,
         signOut,
       }}
     >

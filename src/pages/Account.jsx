@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/app-context';
 import { supabase } from '../lib/supabase';
 
@@ -7,7 +7,7 @@ const formatPrice = (p) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(p);
 
 export default function Account() {
-  const { session, user, sessionLoaded, signOut } = useContext(AppContext);
+  const { session, user, sessionLoaded, isAdmin, signOut } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
@@ -63,9 +63,16 @@ export default function Account() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <h1 className="display-s" style={{ fontSize: '32px' }}>Your account</h1>
-            <button onClick={handleSignOut} className="underlined-link silver-hover" style={{ background: 'none', border: 'none', color: 'var(--ash-grey)', fontSize: '14px', cursor: 'pointer' }}>
-              Sign out →
-            </button>
+            <div style={{ display: 'flex', gap: '24px', alignItems: 'baseline' }}>
+              {isAdmin && (
+                <Link to="/admin" className="underlined-link silver-hover" style={{ color: 'var(--bone-white)', fontSize: '14px' }}>
+                  Admin dashboard →
+                </Link>
+              )}
+              <button onClick={handleSignOut} className="underlined-link silver-hover" style={{ background: 'none', border: 'none', color: 'var(--ash-grey)', fontSize: '14px', cursor: 'pointer' }}>
+                Sign out →
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '480px' }}>

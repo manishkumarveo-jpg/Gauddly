@@ -107,7 +107,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Traces:** NFR-004 · US-032 · AC-032.3 · PH-1
 - **Type:** Manual inspection
 - **Priority:** P3
-- **Preconditions:** A Vercel deployment (preview or production).
+- **Preconditions:** A Cloudflare Pages deployment (preview or production) built with `public/_headers`.
 - **Test data:** Any file name from `dist/assets/` of that build.
 - **Steps:**
   1. Run `curl -sI https://<deployment>/assets/<file>`.
@@ -613,8 +613,8 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Preconditions:** Non-production project. Signed in as admin.
 - **Test data:** ID `test-piece`, name "Test Piece", price 1000, any caste.
 - **Steps:**
-  1. Create the product with "Published" unchecked and look for it on `/store`.
-  2. Check "Published", save, and look again.
+  1. Choose "+ New garment", fill in the test data and a photo, leave Published off, choose "Create garment", and look for it on `/store`.
+  2. Turn on Published, choose "Save changes", and look again.
 - **Expected result:** The product has sizes S, M, L and XL, all in stock. In step 1 it is absent from `/store`; after step 2 it appears.
 - **Automation:** None
 - **Status:** Not run
@@ -627,8 +627,8 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Preconditions:** `test-piece` exists and is published. `admin-upload-url` is deployed.
 - **Test data:** A small JPEG.
 - **Steps:**
-  1. Toggle size `L` out of stock and open the product page.
-  2. Upload the JPEG, then remove it.
+  1. Switch size `L` to sold out, choose "Save changes", and open the product page.
+  2. Upload the JPEG and save; then remove it and save.
   3. Request the removed image URL.
 - **Expected result:** In step 1 the `L` button is disabled on the product page. In step 2 the image appears, then disappears. Step 3 returns 404 from R2.
 - **Automation:** None
@@ -711,8 +711,8 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Preconditions:** Signed in as admin.
 - **Test data:** Change the hero title to "Preview Check".
 - **Steps:**
-  1. On `/admin/homepage`, edit the title and choose "Preview".
-  2. Try the waitlist button and any section link.
+  1. On `/admin/homepage`, edit the hero headline and look at the preview beside the form.
+  2. Select the Waitlist section, then try its button and any link in the preview.
 - **Expected result:** The preview shows "Preview Check". The waitlist area reads "Preview — signup is disabled.", and links do not navigate. `/home` in another tab still shows the published title.
 - **Automation:** None
 - **Status:** Not run
@@ -728,6 +728,290 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
   1. As admin, upload the file as a product image and inspect the stored `r2_key`.
   2. As the customer, run `supabase.functions.invoke('admin-upload-url', { body: { key: 'x.jpg', method: 'PUT' } })` in the console.
 - **Expected result:** In step 1 the key ends in `My-Photo-1-.jpg`. Step 2 returns an error and no URL.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-058 — Typing updates the side-by-side preview
+
+- **Traces:** FR-029 · US-035 · AC-035.1 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Signed in as admin on `/admin/homepage`, Hero selected.
+- **Test data:** Headline "Chapter Two Begins".
+- **Steps:**
+  1. Replace the Headline field with the test data.
+- **Expected result:** Within a moment the preview's hero reads "CHAPTER TWO BEGINS", outlined with the tag "Editing: Headline". The status reads "1 unsaved change".
+- **Automation:** None
+- **Status:** Passing (2026-10-19)
+
+### TC-059 — Clicking the preview opens the matching field
+
+- **Traces:** FR-029 · US-035 · AC-035.2 · PH-6
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Signed in as admin on `/admin/homepage`, Hero selected on the Words tab.
+- **Test data:** None.
+- **Steps:**
+  1. Click the hero's "Enter the store" button inside the preview.
+- **Expected result:** The Button tab opens with "Button text" focused, and the preview stays on the homepage. The field-to-tab mapping is also unit-tested.
+- **Automation:** `tests/homepage.test.js` › "fields open the tab that holds them, falling back to the first tab"
+- **Status:** Passing (2026-10-19)
+
+### TC-060 — Phone preview uses the phone layout
+
+- **Traces:** FR-029 · US-035 · AC-035.3 · PH-6
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Signed in as admin on `/admin/homepage`.
+- **Test data:** None.
+- **Steps:**
+  1. Choose "Phone" above the preview, then select Featured garments.
+- **Expected result:** The caption reads "390 px phone". The preview shows the "Menu" navigation and the featured garment stacked above its text, and scrolls to that section.
+- **Automation:** None
+- **Status:** Passing (2026-10-19)
+
+### TC-061 — Review lists what changed
+
+- **Traces:** FR-030 · US-036 · AC-036.1 · PH-6
+- **Type:** Automated unit
+- **Priority:** P1
+- **Preconditions:** Node 20+.
+- **Test data:** Default homepage with Manifesto moved first, hero headline changed, Waitlist hidden and a Craft image added.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** The first group is "Section order"; Hero lists `Headline: “The Old World” → “Chapter two”`; Waitlist lists "Hidden"; Craft lists "Image added". No changes produce an empty list; no published version produces "First publication".
+- **Automation:** `tests/homepage.test.js` › "diff lists hidden sections, text edits, media and order changes"
+- **Status:** Passing (2026-10-19)
+
+### TC-062 — Unsafe links and media block saving
+
+- **Traces:** FR-030 · US-036 · AC-036.2 · PH-6
+- **Type:** Automated unit
+- **Priority:** P1
+- **Preconditions:** Node 20+.
+- **Test data:** Hero with link `//outside.test` and still `javascript:alert(1)`; Featured with a chosen piece that is not published.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** The link and still are blocking warnings. The unpublished piece is reported only once the catalog has loaded. A hidden section with safe values has no warnings.
+- **Automation:** `tests/homepage.test.js` › "warnings block unsafe links and media, and skip catalog checks until the catalog loads"
+- **Status:** Passing (2026-10-19)
+
+### TC-063 — Publishing through the review, and the two-editor conflict
+
+- **Traces:** FR-030 · US-036 · AC-036.3 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Non-production project. Two admin sessions on `/admin/homepage`.
+- **Test data:** A headline change in each session.
+- **Steps:**
+  1. In session A, choose "Review & publish →", then "Publish now".
+  2. In session B (loaded before step 1), change the headline and choose "Save draft".
+- **Expected result:** Step 1 shows the toast "Published. The homepage is now live." and `/home` shows A's headline. Step 2 shows "Someone else saved the homepage while you were editing." with "Load their version" and "Replace theirs with mine".
+- **Automation:** None
+- **Status:** Not run
+
+### TC-064 — Reordering sections
+
+- **Traces:** FR-031 · US-037 · AC-037.1 · PH-6
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** Node 20+.
+- **Test data:** Default homepage; move position 1 to position 3; move to position 99.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** The order becomes Manifesto, Featured, Hero; the original is unchanged; an out-of-range move returns the same document.
+- **Automation:** `tests/homepage.test.js` › "moving a section reorders without mutating, and ignores out-of-range moves"
+- **Status:** Passing (2026-10-19)
+
+### TC-065 — Undo groups typing into one step
+
+- **Traces:** FR-031 · US-037 · AC-037.2 · PH-6
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Signed in as admin on `/admin/homepage` with no unsaved changes.
+- **Test data:** Headline "Chapter Two Begins", typed continuously.
+- **Steps:**
+  1. Type the headline, then choose Undo once.
+- **Expected result:** The headline returns to its saved value after one Undo, Undo becomes disabled, and the status returns to the saved state.
+- **Automation:** None
+- **Status:** Passing (2026-10-19)
+
+### TC-066 — Focus point controls the phone crop
+
+- **Traces:** FR-031 · US-037 · AC-037.3 · PH-6
+- **Type:** Automated unit
+- **Priority:** P3
+- **Preconditions:** Node 20+.
+- **Test data:** A 2000 × 1000 image in a 500 × 1000 box, focus at 50% and at 0%.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** At 50% the visible area starts at 37.5% across and is 25% wide; at 0% it starts at 0%. Missing sizes return nothing.
+- **Automation:** `tests/homepage.test.js` › "cover window shows the slice a phone crops to, following the focal point"
+- **Status:** Passing (2026-10-19)
+
+### TC-067 — Product list search, filters and "Needs attention"
+
+- **Traces:** FR-032 · US-038 · AC-038.1 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Signed in as admin on `/admin/products`.
+- **Test data:** Search term "nimbus"; the live catalog.
+- **Steps:**
+  1. Read the summary and the "Needs attention" tab.
+  2. Type the search term, then choose "Needs attention".
+- **Expected result:** The summary reads "11 garments · 10 need attention" on the 2026-10-19 catalog, and every garment whose cover does not load shows "Photo missing" in place of its photo. Search narrows the list to the Nimbus pieces; "Needs attention" lists only flagged garments.
+- **Automation:** None
+- **Status:** Passing (2026-10-19)
+
+### TC-068 — Bulk publish skips garments that are not ready
+
+- **Traces:** FR-032 · US-038 · AC-038.2 · PH-6
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Non-production project. One draft garment that passes every required check and one with no photo.
+- **Test data:** Both garments selected.
+- **Steps:**
+  1. Choose "Publish" in the selection bar.
+- **Expected result:** Only the ready garment is published. The message reads "1 garment published. 1 not ready to publish was skipped."
+- **Automation:** None
+- **Status:** Not run
+
+### TC-069 — Garment editor preview shows unsaved edits on the real product page
+
+- **Traces:** FR-033 · US-039 · AC-039.1 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Signed in as admin on a garment with photos.
+- **Test data:** Price 12500.
+- **Steps:**
+  1. Change the price without saving.
+  2. Click "Select a size to claim" in the preview.
+- **Expected result:** The preview label changes to "Live preview · unsaved" and its price reads ₹12,500. The click in the preview does not add to the cart or navigate.
+- **Automation:** None
+- **Status:** Passing (2026-10-19, step 1)
+
+### TC-070 — Saved state, unsaved warning and discard
+
+- **Traces:** FR-033 · US-039 · AC-039.2 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Signed in as admin.
+- **Test data:** Any garment.
+- **Steps:**
+  1. Open the garment without editing.
+  2. Change the price, then change it back.
+  3. Change it again and choose "Discard", then confirm.
+- **Expected result:** Step 1 and step 2 read "All changes saved". After step 3 the saved value returns and any photo uploaded since the last save is removed from storage.
+- **Automation:** None
+- **Status:** Passing (2026-10-19, steps 1–2)
+
+### TC-071 — Craft notes become separate lines and are stored as before
+
+- **Traces:** FR-023 · US-023 · AC-023.3 · PH-6
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** Node 20+.
+- **Test data:** Craft text with a free note, Details, Fit, Color and a lower-case "wash Care:".
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** The lines are a general note, Details, Fit, Colour and Wash Care, matching how the product page splits them, and joining them gives back the stored text with "Colour".
+- **Automation:** `tests/products.test.js` › "craft text splits into labelled lines and joins back the way the product page reads it"
+- **Status:** Passing (2026-10-19)
+
+### TC-072 — Publishing requirements
+
+- **Traces:** FR-034 · US-040 · AC-040.1 · PH-6
+- **Type:** Automated unit
+- **Priority:** P1
+- **Preconditions:** Node 20+.
+- **Test data:** A garment with a price and caste, one sold-out size, and photos that do or do not load.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** With only missing photos it cannot be published; with a working photo it can, and only "stock" and "story" are unmet. A price of 0 blocks publishing.
+- **Automation:** `tests/products.test.js` › "publishing needs a working photo, a price, a caste and a size; stock and story only warn"
+- **Status:** Passing (2026-10-19)
+
+### TC-073 — Turning on "Published" is refused until requirements are met
+
+- **Traces:** FR-034 · US-040 · AC-040.2 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Signed in as admin on `/admin/products/new`.
+- **Test data:** Name "Test Robe №2", no caste, price or photo.
+- **Steps:**
+  1. Type the name.
+  2. Turn on the Published switch.
+- **Expected result:** The page address becomes `test-robe-no2`. The switch stays off and the message reads "To publish, it still needs: name and caste, price above ₹0, at least one photo that loads."
+- **Automation:** None
+- **Status:** Passing (2026-10-19)
+
+### TC-074 — Deleting a garment
+
+- **Traces:** FR-035 · US-041 · AC-041.1 · PH-6
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Non-production project. One garment with photos and no orders; one that appears in an order.
+- **Test data:** Each garment's exact name.
+- **Steps:**
+  1. Type the name of the garment without orders and choose "Delete garment".
+  2. Repeat for the garment with orders.
+  3. Open the order that contained the second garment in `/admin/orders`.
+- **Expected result:** Both garments, their photo and size rows and their storage files are removed, and the list shows "Deleted “…”." each time. The order still lists the second garment's name and price.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-075 — List flags missing photos, prices and stock
+
+- **Traces:** FR-032 · US-038 · AC-038.3 · PH-6
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** Node 20+.
+- **Test data:** A garment whose cover failed to load, priced 0, nothing in stock; the same with no photos.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** The issues are "Photo missing, No price, Nothing in stock", or "No photo, …" when it has no photos at all.
+- **Automation:** `tests/products.test.js` › "list flags missing photos, prices and stock"
+- **Status:** Passing (2026-10-19)
+
+### TC-076 — Preview and store draw the same data
+
+- **Traces:** FR-033 · US-039 · AC-039.3 · PH-6
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** Node 20+.
+- **Test data:** Photos out of order, sizes XL and S, an Old World garment.
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** Photos follow their order with the name as fallback description, sizes sort S then XL, and the caste link is `/old-world`.
+- **Automation:** `tests/products.test.js` › "product page data orders photos and sizes and resolves media"
+- **Status:** Passing (2026-10-19)
+
+### TC-077 — Page address is generated from the name
+
+- **Traces:** FR-033 · US-039 · AC-039.4 · PH-6
+- **Type:** Automated unit
+- **Priority:** P3
+- **Preconditions:** Node 20+.
+- **Test data:** "Boner Flared Denim", "  Café — Robe №2 ".
+- **Steps:**
+  1. Run the unit test.
+- **Expected result:** The addresses are `boner-flared-denim` and `cafe-robe-no2`.
+- **Automation:** `tests/products.test.js` › "page addresses are lower-case words joined by hyphens"
+- **Status:** Passing (2026-10-19)
+
+### TC-088 — A failed save after creating a garment reopens it as a draft
+
+- **Traces:** FR-033 · US-039 · AC-039.5 · PH-6
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Non-production project. Signed in as an admin. Browser DevTools request blocking available.
+- **Test data:** A new garment with a name, caste, price ₹1000, one photo, size M and Published switched on.
+- **Steps:**
+  1. Fill in the new garment and upload the photo.
+  2. In DevTools, block requests matching `/rest/v1/product_images`.
+  3. Choose "Create garment".
+  4. Remove the block and open `/store`.
+- **Expected result:** The error banner ends "Some changes may have been saved; the page has been reloaded to show what is stored.", the address changes to `/admin/products/<id>`, the header shows "Draft", and the garment is not in the store.
 - **Automation:** None
 - **Status:** Not run
 
@@ -776,6 +1060,72 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Automation:** None
 - **Status:** Not implemented (expected to fail until PH-7)
 
+### TC-078 — Waitlist signups are limited per IP
+
+- **Traces:** NFR-007 · US-042 · AC-042.1 · PH-7
+- **Type:** Automated SQL
+- **Priority:** P1
+- **Preconditions:** Migration `202610190001_rate_limits_and_catalog_cache.sql` applied to a non-production database. Fewer than 194 waitlist attempts recorded in the last hour.
+- **Test data:** `request.headers` set to `{"x-forwarded-for":"203.0.113.9, 10.0.0.1"}`, then `{"x-forwarded-for":"198.51.100.7"}`; emails `rate-test-1@example.com` to `rate-test-6@example.com` and `rate-test-other-ip@example.com`.
+- **Steps:**
+  1. Run `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/rate-limits-permissions.sql`.
+- **Expected result:** The first five inserts from `203.0.113.9` succeed, the sixth raises "Too many sign-ups. Please try again later.", and the insert from `198.51.100.7` succeeds. The script ends with `PASS: rate limits` and rolls back.
+- **Automation:** `tests/rate-limits-permissions.sql` (waitlist block)
+- **Status:** Not run
+
+### TC-079 — Malformed waitlist emails are refused
+
+- **Traces:** NFR-007 · US-042 · AC-042.2 · PH-7
+- **Type:** Automated SQL
+- **Priority:** P3
+- **Preconditions:** As TC-078.
+- **Test data:** Email `not-an-email`.
+- **Steps:**
+  1. Run the script from TC-078.
+- **Expected result:** The insert fails with a check violation on `waitlist_signups_email_format`.
+- **Automation:** `tests/rate-limits-permissions.sql` (malformed email block)
+- **Status:** Not run
+
+### TC-080 — Pending orders are limited per customer
+
+- **Traces:** NFR-007 · US-042 · AC-042.3 · PH-7
+- **Type:** Automated SQL
+- **Priority:** P2
+- **Preconditions:** As TC-078. At least one row in `profiles`.
+- **Test data:** Six `pending` orders for the first profile, each with `subtotal` and `total` 0.
+- **Steps:**
+  1. Run the script from TC-078.
+- **Expected result:** An insert at or before the sixth raises "Too many orders in a short time. Please wait a few minutes and try again."
+- **Automation:** `tests/rate-limits-permissions.sql` (orders block)
+- **Status:** Not run
+
+### TC-081 — Browser roles cannot read the attempt log or truncate
+
+- **Traces:** NFR-007 · US-042 · AC-042.4 · PH-7
+- **Type:** Automated SQL
+- **Priority:** P1
+- **Preconditions:** As TC-078.
+- **Test data:** None.
+- **Steps:**
+  1. Run the script from TC-078.
+- **Expected result:** As `anon`, selecting from `waitlist_attempts` and truncating `waitlist_signups` both fail with insufficient privilege.
+- **Automation:** `tests/rate-limits-permissions.sql` (anon role block)
+- **Status:** Not run
+
+### TC-082 — Supabase Auth rate limits are configured
+
+- **Traces:** NFR-007 · US-042 · AC-042.5 · PH-7
+- **Type:** Manual inspection
+- **Priority:** P2
+- **Preconditions:** Dashboard access to the production Supabase project.
+- **Test data:** The values in [operations/deployment.md](../operations/deployment.md#supabase-auth-configuration).
+- **Steps:**
+  1. Open Authentication → Rate Limits.
+  2. Compare each limit with the documented value.
+- **Expected result:** Every limit matches the documented value.
+- **Automation:** None
+- **Status:** Not run
+
 ## PH-8 — Quality gates, CI and launch readiness
 
 ### TC-056 — Lint, unit tests and build pass
@@ -789,7 +1139,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
   1. Run `npm run lint`.
   2. Run `node --test tests/*.test.js`.
   3. Run `npm run build`.
-- **Expected result:** All three exit with code 0. The unit tests report 7 passed and 0 failed.
+- **Expected result:** All three exit with code 0. The unit tests report 23 passed and 0 failed.
 - **Automation:** The commands themselves
 - **Status:** Passing (2026-10-19)
 
@@ -805,3 +1155,70 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Expected result:** CI runs lint, unit tests and build, fails on the lint step, and blocks the merge.
 - **Automation:** None
 - **Status:** Not implemented (expected to fail until PH-8)
+
+### TC-083 — A repeated catalog read is served from Redis
+
+- **Traces:** NFR-008 · US-043 · AC-043.1 · PH-8
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** None (fake Redis and Supabase).
+- **Test data:** Route `store`; Supabase returns `[{ id: 'dust-robe' }]` for every query.
+- **Steps:**
+  1. Call `handlePublicRead('store', env, fetchImpl)` twice.
+- **Expected result:** The first response has `X-Cache: MISS` and makes two Supabase requests. The second has `X-Cache: HIT`, returns the same body and makes no further Supabase request.
+- **Automation:** `tests/public-api.test.js` › "caches a miss and serves the next read from Redis"
+- **Status:** Passing (2026-10-19)
+
+### TC-084 — A catalog version bump retires cached entries
+
+- **Traces:** NFR-008 · US-043 · AC-043.2 · PH-8
+- **Type:** Automated unit
+- **Priority:** P1
+- **Preconditions:** None (fake Redis and Supabase).
+- **Test data:** Route `episodes`.
+- **Steps:**
+  1. Read `episodes`, send `INCR catalog:version` to the fake Redis, and read `episodes` again.
+- **Expected result:** The second read has `X-Cache: MISS` and queries Supabase again.
+- **Automation:** `tests/public-api.test.js` › "a catalog version bump retires cached entries"
+- **Status:** Passing (2026-10-19)
+
+### TC-085 — An admin edit is visible on the storefront at once
+
+- **Traces:** NFR-008 · US-043 · AC-043.3 · PH-8
+- **Type:** Manual browser
+- **Priority:** P1
+- **Preconditions:** Migration `202610190001` applied; Vault secrets `upstash_redis_rest_url` and `upstash_redis_rest_token` set; `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` set in Cloudflare Pages; a published garment.
+- **Test data:** A new name for the garment.
+- **Steps:**
+  1. Open the garment's product page twice and confirm `/api/piece/<id>` returns `X-Cache: HIT`.
+  2. Rename the garment in `/admin/products/<id>` and save.
+  3. Reload the product page.
+- **Expected result:** The product page shows the new name, and `/api/piece/<id>` returns `X-Cache: MISS` on that load.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-086 — Only allow-listed routes and known IDs are served and cached
+
+- **Traces:** NFR-008 · US-043 · AC-043.4 · PH-8
+- **Type:** Automated unit
+- **Priority:** P1
+- **Preconditions:** None (fake Redis and Supabase).
+- **Test data:** Paths `orders`, `constructor`, `piece`, `store/x`, `piece/a/b`, `piece/%E0%A4`, a 101-character ID, and `piece/a%26b` with Supabase returning `[]`.
+- **Steps:**
+  1. Call `handlePublicRead` with each path.
+- **Expected result:** Every path except `piece/a%26b` returns 404 with no Supabase request. `piece/a%26b` queries `id=eq.a%26b` and stores nothing in Redis.
+- **Automation:** `tests/public-api.test.js` › "rejects unknown routes, bad ids and missing ids"; "unknown ids are not cached and ids are encoded into the filter"
+- **Status:** Passing (2026-10-19)
+
+### TC-087 — Catalog reads survive a Redis outage and never cache failures
+
+- **Traces:** NFR-008 · US-043 · AC-043.5 · PH-8
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** None (fake Redis and Supabase).
+- **Test data:** Route `archive` with Redis throwing, and with no Upstash variables; route `store` with Supabase returning HTTP 500, then with the Supabase request rejecting.
+- **Steps:**
+  1. Call `handlePublicRead` in each situation.
+- **Expected result:** Both `archive` reads return 200 (no `X-Cache` header when Redis is not configured). Both `store` reads return 502 and Redis stays empty.
+- **Automation:** `tests/public-api.test.js` › "reads Supabase directly when Redis is down or not configured"; "a Supabase failure is a 502 and is not cached"
+- **Status:** Passing (2026-10-19)
