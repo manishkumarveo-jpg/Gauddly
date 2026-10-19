@@ -1,4 +1,4 @@
-// Public catalog reads, cached in Upstash Redis. Served by functions/api/[[path]].js in production
+// Public catalog reads, cached in Upstash Redis. Served by the Worker (worker/index.js) in production
 // and by the Vite dev server locally. Supabase is always read with the anon key, so the cache can
 // only ever hold rows RLS shows to everyone. Postgres bumps catalog:version on every catalog edit
 // (migration 202610190001), which retires all cached entries at once.
@@ -74,4 +74,15 @@ export async function handlePublicRead(path, env, fetchImpl = fetch) {
   const found = !keyed || JSON.parse(body)[0].length > 0;
   if (key && found) await redis(['SET', key, body, 'EX', CACHE_SECONDS]).catch(() => null);
   return json(body, 200, key ? 'MISS' : undefined);
+}
+
+// Browser entry point. Uses the cached /api route, and reads Supabase directly (uncached) when /api is
+// missing or failing, for example on a static-only deploy or a Worker without its variables.
+// Resolves to one result array per query in the route, in order.
+export async function publicRead(path, env, fetchImpl = fetch) {
+  const api = await fetchImpl(`/api/${path}`).catch(() => null);
+  const served = api?.ok && api.headers.get('content-type')?.startsWith('application/json');
+  const res = served ? api : await handlePublicRead(path, env, fetchImpl);
+  if (!res.ok) throw new Error(`Catalog request failed (${res.status})`);
+  return res.json();
 }

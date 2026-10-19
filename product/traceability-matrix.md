@@ -92,3 +92,4 @@ Each row traces one acceptance criterion from requirement to phase. Each require
 | NFR-008 | FEAT-08 | US-043 | AC-043.3 | TC-085 | PH-8 |
 | NFR-008 | FEAT-08 | US-043 | AC-043.4 | TC-086 | PH-8 |
 | NFR-008 | FEAT-08 | US-043 | AC-043.5 | TC-087 | PH-8 |
+| NFR-008 | FEAT-08 | US-043 | AC-043.6 | TC-089 | PH-8 |

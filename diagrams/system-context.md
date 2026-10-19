@@ -10,9 +10,9 @@ flowchart LR
     SPA --- LS
   end
 
-  subgraph Pages["Cloudflare Pages"]
+  subgraph Cloudflare["Cloudflare Workers"]
     Static["Static dist/<br/>SPA fallback → index.html<br/>/assets/* immutable"]
-    API["/api/* Pages Function<br/>public catalog reads"]
+    API["/api/* Worker<br/>public catalog reads"]
   end
   Redis[("Upstash Redis<br/>catalog:version + entries")]
 
@@ -33,6 +33,7 @@ flowchart LR
   Static -->|HTML/JS/CSS| SPA
   SPA -->|anon key + session JWT| Auth
   SPA -->|catalog reads| API
+  SPA -. fallback when /api fails .-> PG
   API -->|GET / SET| Redis
   API -->|anon PostgREST + rpc on miss| PG
   PG -. pg_net INCR on catalog writes .-> Redis

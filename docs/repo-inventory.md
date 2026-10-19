@@ -18,7 +18,7 @@ Five source files carry uncommitted changes at the time of writing. They make ad
 | Styling | Hand-written global CSS and inline styles; no Tailwind | `src/index.css`, `src/components/*.css` |
 | Backend | Supabase: Postgres, Auth, Row Level Security, RPC, Edge Functions | `src/lib/supabase.js`, `supabase/migrations/` |
 | Media storage | Cloudflare R2, via presigned URLs from a Supabase Edge Function | `src/pages/admin/uploadToR2.js` |
-| Hosting | Cloudflare Pages (static `dist/`, immutable cache on `/assets/*`, one Pages Function for `/api/*`); `vercel.json` is left over and unused (ADR-016) | `public/_headers`, `functions/api/[[path]].js` |
+| Hosting | Cloudflare Workers via Workers Builds (`dist/` as static assets with SPA fallback and immutable cache on `/assets/*`; one Worker for `/api/*`); `vercel.json` is left over and unused (ADR-016) | `wrangler.jsonc`, `worker/index.js`, `public/_headers` |
 | Cache | Upstash Redis over its REST API, for public catalog reads (NFR-008) | `src/lib/public-api.js` |
 | Lint | oxlint (react, oxc plugins) | `.oxlintrc.json` |
 | Unit tests | Node built-in test runner (`node:test`) | `tests/*.test.js` |
@@ -32,9 +32,10 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
 ```
 .
 ├── index.html                 SPA shell, fonts, base meta tags
-├── vite.config.js             React plugin, plus dev middleware serving /api/* with the Pages Function handler
-├── vercel.json                Unused since the move to Cloudflare Pages (ADR-016)
-├── functions/api/[[path]].js  Cloudflare Pages Function: Redis-cached public catalog reads
+├── vite.config.js             React plugin, plus dev middleware serving /api/* with the Worker's handler
+├── wrangler.jsonc             Cloudflare Workers deploy: static assets, SPA fallback, /api/* to the Worker
+├── worker/index.js            Cloudflare Worker: Redis-cached public catalog reads at /api/*
+├── vercel.json                Unused; the site deploys to Cloudflare Workers (ADR-016)
 ├── .oxlintrc.json             Lint rules
 ├── .env.example               R2 server-side variable names only (see gaps)
 ├── .txt                       Stray design prompt for an unrelated TS/Tailwind landing page
@@ -66,7 +67,7 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
 | `/:casteId/:pieceId` | PieceDetail | Public |
 | `/episodes` | Episodes | Public |
 | `/await` | Await (waitlist) | Public |
-| `/api/*` | Not an SPA route: the Pages Function for cached catalog reads (`home`, `home-catalog`, `store`, `archive`, `episodes`, `caste/:id`, `piece/:id`) | Public |
+| `/api/*` | Not an SPA route: the Worker for cached catalog reads (`home`, `home-catalog`, `store`, `archive`, `episodes`, `caste/:id`, `piece/:id`) | Public |
 | `/checkout` | Checkout | Signed-in users |
 | `/login`, `/signup`, `/forgot-password`, `/reset-password` | Auth pages | Public |
 | `/account` | Account | Signed-in users |
@@ -109,7 +110,7 @@ Supabase objects referenced in `src/`:
 | `VITE_R2_PUBLIC_URL` | `src/lib/supabase.js` (`mediaUrl`) | No |
 | `VITE_AUTH_IMAGE_URL` | `src/components/AuthLayout.jsx` (optional) | No |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | Not used by `src/`; presumably by the `admin-upload-url` Edge Function | Yes |
-| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | `src/lib/public-api.js` at runtime in the Pages Function and `vite.config.js`; never in the bundle | Yes |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | `src/lib/public-api.js` at runtime in the Worker and `vite.config.js`; never in the bundle | Yes |
 
 Real `.env` / `.env.local` files were not read.
 
@@ -118,7 +119,7 @@ Real `.env` / `.env.local` files were not read.
 | Check | Command | Baseline result (2026-10-19, Node 26.5.0) |
 | --- | --- | --- |
 | Lint | `npm run lint` | Pass, no findings |
-| Unit tests | `node --test tests/*.test.js` | Pass, 23 of 23 |
+| Unit tests | `node --test tests/*.test.js` | Pass, 24 of 24 |
 | Unit tests (directory form) | `node --test tests/` | Fails on Node 26: the directory is treated as a module path |
 | Build | `npm run build` | Pass |
 | SQL permissions | `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/homepage-permissions.sql` | Not run (needs a database URL; out of scope for documentation work) |
@@ -147,7 +148,7 @@ There is no `test` script in `package.json`, no CI configuration (`.github/` abs
 - Story content: Codex chapters with local unlocks, Episodes films, Sanctum page, waitlist, legal/info pages.
 - Admin studio: dashboard metrics and CSV export, products, castes, episodes, orders, homepage editor, R2 uploads.
 - Per-route SEO meta tags; noindex on auth and admin.
-- Rate limits on waitlist signups and pending orders; Redis-cached public catalog reads (working tree).
+- Rate limits on waitlist signups and pending orders; Redis-cached public catalog reads.
 
 **Missing or not in version control**
 - SQL schema and RLS policies for every table except `homepage_content` and `waitlist_attempts`.

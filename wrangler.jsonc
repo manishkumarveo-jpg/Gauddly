@@ -1,0 +1,15 @@
+// Cloudflare Workers deploy (Workers Builds runs `npx wrangler deploy`). Having this file stops wrangler
+// from auto-configuring the project, which fails on vite.config.js. ADR-016.
+{
+  "name": "gauddly", // must match the Worker's name in the Cloudflare dashboard
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  // Runtime variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, UPSTASH_*) live in the dashboard; keep them on deploy.
+  "keep_vars": true
+}

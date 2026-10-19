@@ -13,8 +13,8 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | PH-5 | Complete | Code present; TC-004 to TC-008 automated | 10 | 5 | 5 | 0 |
 | PH-6 | Complete | Code present; homepage editor (FR-029 to FR-031) and products redesign (FR-032 to FR-035) in the working tree | 34 | 17 | 17 | 0 |
 | PH-7 | Partial | Homepage migration; rate-limit migration in the working tree, not applied | 8 | 0 | 7 | 1 |
-| PH-8 | Partial | Lint, unit tests and build pass; Redis catalog cache in the working tree; no CI | 7 | 5 | 1 | 1 |
-| **Total** | | | **88** | **29** | **56** | **3** |
+| PH-8 | Partial | Lint, unit tests and build pass; Redis catalog cache on Cloudflare Workers; no CI | 8 | 6 | 1 | 1 |
+| **Total** | | | **89** | **30** | **56** | **3** |
 
 "Complete" means every requirement in the phase is implemented in code. The manual verification cases still need to be run and signed off, as defined in [test-strategy.md §6](../testing/test-strategy.md#6-entry-and-exit-criteria-per-phase).
 
@@ -110,3 +110,4 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | TC-085 | PH-8 | NFR-008 | Manual browser | P1 | Not run |
 | TC-086 | PH-8 | NFR-008 | Automated unit | P1 | Passing |
 | TC-087 | PH-8 | NFR-008 | Automated unit | P2 | Passing |
+| TC-089 | PH-8 | NFR-008 | Automated unit | P1 | Passing |

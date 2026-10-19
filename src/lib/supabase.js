@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { publicRead as readPublic } from './public-api';
 
 export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -17,13 +18,8 @@ export function mediaUrl(key) {
   return `${import.meta.env.VITE_R2_PUBLIC_URL}/${key}`;
 }
 
-// Public catalog reads go through the Redis-cached /api function (src/lib/public-api.js).
-// Resolves to one result array per query in the route, in order.
-export async function publicRead(path) {
-  const res = await fetch(`/api/${path}`);
-  if (!res.ok) throw new Error(`Catalog request failed (${res.status})`);
-  return res.json();
-}
+// Public catalog reads: the Redis-cached /api route, or Supabase directly as a fallback (src/lib/public-api.js).
+export const publicRead = path => readPublic(path, import.meta.env);
 
 // supabase-js only gives a generic "non-2xx status code" message on FunctionsHttpError -
 // the actual { error: "..." } body our edge functions return lives on error.context (the raw Response).
