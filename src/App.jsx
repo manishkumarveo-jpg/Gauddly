@@ -36,13 +36,9 @@ const AdminProductEditor = lazy(() => import('./pages/admin/AdminProductEditor')
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
-import SilverDropCursor from './components/SilverDropCursor';
 import PageTransition from './components/PageTransition';
 import RouteSeo from './components/RouteSeo';
 import ScrollToTop from './components/ScrollToTop';
-
-// Must match the media query in index.css that hides the native cursor
-const useCustomCursor = window.matchMedia('(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)').matches;
 
 function AppContent() {
   const location = useLocation();
@@ -55,8 +51,6 @@ function AppContent() {
 
   return (
     <>
-      {/* Global luxury custom cursor */}
-      {useCustomCursor && <SilverDropCursor />}
       <RouteSeo />
       <ScrollToTop />
 
@@ -105,6 +99,7 @@ function AppContent() {
             <Route path="/privacy" element={<InfoPage />} />
             <Route path="/terms" element={<InfoPage />} />
             <Route path="/size-care" element={<InfoPage />} />
+            <Route path="/contact" element={<InfoPage />} />
 
             {/* Admin */}
             <Route path="/admin/homepage/preview" element={<HomepagePreview />} />

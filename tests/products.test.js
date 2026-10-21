@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseCraft, joinCraft, slugify, publishChecks, canPublish, productIssues, shapeProduct } from '../src/lib/products.js';
+import { parseCraft, joinCraft, slugify, publishChecks, canPublish, productIssues, shapeProduct, formatMeasure } from '../src/lib/products.js';
 
 test('craft text splits into labelled lines and joins back the way the product page reads it', () => {
   const text = 'Hand-finished in Delhi. Details: Bone appliqué Fit: Relaxed through the leg Color: White wash Care: gentle';
@@ -36,4 +36,11 @@ test('product page data orders photos and sizes and resolves media', () => {
   assert.deepEqual(view.sizes.map(s => s.size), ['S', 'XL']);
   assert.equal(view.castePath, '/old-world');
   assert.equal(view.video, null);
+});
+
+test('size chart measurements show in cm, in half inches, or a dash until supplied', () => {
+  assert.equal(formatMeasure(96, 'cm'), '96');
+  assert.equal(formatMeasure(96, 'in'), '38');
+  assert.equal(formatMeasure(80, 'in'), '31.5');
+  assert.equal(formatMeasure(null, 'cm'), '—');
 });

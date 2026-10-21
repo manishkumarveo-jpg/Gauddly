@@ -71,8 +71,8 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
   1. Open `/store` and activate "Menu", then press Escape.
   2. Open the cart ("Claims"), then press Escape.
   3. Open `/checkout` while signed in and inspect each input's accessible name.
-  4. Enable the OS "reduce motion" setting and reload `/store` at desktop width.
-- **Expected result:** Steps 1 and 2 close the overlay, and focus returns to its trigger. In step 3 every input has an accessible name: "Full name", "Email address", "Shipping address", "City, state, and postal code". In step 4 the native cursor is visible and no custom cursor element is rendered.
+  4. Reload `/store` at desktop width with a mouse, and hover a link and a product image.
+- **Expected result:** Steps 1 and 2 close the overlay, and focus returns to its trigger. In step 3 every input has an accessible name: "Full name", "Email address", "Shipping address", "City, state, and postal code". In step 4 the normal pointer is shown throughout (an arrow, and a hand over links), with no trailing ring or "VIEW" label.
 - **Automation:** None
 - **Status:** Not run
 
@@ -547,7 +547,47 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Test data:** `/shipping`, `/returns`, `/privacy`, `/terms`, `/size-care`.
 - **Steps:**
   1. Open each path.
-- **Expected result:** Each shows distinct content. Titles are "Shipping — GAUDDLY", "Returns — GAUDDLY", "Privacy — GAUDDLY", "Terms — GAUDDLY" and "Size & Care — GAUDDLY". `/returns` includes "Made-to-order pieces".
+- **Expected result:** Each shows distinct content. Titles are "Shipping — GAUDDLY", "Returns — GAUDDLY", "Privacy — GAUDDLY", "Terms — GAUDDLY" and "Size & Care — GAUDDLY". `/returns` states "Every Gauddly garment is made to order for you, so we do not accept returns or exchanges."
+- **Automation:** None
+- **Status:** Not run
+
+### TC-090 — Client Care bar links the pages and marks the current one
+
+- **Traces:** FR-020 · US-020 · AC-020.2 · PH-5
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** App running.
+- **Test data:** `/shipping`, `/returns`, `/size-care`, `/privacy`, `/terms`.
+- **Steps:**
+  1. Open each path and inspect the Client Care bar under the site header.
+  2. Choose each link in the bar.
+- **Expected result:** The bar shows "Shipping", "Returns", "Size & Care", "Contact", "Privacy" and "Terms". The current page's link is underlined and has `aria-current="page"`. Each link opens its page.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-091 — Size chart values switch units
+
+- **Traces:** FR-020 · US-020 · AC-020.3 · PH-5
+- **Type:** Automated unit
+- **Priority:** P3
+- **Preconditions:** None.
+- **Test data:** 96 cm, 80 cm, null.
+- **Steps:**
+  1. Call `formatMeasure` with each value in cm and in inches.
+- **Expected result:** 96 cm shows "96" and "38"; 80 cm shows "31.5" in inches; null shows "—".
+- **Automation:** `tests/products.test.js` › "size chart measurements show in cm, in half inches, or a dash until supplied"
+- **Status:** Passing (2026-10-19)
+
+### TC-092 — Deep links land on their section
+
+- **Traces:** FR-020 · US-020 · AC-020.4 · PH-5
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** App running.
+- **Test data:** `/returns`.
+- **Steps:**
+  1. On `/returns`, choose "check the size chart".
+- **Expected result:** `/size-care` opens scrolled to the "Size chart" section, not the top of the page.
 - **Automation:** None
 - **Status:** Not run
 
@@ -1139,7 +1179,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
   1. Run `npm run lint`.
   2. Run `node --test tests/*.test.js`.
   3. Run `npm run build`.
-- **Expected result:** All three exit with code 0. The unit tests report 24 passed and 0 failed.
+- **Expected result:** All three exit with code 0. The unit tests report 25 passed and 0 failed.
 - **Automation:** The commands themselves
 - **Status:** Passing (2026-10-19)
 

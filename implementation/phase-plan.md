@@ -21,7 +21,7 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 ## PH-1 — Foundation and design system
 
-**Status: Complete.** Built: the Vite/React shell, lazy routes, design tokens and global CSS, navigation, footer, page transitions, custom cursor and rain effects, the entry sequence, per-route SEO and the Vercel config.
+**Status: Complete.** Built: the Vite/React shell, lazy routes, design tokens and global CSS, navigation, footer, page transitions, rain effects, the entry sequence, per-route SEO and the Vercel config.
 
 **Verification work:** run TC-001, TC-002, TC-003, TC-048, TC-051, TC-052, TC-053 and TC-054.
 
@@ -82,7 +82,7 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 ## PH-8 — Quality gates, CI and launch readiness
 
-**Status: Partial.** Built: oxlint, 24 unit tests, a passing build, and the Redis catalog cache behind `/api/*` (NFR-008).
+**Status: Partial.** Built: oxlint, 25 unit tests, a passing build, and the Redis catalog cache behind `/api/*` (NFR-008).
 
 **Remaining work:**
 1. Add `"test": "node --test tests/*.test.js"` to `package.json` (ADR-012, R-05).

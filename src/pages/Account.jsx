@@ -79,10 +79,10 @@ export default function Account() {
             <div className="ui-text" style={{ fontSize: '10px', borderBottom: '1px solid rgba(200, 204, 209, 0.15)', paddingBottom: '6px' }}>
               Identity & Default Address
             </div>
-            <input type="text" placeholder="full name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} className="silver-hover system-cursor-override" />
-            <input type="text" placeholder="shipping address" value={address.address} onChange={(e) => setAddress({ ...address, address: e.target.value })} style={inputStyle} className="silver-hover system-cursor-override" />
-            <input type="text" placeholder="city, state, pin" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} style={inputStyle} className="silver-hover system-cursor-override" />
-            <input type="text" placeholder="phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} style={inputStyle} className="silver-hover system-cursor-override" />
+            <input type="text" placeholder="full name" value={fullName} onChange={(e) => setFullName(e.target.value)} style={inputStyle} className="silver-hover" />
+            <input type="text" placeholder="shipping address" value={address.address} onChange={(e) => setAddress({ ...address, address: e.target.value })} style={inputStyle} className="silver-hover" />
+            <input type="text" placeholder="city, state, pin" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} style={inputStyle} className="silver-hover" />
+            <input type="text" placeholder="phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} style={inputStyle} className="silver-hover" />
 
             <button
               type="submit"

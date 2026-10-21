@@ -174,7 +174,6 @@ export default function Codex() {
           zIndex: 100,
           borderRadius: '4px',
         }}
-        className="system-cursor-override"
       >
         <div className="ui-text" style={{ fontSize: '10px', marginBottom: '8px', color: 'var(--ash-grey)' }}>
           Unlock Animation Simulator

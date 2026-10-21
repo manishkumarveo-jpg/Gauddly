@@ -10,11 +10,11 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | PH-2 | Complete | Code present; FR-016 in the uncommitted working tree | 9 | 0 | 9 | 0 |
 | PH-3 | Complete | Code present | 7 | 0 | 7 | 0 |
 | PH-4 | Partial | Cart and checkout present; payment absent | 5 | 0 | 4 | 1 |
-| PH-5 | Complete | Code present; TC-004 to TC-008 automated | 10 | 5 | 5 | 0 |
+| PH-5 | Complete | Code present; TC-004 to TC-008 and TC-091 automated | 13 | 6 | 7 | 0 |
 | PH-6 | Complete | Code present; homepage editor (FR-029 to FR-031) and products redesign (FR-032 to FR-035) in the working tree | 34 | 17 | 17 | 0 |
 | PH-7 | Partial | Homepage migration; rate-limit migration in the working tree, not applied | 8 | 0 | 7 | 1 |
 | PH-8 | Partial | Lint, unit tests and build pass; Redis catalog cache on Cloudflare Workers; no CI | 8 | 6 | 1 | 1 |
-| **Total** | | | **89** | **30** | **56** | **3** |
+| **Total** | | | **92** | **31** | **58** | **3** |
 
 "Complete" means every requirement in the phase is implemented in code. The manual verification cases still need to be run and signed off, as defined in [test-strategy.md §6](../testing/test-strategy.md#6-entry-and-exit-criteria-per-phase).
 
@@ -61,6 +61,9 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | TC-032 | PH-5 | FR-018 | Manual browser | P2 | Not run |
 | TC-033 | PH-5 | FR-019 | Manual browser | P2 | Not run |
 | TC-034 | PH-5 | FR-020 | Manual browser | P3 | Not run |
+| TC-090 | PH-5 | FR-020 | Manual browser | P3 | Not run |
+| TC-091 | PH-5 | FR-020 | Automated unit | P3 | Passing |
+| TC-092 | PH-5 | FR-020 | Manual browser | P3 | Not run |
 | TC-035 | PH-6 | FR-021 | Manual browser | P1 | Not run |
 | TC-036 | PH-6 | FR-021 | Manual browser | P1 | Not run |
 | TC-037 | PH-6 | FR-022 | Manual browser | P2 | Not run |
