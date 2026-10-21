@@ -74,3 +74,13 @@ export function productIssues(product, brokenIds = new Set()) {
   if (!product.product_sizes?.some(s => s.in_stock)) issues.push('Nothing in stock');
   return issues;
 }
+
+// Body measurements for the Size & Care chart, in cm: [chest, waist, seat]. null until the studio supplies them.
+// Body measurements in cm: [size, chest, waist, seat]. Standard unisex grading in 6 cm steps.
+export const SIZE_CHART = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size, i) => [size, 78 + i * 6, 64 + i * 6, 82 + i * 6]);
+
+// Inches are rounded to the nearest half inch, the precision a tape measure shows.
+export function formatMeasure(cm, unit) {
+  if (cm == null) return '—';
+  return unit === 'in' ? String(Math.round((cm / 2.54) * 2) / 2) : String(cm);
+}

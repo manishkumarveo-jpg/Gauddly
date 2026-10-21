@@ -61,7 +61,7 @@ export default function Signup() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             style={inputStyle}
-            className="silver-hover system-cursor-override"
+            className="silver-hover"
           />
           <input
             type="email"
@@ -70,7 +70,7 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
-            className="silver-hover system-cursor-override"
+            className="silver-hover"
           />
           <input
             type="password"
@@ -80,7 +80,7 @@ export default function Signup() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={inputStyle}
-            className="silver-hover system-cursor-override"
+            className="silver-hover"
           />
 
           {error && (

@@ -11,7 +11,6 @@ The route table is in [docs/repo-inventory.md](../docs/repo-inventory.md#3-route
 | `Navigation` | All routes except `/`, `/await` and `/admin/*` |
 | `Footer` | Same as Navigation, minus `/login`, `/forgot-password` and `/reset-password` |
 | `CartDrawer` | All non-admin routes |
-| `SilverDropCursor` | Fine-pointer, hover-capable devices without reduced motion |
 | `RouteSeo`, `ScrollToTop` | All routes |
 
 ## Directories

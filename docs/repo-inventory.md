@@ -48,7 +48,7 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
     ├── main.jsx, App.jsx      Entry point and route table
     ├── context/               AppContext (cart, session, isAdmin, sound, entry, codex)
     ├── lib/                   supabase client, public read API, homepage model, request cache, safe redirects
-    ├── components/            Navigation, Footer, CartDrawer, HomeExperience, SEO, cursor, effects
+    ├── components/            Navigation, Footer, CartDrawer, HomeExperience, SEO, effects
     └── pages/                 Public pages and admin/ studio
 ```
 
@@ -71,7 +71,7 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
 | `/checkout` | Checkout | Signed-in users |
 | `/login`, `/signup`, `/forgot-password`, `/reset-password` | Auth pages | Public |
 | `/account` | Account | Signed-in users |
-| `/shipping`, `/returns`, `/privacy`, `/terms`, `/size-care` | InfoPage | Public |
+| `/shipping`, `/returns`, `/privacy`, `/terms`, `/size-care` | InfoPage (shared parts in `components/ClientCare.jsx`) | Public |
 | `/admin`, `/admin/products`, `/admin/castes`, `/admin/episodes`, `/admin/orders`, `/admin/homepage` | Admin studio | Signed-in users with `profiles.is_admin = true` |
 | `/admin/homepage/preview` | HomepagePreview (the editor's live preview, with real site chrome) | Shows only content sent by the editor window that opened it; empty otherwise |
 | `/admin/products/new`, `/admin/products/:productId` | AdminProductEditor | Admins, as the rest of `/admin` |
@@ -119,7 +119,7 @@ Real `.env` / `.env.local` files were not read.
 | Check | Command | Baseline result (2026-10-19, Node 26.5.0) |
 | --- | --- | --- |
 | Lint | `npm run lint` | Pass, no findings |
-| Unit tests | `node --test tests/*.test.js` | Pass, 24 of 24 |
+| Unit tests | `node --test tests/*.test.js` | Pass, 25 of 25 |
 | Unit tests (directory form) | `node --test tests/` | Fails on Node 26: the directory is treated as a module path |
 | Build | `npm run build` | Pass |
 | SQL permissions | `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/homepage-permissions.sql` | Not run (needs a database URL; out of scope for documentation work) |

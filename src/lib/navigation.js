@@ -29,4 +29,5 @@ export const PAGE_META = {
   '/privacy': ['Privacy', 'How Gauddly handles account, order, and website information.'],
   '/terms': ['Terms', 'Terms governing use of the Gauddly website and made-to-order purchases.'],
   '/size-care': ['Size & Care', 'Fit guidance and care instructions for Gauddly garments.'],
+  '/contact': ['Contact', 'Write to the Gauddly studio about a claim, fit, care or press.'],
 };

@@ -38,6 +38,9 @@ Each row traces one acceptance criterion from requirement to phase. Each require
 | FR-018 | FEAT-06 | US-018 | AC-018.1 | TC-032 | PH-5 |
 | FR-019 | FEAT-06 | US-019 | AC-019.1 | TC-033 | PH-5 |
 | FR-020 | FEAT-06 | US-020 | AC-020.1 | TC-034 | PH-5 |
+| FR-020 | FEAT-06 | US-020 | AC-020.2 | TC-090 | PH-5 |
+| FR-020 | FEAT-06 | US-020 | AC-020.3 | TC-091 | PH-5 |
+| FR-020 | FEAT-06 | US-020 | AC-020.4 | TC-092 | PH-5 |
 | FR-021 | FEAT-07 | US-021 | AC-021.1 | TC-035 | PH-6 |
 | FR-021 | FEAT-07 | US-021 | AC-021.2 | TC-036 | PH-6 |
 | FR-022 | FEAT-07 | US-022 | AC-022.1 | TC-037 | PH-6 |

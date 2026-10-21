@@ -96,7 +96,7 @@ export default function Checkout() {
                     value={form.name} 
                     onChange={handleChange}
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
-                    className="silver-hover system-cursor-override"
+                    className="silver-hover"
                   />
                   <label htmlFor="checkout-email" className="sr-only">Email address</label>
                   <input 
@@ -109,7 +109,7 @@ export default function Checkout() {
                     value={form.email} 
                     onChange={handleChange}
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
-                    className="silver-hover system-cursor-override"
+                    className="silver-hover"
                   />
                   <label htmlFor="checkout-address" className="sr-only">Shipping address</label>
                   <input 
@@ -122,7 +122,7 @@ export default function Checkout() {
                     value={form.address} 
                     onChange={handleChange}
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
-                    className="silver-hover system-cursor-override"
+                    className="silver-hover"
                   />
                   <label htmlFor="checkout-city" className="sr-only">City, state, and postal code</label>
                   <input 
@@ -135,7 +135,7 @@ export default function Checkout() {
                     value={form.city} 
                     onChange={handleChange}
                     style={{ background: 'none', border: 'none', borderBottom: '1px solid var(--cold-silver)', color: 'var(--bone-white)', fontFamily: 'var(--font-body)', fontSize: '18px', padding: '6px 0', outline: 'none' }}
-                    className="silver-hover system-cursor-override"
+                    className="silver-hover"
                   />
                 </div>
 

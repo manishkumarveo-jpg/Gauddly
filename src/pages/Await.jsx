@@ -93,7 +93,7 @@ export default function Await() {
                   fontSize: '20px',
                   outline: 'none',
                 }}
-                className="silver-hover system-cursor-override"
+                className="silver-hover"
               />
               
               <button 

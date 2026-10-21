@@ -87,6 +87,9 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 
 **US-020** (FR-020): As a customer, I want clear shipping, returns, privacy, terms and size-care information.
 - AC-020.1: Each of the five paths shows its own heading and content, and the page title matches the path. [TC-034]
+- AC-020.2: The Client Care bar links all five pages and marks the current one with `aria-current="page"`. [TC-090]
+- AC-020.3: Size chart values switch between centimetres and inches rounded to the nearest half inch, and show "—" until measurements are supplied. [TC-091]
+- AC-020.4: A link to a section on another page, such as `/size-care#chart`, opens that page scrolled to the section. [TC-092]
 
 ## FEAT-07 — Admin studio
 
@@ -164,7 +167,7 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 - AC-030.2: A customer reading `orders` through the anon key receives only their own orders. [TC-050]
 
 **US-031** (NFR-003): As a keyboard or reduced-motion user, I want to use the site comfortably.
-- AC-031.1: The mobile menu and cart close on Escape, every checkout field has a label, and the custom cursor is absent when reduced motion is preferred. [TC-051]
+- AC-031.1: The mobile menu and cart close on Escape, every checkout field has a label, and the native mouse cursor is shown on every page. [TC-051]
 
 **US-032** (NFR-004): As a visitor, I want pages to load without redundant work.
 - AC-032.1: Concurrent calls to the same cached request run the fetcher once, and the result is reused until its TTL expires. [TC-052]

@@ -14,6 +14,7 @@ const CARE = [
   ['/shipping', 'Shipping'],
   ['/returns', 'Returns'],
   ['/size-care', 'Size & Care'],
+  ['/contact', 'Contact'],
 ];
 
 const backToTop = () => window.scrollTo({
@@ -46,7 +47,6 @@ export default function Footer() {
         <nav aria-label="Client care">
           <span className="footer-eyebrow">Client Care</span>
           {CARE.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
-          <a href="mailto:contact@gauddly.com">Contact</a>
         </nav>
 
         <div className="footer-find">
