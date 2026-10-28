@@ -140,7 +140,7 @@ function Shipping() {
     <Facts label="At a glance" items={[
       ['Making time', '14–21 days', 'before dispatch. Every piece is made to order.'],
       ['Tracking', 'By email', 'A tracking link is sent as your garment leaves the studio.'],
-      ['Rates & destinations', <Placeholder key="r">[Rates]</Placeholder>, <Placeholder key="t">{FACTS.shippingRates}</Placeholder>],
+      ['Destinations', 'India & worldwide', <>Shipping cost varies by destination. <Placeholder key="t">{FACTS.shippingRates}</Placeholder></>],
     ]} />
     <Section id="journey" number="01" title="From claim to door" lead="What happens after you claim a garment." flush>
       <ol className="cc-steps cc-journey">
@@ -154,7 +154,7 @@ function Shipping() {
     <Section id="changes" number="02" title="If something changes" lead="Have your claim number ready. It is in your confirmation email and your account.">
       <div className="cc-grid">
         <div className="cc-card"><h3 className="cc-h3">Changing your address</h3><p className="cc-text">Email us as soon as possible with your claim number. We cannot guarantee an address change after dispatch.</p><a className="cc-btn cc-btn--ghost" href={mail('Address change')}>Request a change →</a></div>
-        <div className="cc-card"><h3 className="cc-h3">Delayed or lost parcel</h3><p className="cc-text">If tracking has not moved or a parcel appears lost, tell us and we will investigate with the carrier.</p><a className="cc-btn cc-btn--ghost" href={mail('Delivery problem')}>Report a delay →</a></div>
+        <div className="cc-card"><h3 className="cc-h3">Delayed or lost parcel</h3><p className="cc-text">If tracking has not moved or a parcel appears lost, tell us and we will investigate with the carrier. Weather, holidays and customs can add time outside our control.</p><a className="cc-btn cc-btn--ghost" href={mail('Delivery problem')}>Report a delay →</a></div>
       </div>
     </Section>
     <Help question="Questions about delivery?"><Link className="cc-btn cc-btn--ghost" to="/store">Return to the store →</Link></Help>
@@ -300,7 +300,7 @@ function Terms() {
       <p>Every garment is made to order. We do not accept returns or exchanges for change of mind, fit or size. You may ask to change size or address within 24 hours of your claim, if making has not begun. <Placeholder>[Cancellation: state whether a claim can be cancelled before making begins, and any charge.]</Placeholder></p>
       <p className="cc-note" style={{ color: 'var(--bone-white)' }}>If a garment arrives damaged, defective, not as described, or later than promised, we will put it right. <Link className="cc-link" to="/returns">How to report a problem</Link></p>
     </Clause>
-    <Clause id="variation" number={5} title="Variation in each piece"><p>Hand finishing and dye processes can produce small variations. These are part of the garment's character and are not necessarily defects. <Link className="cc-link" to="/size-care#care">Caring for hand-dyed pieces</Link></p></Clause>
+    <Clause id="variation" number={5} title="Variation in each piece"><p>Hand finishing and dye processes can produce small variations. These are part of the garment's character and are not necessarily defects. Colours may also look slightly different on your screen. <Link className="cc-link" to="/size-care#care">Caring for hand-dyed pieces</Link></p></Clause>
     <Clause id="delivery" number={6} title="Delivery"><p>Making normally takes 14–21 days before dispatch, and a tracking link follows by email. <Link className="cc-link" to="/shipping">Shipping</Link></p></Clause>
     <Clause id="account" number={7} title="Your account"><p><Placeholder>[Clause for counsel: keeping account details accurate and private, and when an account may be suspended for misuse.]</Placeholder></p></Clause>
     <Clause id="content" number={8} title="Website content"><p>Gauddly artwork, films, writing, photography, garment designs, and branding may not be reproduced or commercially used without permission.</p></Clause>

@@ -8,7 +8,7 @@ export const FACTS = {
   grievanceTitle: '[TITLE]',
   grievanceEmail: '[EMAIL]',
   lastUpdated: '[DATE]',
-  shippingRates: '[Shipping cost and the countries you deliver to]',
+  shippingRates: '[Rates for India and international orders]',
   faultRemedy: '[a repair, replacement or refund]',
 };
 
