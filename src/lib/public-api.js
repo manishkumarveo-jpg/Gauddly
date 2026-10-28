@@ -70,8 +70,10 @@ export async function handlePublicRead(path, env, fetchImpl = fetch) {
   } catch {
     return unavailable(); // network error, timeout or a body that is not JSON
   }
-  // Unknown ids are not cached, so random ids cannot fill Redis.
-  const found = !keyed || JSON.parse(body)[0].length > 0;
+  // Unknown ids are not cached, so random ids cannot fill Redis. Nor is an empty answer (a homepage not
+  // yet published), or the storefront would keep showing the built-in default for the full cache time.
+  const [first] = JSON.parse(body);
+  const found = keyed ? first.length > 0 : first !== null;
   if (key && found) await redis(['SET', key, body, 'EX', CACHE_SECONDS]).catch(() => null);
   return json(body, 200, key ? 'MISS' : undefined);
 }

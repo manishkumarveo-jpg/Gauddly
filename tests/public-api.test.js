@@ -48,6 +48,14 @@ test('unknown ids are not cached and ids are encoded into the filter', async () 
   assert.equal([...redis.keys()].some(key => key.includes('piece')), false);
 });
 
+test('an unpublished homepage (null) is not cached', async () => {
+  const { redis, db, fetchImpl } = fakes({ rows: null });
+  assert.equal((await handlePublicRead('home', env, fetchImpl)).headers.get('X-Cache'), 'MISS');
+  await handlePublicRead('home', env, fetchImpl);
+  assert.equal(db.length, 2);
+  assert.equal([...redis.keys()].some(key => key.includes('home')), false);
+});
+
 test('rejects unknown routes, bad ids and missing ids', async () => {
   const { db, fetchImpl } = fakes();
   for (const path of ['orders', 'constructor', 'piece', 'store/x', 'piece/a/b', 'piece/%E0%A4', `piece/${'x'.repeat(101)}`]) {
