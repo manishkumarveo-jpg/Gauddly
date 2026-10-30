@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { publicRead, mediaUrl } from '../lib/supabase';
+import { fogTitle, useMotion, veilReveal } from '../lib/motion';
 import Seo from '../components/Seo';
 
 export default function CastePage() {
@@ -12,6 +13,11 @@ export default function CastePage() {
   const [loading, setLoading] = useState(true);
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const headerAnchorRef = useRef(null);
+  const root = useRef(null);
+  useMotion(root, (el) => {
+    fogTitle(el.querySelector('h1'));
+    veilReveal(el.querySelectorAll('.piece-section-container'));
+  }, [data, loading]);
 
   useEffect(() => {
     setLoading(true);
@@ -49,7 +55,7 @@ export default function CastePage() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -76,13 +82,14 @@ export default function CastePage() {
   }
 
   return (
-    <div style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', overflowX: 'hidden' }} className="fade-in">
+    <div ref={root} style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', overflowX: 'hidden' }} className="fade-in">
       
       {/* SECTION A — Hero Video (80vh, full bleed, atmospheric) */}
       {/* Placeholder: reusing the Home page video until a caste-specific one is ready */}
       <section style={{ position: 'relative', width: '100%', height: '80vh', overflow: 'hidden', backgroundColor: 'var(--void-black)' }}>
         <video
           src="https://pub-024f5faf2e2c4757970fbb447e537ac1.r2.dev/Gauddly%20Music%20Video.mp4"
+          poster={data.image || undefined}
           autoPlay
           loop
           muted
@@ -152,8 +159,9 @@ export default function CastePage() {
         }}
       >
         {/* Render large header only if not pinned */}
-        <h1 
-          style={{ 
+        <h1
+          key={data.title}
+          style={{
             fontFamily: 'var(--font-display)', 
             fontSize: '64px', 
             letterSpacing: '0.05em', 
@@ -171,6 +179,18 @@ export default function CastePage() {
 
       {/* SECTION C — The Pieces */}
       <section style={{ backgroundColor: 'var(--void-black)', paddingBottom: '160px' }}>
+        {data.pieces.length === 0 && (
+          <div style={{ maxWidth: '560px', margin: '0 auto', padding: '0 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            <div style={{ height: '1px', width: '120px', backgroundColor: 'rgba(200, 204, 209, 0.25)' }} />
+            <h2 className="display-s">This chamber is sealed.</h2>
+            <p className="body-l" style={{ fontStyle: 'italic', color: 'var(--ash-grey)' }}>
+              Its garments have not yet crossed into the world.
+            </p>
+            <Link to="/await" className="underlined-link silver-hover" style={{ fontSize: '20px' }}>
+              Be told when it opens →
+            </Link>
+          </div>
+        )}
         {data.pieces.map((piece, index) => (
           <div key={piece.id} style={{ scrollMarginTop: '100px' }}>
             <div 
@@ -196,9 +216,9 @@ export default function CastePage() {
                 }}
                 className="piece-sticky-img-col"
               >
-                <img 
-                  src={piece.image} 
-                  alt={piece.name} 
+                <img
+                  src={piece.image}
+                  alt={piece.name}
                   loading="lazy"
                   decoding="async"
                   style={{
@@ -208,6 +228,7 @@ export default function CastePage() {
                     border: '1px solid rgba(200, 204, 209, 0.15)',
                   }}
                 />
+                <span className="veil" aria-hidden="true" />
               </div>
 
               {/* Right Column (Scrollable details) */}

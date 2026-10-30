@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Navigate, Link, Outlet, useLocation } from 'react-router-dom';
 import { AppContext } from '../../context/app-context';
-import { GridIcon, BagIcon, BoxIcon, HomeIcon, UsersIcon, FilmIcon, ExternalIcon, SignOutIcon } from './Icons';
+import { GridIcon, BagIcon, BoxIcon, HomeIcon, UsersIcon, FilmIcon, ExternalIcon, SignOutIcon, AlertIcon } from './Icons';
 import './admin.css';
 
 const groups = [
@@ -10,6 +10,7 @@ const groups = [
   ]],
   ['Commerce', [
     { to: '/admin/orders', label: 'Orders', Icon: BagIcon },
+    { to: '/admin/claims', label: 'Claims', Icon: AlertIcon },
     { to: '/admin/products', label: 'Products', Icon: BoxIcon },
   ]],
   ['Content', [

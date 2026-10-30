@@ -1,6 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseCraft, joinCraft, slugify, publishChecks, canPublish, productIssues, shapeProduct, formatMeasure } from '../src/lib/products.js';
+import { parseCraft, joinCraft, slugify, publishChecks, canPublish, productIssues, shapeProduct, formatMeasure, storeSizes } from '../src/lib/products.js';
+
+test('the store size filter offers every in-stock size, letters first, then waist sizes in number order', () => {
+  const products = [
+    { product_sizes: [{ size: '32', in_stock: true }, { size: '28', in_stock: true }, { size: '40', in_stock: false }] },
+    { product_sizes: [{ size: 'XL', in_stock: true }, { size: 'S', in_stock: true }, { size: '32', in_stock: true }] },
+    { product_sizes: null },
+  ];
+  assert.deepEqual(storeSizes(products), ['S', 'XL', '28', '32']);
+  assert.deepEqual(storeSizes([]), []);
+});
 
 test('craft text splits into labelled lines and joins back the way the product page reads it', () => {
   const text = 'Hand-finished in Delhi. Details: Bone appliqué Fit: Relaxed through the leg Color: White wash Care: gentle';

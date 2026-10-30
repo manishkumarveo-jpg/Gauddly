@@ -18,6 +18,7 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 - AC-003.2: A saved document keeps its order and hidden flags. Duplicate and unknown section IDs are dropped, and missing defaults are appended. [TC-005]
 - AC-003.3: Media keys using `javascript:`, `data:`, protocol-relative or `http:` URLs become empty, and unsafe CTA links fall back to `/store`. [TC-006]
 - AC-003.4: Featured and archive product lists follow the editorial ID order and skip missing products. With no IDs set, they fall back to the first 3 current pieces or the first 4 archive pieces. [TC-007]
+- AC-003.5: The featured section shows its counter (such as "01 / 03") and previous/next arrows only when it holds more than one garment. [TC-093]
 
 **US-004** (FR-004): As a visitor on a flaky connection, I want to retry a partially failed homepage instead of seeing a broken page.
 - AC-004.1: A failed or partially failed catalog load is never cached, so the next request fetches again. [TC-008]
@@ -28,10 +29,14 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 **US-005** (FR-005): As a shopper, I want to narrow the store by caste, size and price order, so that I find a garment that fits.
 - AC-005.1: Only published products appear. Filtering by caste shows only that caste's products. Filtering by size shows only products where that size is in stock. [TC-010]
 - AC-005.2: Sorting by price (ascending or descending) or by name reorders the list. Changing any filter or sort returns to page 1. [TC-011]
+- AC-005.3: The size filter offers every size in stock on at least one published product, letter sizes first in garment order, then numeric sizes ascending (for example `S`, `XL`, `28`, `32`). [TC-094, TC-095]
+- AC-005.4: Caste tabs appear only for castes with at least one published product, after "All garments". [TC-096]
+- AC-005.5: With a mouse, moving the pointer over a card loads its second photo, which fades in while the card is hovered. Cards that scroll under a still pointer, and touch screens, load no second photo. [TC-097]
 
 **US-006** (FR-006): As a shopper, I want each caste's room to show its story and garments.
-- AC-006.1: `/the-nimbus` and `/nimbus` show the same caste's hero image, passage and published products. [TC-012]
+- AC-006.1: `/the-nimbus` and `/nimbus` show the same caste's name, passage and published products, with the caste's hero image as the poster of the room's film. [TC-012]
 - AC-006.2: A slug that matches no caste shows "Caste room not found in the Sanctum." [TC-013]
+- AC-006.3: A caste with no published products shows "This chamber is sealed." and a "Be told when it opens →" link to `/await`. [TC-098]
 
 **US-007** (FR-007): As a shopper, I want the product page to stop me adding a garment without a size.
 - AC-007.1: Activating the claim button with no size selected adds nothing to the cart, shows "Choose your size to continue." and moves focus to the first enabled size. [TC-014]
@@ -77,10 +82,13 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 ## FEAT-06 — Story and engagement content
 
 **US-017** (FR-017): As a reader, I want to unlock Codex chapters as I explore.
-- AC-017.1: On a fresh browser only chapter 1 is open. Unlocking chapter 2 plays the unlock animation and keeps it open after a reload. [TC-031]
+- AC-017.1: In a development build, on a fresh browser only chapter 1 is open. Unlocking chapter 2 from the simulator panel plays the unlock animation and keeps it open after a reload. [TC-031]
+- AC-017.2: In a production build, chapters 2 to 7 show "This chamber of the Codex remains sealed." and the page has no unlock control. [TC-099]
 
 **US-018** (FR-018): As a viewer, I want to watch released films in the page.
 - AC-018.1: Selecting a released episode with a video opens the player with play/pause and mute controls. Selecting an unreleased episode does not open a player. [TC-032]
+- AC-018.2: A released episode without a video is labelled "PREMIERE SOON", is not announced or focusable as a button, and opens no player when selected. [TC-100]
+- AC-018.3: At a viewport narrower than 900 px, each episode shows as one centred column with 24 px side margins, with its text at full column width. [TC-101]
 
 **US-019** (FR-019): As an interested visitor, I want to be told when new garments and films arrive.
 - AC-019.1: A new email is saved trimmed and lowercased. Submitting an already-registered email also shows success. Any other database error shows a retry message. `/await` opens `/home` 3 seconds after success. [TC-033]
@@ -90,6 +98,11 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 - AC-020.2: The Client Care bar links all five pages and marks the current one with `aria-current="page"`. [TC-090]
 - AC-020.3: Size chart values switch between centimetres and inches rounded to the nearest half inch, and show "—" until measurements are supplied. [TC-091]
 - AC-020.4: A link to a section on another page, such as `/size-care#chart`, opens that page scrolled to the section. [TC-092]
+
+**US-044** (FR-036): As a visitor, I want to move through the Sanctum's castes as a world, so that I understand who each room's garments belong to.
+- AC-044.1: `/the-sanctum` shows the manifesto, then one panel per caste except the Old World, in caste order, each with its position such as "01 / 04", the caste name, its passage and an "Enter the room →" link to `/the-<caste id>`, then the sign-off "Founded in Delhi. Directed by Aman Kaushik." [TC-102]
+- AC-044.2: While scrolling, each caste panel holds in place as the next one slides over it, and the covered panel darkens. [TC-103]
+- AC-044.3: When the castes cannot be loaded, the manifesto and sign-off still show and no empty panel appears. [TC-104]
 
 ## FEAT-07 — Admin studio
 
@@ -168,6 +181,8 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 
 **US-031** (NFR-003): As a keyboard or reduced-motion user, I want to use the site comfortably.
 - AC-031.1: The mobile menu and cart close on Escape, every checkout field has a label, and the native mouse cursor is shown on every page. [TC-051]
+- AC-031.2: With reduced motion preferred, page titles appear without the letter animation, image veils never cover photos, the home hero and Sanctum panels do not move with scrolling, and the entry rain is a still frame. [TC-105]
+- AC-031.3: Small grey text in `--ash-grey`, such as the store's garment count, has a contrast ratio of at least 4.5:1 on the page background and on card backgrounds. [TC-106]
 
 **US-032** (NFR-004): As a visitor, I want pages to load without redundant work.
 - AC-032.1: Concurrent calls to the same cached request run the fetcher once, and the result is reused until its TTL expires. [TC-052]
@@ -195,3 +210,8 @@ Each story maps to exactly one requirement. Acceptance criteria are numbered `AC
 - AC-043.4: Routes outside the allow-list, malformed IDs and IDs over 100 characters return 404 without querying Supabase, and IDs with no matching row are not cached. [TC-086]
 - AC-043.5: When Redis is unreachable or not configured, `/api/*` still returns the Supabase result; a Supabase failure returns 502 and is not cached. [TC-087]
 - AC-043.6: When `/api/*` is missing, answers with something other than JSON, fails or is unreachable, the storefront reads the same queries from Supabase directly. [TC-089]
+
+**US-045** (NFR-009): As a visitor, I want the motion to feel smooth and never make scrolling lag.
+- AC-045.1: The production entry chunk (`dist/assets/index-*.js`) contains no GSAP code; GSAP ships in its own chunk, loaded only by the pages that animate. [TC-107]
+- AC-045.2: Each image veil lifts once, when its frame scrolls into view, and scrolling back up and down again does not cover the image again. [TC-108]
+- AC-045.3: During a scripted scroll of `/home` and `/store` on the production build, no long animation frame contains script time from motion code, and there are no more frames over 50 ms than in the worst run of the same scroll on the build without motion. [TC-109]

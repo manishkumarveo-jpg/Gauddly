@@ -1,13 +1,52 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { publicRead, mediaUrl } from '../lib/supabase';
+import { storeSizes } from '../lib/products';
+import { useMotion, veilReveal } from '../lib/motion';
 import './store.css';
 
 const formatPrice = (p) =>
   new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(p);
 
-const SIZES = ['S', 'M', 'L', 'XL'];
 const PAGE_SIZE = 12;
+
+// One garment. Its second photo loads only once a mouse actually moves over the card and stays a moment.
+// Phones never download it, and neither do cards that slide under a still cursor while scrolling (that
+// fires enter events but no pointermove; loading big photos mid-scroll dropped frames). It then fades in.
+function StoreCard({ piece, casteName }) {
+  const [armed, setArmed] = useState(false);
+  const intent = useRef(null);
+  useEffect(() => () => clearTimeout(intent.current), []);
+  const images = [...(piece.product_images || [])].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  return (
+    <Link
+      to={`/the-${piece.caste_id}/${piece.id}`}
+      className="store-card"
+      onPointerMove={(e) => { if (e.pointerType === 'mouse' && !armed && !intent.current) intent.current = setTimeout(() => setArmed(true), 150); }}
+      onPointerLeave={() => { clearTimeout(intent.current); intent.current = null; }}
+    >
+      <div className="store-card-img">
+        <img
+          src={mediaUrl(images[0]?.r2_key)}
+          alt={piece.name}
+          loading="lazy"
+          decoding="async"
+          onError={(e) => { e.target.style.visibility = 'hidden'; }}
+        />
+        {armed && images[1] && (
+          <img src={mediaUrl(images[1].r2_key)} alt="" decoding="async" className="store-card-alt" onLoad={(e) => e.target.classList.add('loaded')} />
+        )}
+        <span className="veil" aria-hidden="true" />
+      </div>
+      <span className="store-eyebrow">{casteName}</span>
+      <div className="store-card-row">
+        <h3>{piece.name}</h3>
+        <span>{formatPrice(piece.price)}</span>
+      </div>
+      <span className="store-card-link">View garment ↗</span>
+    </Link>
+  );
+}
 
 const SORT_OPTIONS = [
   { key: 'featured', label: 'Featured' },
@@ -66,11 +105,17 @@ export default function Store() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const sizeOptions = useMemo(() => storeSizes(products), [products]);
 
-  const tabs = [{ id: 'all', name: 'All garments' }, ...castes];
+  // Only castes with a published garment get a tab; an empty room is no use as a filter.
+  const tabs = [{ id: 'all', name: 'All garments' }, ...castes.filter((c) => products.some((p) => p.caste_id === c.id))];
+
+  const root = useRef(null);
+  const pageKey = pageItems.map((p) => p.id).join();
+  useMotion(root, (el) => veilReveal(el.querySelectorAll('.store-card-img')), [pageKey]);
 
   return (
-    <div className="store fade-in">
+    <div className="store fade-in" ref={root}>
       <header className="store-head">
         <div>
           <span className="store-eyebrow">
@@ -97,7 +142,7 @@ export default function Store() {
             Size:
             <select value={size} onChange={(e) => setSize(e.target.value)}>
               <option value="all">All</option>
-              {SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+              {sizeOptions.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
           <label>
@@ -129,25 +174,7 @@ export default function Store() {
       ) : (
         <div className="store-grid">
           {pageItems.map((piece) => (
-            <Link key={piece.id} to={`/the-${piece.caste_id}/${piece.id}`} className="store-card">
-              <div className="store-card-img">
-                <img
-                  src={mediaUrl(piece.product_images?.[0]?.r2_key)}
-                  alt={piece.name}
-                  loading="lazy"
-                  decoding="async"
-                  className="img-reveal"
-                  onLoad={(e) => e.target.classList.add('loaded')}
-                  onError={(e) => { e.target.style.visibility = 'hidden'; }}
-                />
-              </div>
-              <span className="store-eyebrow">{casteName(piece.caste_id)}</span>
-              <div className="store-card-row">
-                <h3>{piece.name}</h3>
-                <span>{formatPrice(piece.price)}</span>
-              </div>
-              <span className="store-card-link">View garment ↗</span>
-            </Link>
+            <StoreCard key={piece.id} piece={piece} casteName={casteName(piece.caste_id)} />
           ))}
         </div>
       )}

@@ -6,11 +6,11 @@ The phase model is inferred from the code's layers (ASSUMPTION-015). The greenfi
 
 | Phase | Name | Requirements | Status |
 | --- | --- | --- | --- |
-| PH-1 | Foundation and design system | FR-001, FR-002, NFR-001, NFR-003, NFR-004 | Complete |
+| PH-1 | Foundation and design system | FR-001, FR-002, NFR-001, NFR-003, NFR-004, NFR-009 | Complete (NFR-009 in the working tree) |
 | PH-2 | Accounts and authentication | FR-012, FR-013, FR-014, FR-015, FR-016 | Complete (FR-016 in the working tree, uncommitted) |
 | PH-3 | Catalog and storefront | FR-005, FR-006, FR-007, FR-008 | Complete |
 | PH-4 | Cart, checkout and payments | FR-009, FR-010, FR-011 | Partial |
-| PH-5 | Story and engagement content | FR-003, FR-004, FR-017, FR-018, FR-019, FR-020 | Complete |
+| PH-5 | Story and engagement content | FR-003, FR-004, FR-017, FR-018, FR-019, FR-020, FR-036 | Complete (FR-036 in the working tree) |
 | PH-6 | Admin studio | FR-021 to FR-035 | Complete |
 | PH-7 | Data layer reproducibility and security hardening | NFR-002, NFR-005, NFR-007 | Partial |
 | PH-8 | Quality gates, CI and launch readiness | NFR-006, NFR-008 | Partial |
@@ -21,9 +21,9 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 ## PH-1 — Foundation and design system
 
-**Status: Complete.** Built: the Vite/React shell, lazy routes, design tokens and global CSS, navigation, footer, page transitions, rain effects, the entry sequence, per-route SEO and the Vercel config.
+**Status: Complete.** Built: the Vite/React shell, lazy routes, design tokens and global CSS, navigation, footer, page transitions, rain effects, the entry sequence, per-route SEO and the Vercel config. In the working tree: the GSAP motion layer in `src/lib/motion.js` with its performance rules (NFR-009, ADR-017), the film grain and the AA-contrast grey token.
 
-**Verification work:** run TC-001, TC-002, TC-003, TC-048, TC-051, TC-052, TC-053 and TC-054.
+**Verification work:** run TC-001, TC-002, TC-003, TC-048, TC-051, TC-052, TC-053, TC-054 and TC-105 to TC-109. TC-106, TC-107 and TC-109 were checked on 2026-10-28.
 
 ## PH-2 — Accounts and authentication
 
@@ -35,9 +35,9 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 ## PH-3 — Catalog and storefront
 
-**Status: Complete.** Built: the store grid with filters, sort and pagination; caste rooms; product detail; the archive.
+**Status: Complete.** Built: the store grid with filters, sort and pagination; caste rooms; product detail; the archive. In the working tree: size options from the catalog, caste tabs only for castes with garments, the hover second photo, and the sealed state for empty caste rooms.
 
-**Verification work:** run TC-010 to TC-016.
+**Verification work:** run TC-010 to TC-016 and TC-094 to TC-098. TC-094 is automated and passing.
 
 ## PH-4 — Cart, checkout and payments
 
@@ -54,9 +54,11 @@ Dependency order for the remaining work: **PH-7 → PH-4 (payments) → PH-8**. 
 
 ## PH-5 — Story and engagement content
 
-**Status: Complete.** Built: the editorial homepage, Codex, Episodes, Sanctum, waitlist and info pages.
+**Status: Complete.** Built: the editorial homepage, Codex, Episodes, Sanctum, waitlist and info pages. In the working tree: the Sanctum's descent through the castes (FR-036), "PREMIERE SOON" episodes and the one-column Films layout on phones, and the Codex simulator limited to development builds.
 
-**Verification work:** run TC-004 to TC-009 and TC-031 to TC-034. TC-004 to TC-008 are automated and passing.
+**Verification work:** run TC-004 to TC-009, TC-031 to TC-034, TC-090 to TC-093 and TC-099 to TC-104. TC-004 to TC-008 and TC-091 are automated and passing.
+
+**Open item:** the owner decides how visitors unlock Codex chapters 2 and 3 (ADR-018). Until then they stay sealed.
 
 ## PH-6 — Admin studio
 

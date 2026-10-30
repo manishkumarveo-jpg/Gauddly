@@ -18,4 +18,4 @@ Match the code around you. These are the conventions the codebase already follow
 - **Accessibility:** every input has a label (an `sr-only` label is fine). Errors use `role="alert"`, and status messages use `role="status"`. Overlays close on Escape and restore focus.
 - **Copy:** user-facing text follows the brand voice ("claim", "Sanctum", "The Crossing"). Prices use `Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })`.
 - **Lint:** `npm run lint` must pass. `react/rules-of-hooks` is an error.
-- **Dependencies:** do not add one when a few lines will do. Runtime dependencies are currently only Supabase, React, React DOM and React Router.
+- **Dependencies:** do not add one when a few lines will do. Runtime dependencies are currently Supabase, React, React DOM, React Router and GSAP. GSAP is for motion only and is imported only through `src/lib/motion.js`, whose header lists the rules that keep scrolling smooth (ADR-017).

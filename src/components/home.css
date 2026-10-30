@@ -13,8 +13,11 @@
 .home-media-empty small { font:14px var(--font-body); letter-spacing:.12em; color:#aaa; padding:20px; text-align:center; }
 .home-cta { display:inline-flex; gap:36px; justify-content:space-between; align-items:center; width:fit-content; min-height:48px; padding:10px 22px; border:1px solid #c8ccd180 !important; font-size:12px !important; letter-spacing:.12em; text-transform:uppercase; transition:background .25s; }
 .home-cta:hover { background:#ffffff10; }
-.home-hero { height:calc(100svh - 20px); min-height:580px; position:relative; display:grid; place-items:center; }
-.home-hero > .home-media,.home-hero > video,.home-hero-shade { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.home-hero { height:calc(100svh - 20px); min-height:580px; position:relative; display:grid; place-items:center; overflow:hidden; }
+/* 8% spare above and below, so the parallax drift in HomeExperience never shows an edge */
+.home-hero-media { position:absolute; left:0; right:0; top:-8%; bottom:-8%; }
+.home-hero-media > .home-media,.home-hero-media > video,.home-hero-shade { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.home-veil-frame { position:relative; }
 .home-hero-shade { background:linear-gradient(0deg,#0a0a0a90,transparent 60%,#0a0a0a80); }
 .home-hero-copy { position:relative; padding:100px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:24px; }
 .home-hero h1 { font-size:clamp(52px,7vw,108px); text-transform:uppercase; letter-spacing:.09em; line-height:1.05; max-width:1000px; }

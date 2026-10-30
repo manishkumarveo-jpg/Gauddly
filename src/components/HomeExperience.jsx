@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { mediaUrl, supabase } from '../lib/supabase';
 import { assetKey, chooseProducts, homeLink } from '../lib/homepage';
+import { fogTitle, gsap, useMotion, veilReveal } from '../lib/motion';
 import './home.css';
 
 const price = value => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
@@ -44,10 +45,12 @@ function Hero({ section, fallback, preview }) {
     return () => { clearTimeout(timer); mobile.removeEventListener('change', update); reduce.removeEventListener('change', update); };
   }, [section.video, section.mobileVideo, preview]);
   return <section className="home-hero" data-hp-section="hero">
-    <Still section={{ ...section, image: section.poster || section.image }} fallback={fallback} field="poster" eager />
-    {videoSource && <video key={videoSource} ref={videoRef} src={videoSource} preload="none" poster={url(section.poster || section.image || fallback)} autoPlay muted loop playsInline onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={e => { e.currentTarget.style.display = 'none'; setPlaying(false); }} />}
+    <div className="home-hero-media">
+      <Still section={{ ...section, image: section.poster || section.image }} fallback={fallback} field="poster" eager />
+      {videoSource && <video key={videoSource} ref={videoRef} src={videoSource} preload="none" poster={url(section.poster || section.image || fallback)} autoPlay muted loop playsInline onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={e => { e.currentTarget.style.display = 'none'; setPlaying(false); }} />}
+    </div>
     <div className="home-hero-shade" />
-    <div className="home-hero-copy"><span className="ui-text" data-hp-field="label">{section.label}</span><h1 data-hp-field="title">{section.title}</h1><p data-hp-field="body">{section.body}</p><Cta section={section} /></div>
+    <div className="home-hero-copy"><span className="ui-text" data-hp-field="label">{section.label}</span><h1 key={section.title} data-hp-field="title">{section.title}</h1><p data-hp-field="body">{section.body}</p><Cta section={section} /></div>
     <div className="home-hero-bottom"><span>GAUDDLY / DELHI</span><span>SCROLL TO DISCOVER ↓</span>{(videoSource || requestedSource) && <button data-hp-field="video" onClick={() => { if (!videoSource) { setVideoSource(requestedSource); return; } const v = videoRef.current; if (v) { if (v.paused) v.play().catch(() => {}); else v.pause(); } }}>{playing ? 'Pause film' : 'Play film'}</button>}</div>
   </section>;
 }
@@ -59,7 +62,7 @@ function Featured({ section, products, loading }) {
   if (!product) return <section className="home-section home-empty" data-hp-section="featured"><Heading section={section} /><p>{loading ? 'Gathering the garments…' : 'Discover the current collection.'}</p><Link className="home-cta" to="/store">Explore the store →</Link></section>;
   return <section className="home-featured" data-hp-section="featured">
     <Link className="home-featured-image" to={productLink(product)} aria-label={`View ${product.name}`}><Still section={section} fallback={productImage(product)} /></Link>
-    <div className="home-featured-copy"><span className="ui-text" data-hp-field="label">{section.label}</span><h2 data-hp-field="productIds">{product.name}</h2><span className="home-price" data-hp-field="productIds">{price(product.price)}</span><p data-hp-field="body">{product.passage || section.body}</p><Cta section={section} href={productLink(product)} /><div className="home-slider-controls"><span>{String(index % selected.length + 1).padStart(2, '0')} / {String(selected.length).padStart(2, '0')}</span><div><button disabled={selected.length < 2} aria-label="Previous featured garment" onClick={() => setIndex(n => (n + selected.length - 1) % selected.length)}>←</button><button disabled={selected.length < 2} aria-label="Next featured garment" onClick={() => setIndex(n => (n + 1) % selected.length)}>→</button></div></div></div>
+    <div className="home-featured-copy"><span className="ui-text" data-hp-field="label">{section.label}</span><h2 data-hp-field="productIds">{product.name}</h2><span className="home-price" data-hp-field="productIds">{price(product.price)}</span><p data-hp-field="body">{product.passage || section.body}</p><Cta section={section} href={productLink(product)} />{selected.length > 1 && <div className="home-slider-controls"><span>{String(index % selected.length + 1).padStart(2, '0')} / {String(selected.length).padStart(2, '0')}</span><div><button aria-label="Previous featured garment" onClick={() => setIndex(n => (n + selected.length - 1) % selected.length)}>←</button><button aria-label="Next featured garment" onClick={() => setIndex(n => (n + 1) % selected.length)}>→</button></div></div>}</div>
   </section>;
 }
 
@@ -97,16 +100,31 @@ function Waitlist({ section, preview }) {
 export default function HomeExperience({ content, catalog, loading = false, preview = false }) {
   const { products = [], castes = [], episodes = [] } = catalog;
   const fallback = castes[0]?.hero_r2_key || productImage(products[0]);
-  return <div className="home-experience">{content.sections.filter(s => s.enabled !== false).map(section => {
+  const root = useRef(null);
+  // The editor's live preview stays still. The title and hero drift are set up once per mount.
+  useMotion(root, el => {
+    if (preview) return;
+    fogTitle(el.querySelector('.home-hero h1'));
+    const hero = el.querySelector('.home-hero');
+    if (!hero) return;
+    // As the hero scrolls away, the film falls behind (parallax; home.css gives it room to move) and the title
+    // rises and fades. Translate only: scaling the film's layer would re-rasterize the poster every frame.
+    gsap.timeline({ scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.5 } })
+      .to(hero.querySelector('.home-hero-media'), { yPercent: 6, ease: 'none' }, 0)
+      .to(hero.querySelector('.home-hero-copy'), { yPercent: -25, opacity: 0, ease: 'none' }, 0);
+  }, [preview]);
+  // Caste cards and archive pictures arrive with the catalog, after the first render.
+  useMotion(root, el => { if (!preview) veilReveal(el.querySelectorAll('.home-caste, .home-veil-frame')); }, [preview, castes.length, products.length]);
+  return <div className="home-experience" ref={root}>{content.sections.filter(s => s.enabled !== false).map(section => {
     switch (section.id) {
       case 'hero': return <Hero key={section.id} section={section} fallback={fallback} preview={preview} />;
       case 'manifesto': return <section key={section.id} className="home-manifesto" data-hp-section="manifesto"><Heading section={section} /><Cta section={section} /></section>;
       case 'featured': return <Featured key={section.id} section={section} products={products} loading={loading} />;
-      case 'castes': return <section key={section.id} className="home-section" data-hp-section="castes"><Heading section={section} /><div className="home-castes">{castes.map((c, index) => { const override = section.cards?.find(card => card.id === c.id) || {}; return <Link className="home-caste" key={c.id} to={`/the-${c.id}`} data-hp-field="cards"><Still section={override} fallback={c.hero_r2_key} field="cards" /><div><span className="ui-text">0{index + 1}</span><h3>{override.title || c.name}</h3><p>{override.body || ''}</p><span aria-hidden="true">↗</span></div></Link>; })}</div>{!castes.length && <p>{loading ? 'Opening the rooms…' : 'New rooms will open soon.'}</p>}</section>;
+      case 'castes': return <section key={section.id} className="home-section" data-hp-section="castes"><Heading section={section} /><div className="home-castes">{castes.map((c, index) => { const override = section.cards?.find(card => card.id === c.id) || {}; return <Link className="home-caste" key={c.id} to={`/the-${c.id}`} data-hp-field="cards"><Still section={override} fallback={c.hero_r2_key} field="cards" /><div><span className="ui-text">0{index + 1}</span><h3>{override.title || c.name}</h3><p>{override.body || ''}</p><span aria-hidden="true">↗</span></div><span className="veil" aria-hidden="true" /></Link>; })}</div>{!castes.length && <p>{loading ? 'Opening the rooms…' : 'New rooms will open soon.'}</p>}</section>;
       case 'craft': return <section key={section.id} className="home-craft home-section" data-hp-section="craft"><div><Heading section={section} /><div className="home-facts" data-hp-field="facts">{section.facts?.map((fact, i) => <div key={i}><span>0{i + 1}</span><p>{fact}</p></div>)}</div><Cta section={section} /></div><Still section={section} fallback={productImage(products[1]) || fallback} /></section>;
       case 'film': return <Film key={`${section.id}-${section.episodeId}-${section.video}`} section={section} episodes={episodes} />;
       case 'quote': return <section key={section.id} className={`home-section home-quote ${section.image ? 'has-image' : ''}`} data-hp-section="quote">{section.image && <Still section={section} />}<div><span className="ui-text" data-hp-field="label">{section.label}</span><blockquote data-hp-field="body">{section.body}</blockquote><h2 data-hp-field="title">{section.title}</h2><Cta section={section} /></div></section>;
-      case 'archive': { const items = chooseProducts(products, section.productIds, true); return <section key={section.id} className="home-section home-archive" data-hp-section="archive"><div className="home-archive-heading"><Heading section={section} /><Cta section={section} /></div><div className="home-archive-grid" data-hp-field="productIds">{items.map(p => <Link key={p.id} to={productLink(p)}><Still section={{ alt: p.name }} fallback={productImage(p)} field="productIds" /><h3>{p.name}</h3><span>{price(p.price)}</span></Link>)}</div>{!items.length && <p>{loading ? 'Opening the archive…' : 'The next chapter of the archive is being prepared.'}</p>}</section>; }
+      case 'archive': { const items = chooseProducts(products, section.productIds, true); return <section key={section.id} className="home-section home-archive" data-hp-section="archive"><div className="home-archive-heading"><Heading section={section} /><Cta section={section} /></div><div className="home-archive-grid" data-hp-field="productIds">{items.map(p => <Link key={p.id} to={productLink(p)}><div className="home-veil-frame"><Still section={{ alt: p.name }} fallback={productImage(p)} field="productIds" /><span className="veil" aria-hidden="true" /></div><h3>{p.name}</h3><span>{price(p.price)}</span></Link>)}</div>{!items.length && <p>{loading ? 'Opening the archive…' : 'The next chapter of the archive is being prepared.'}</p>}</section>; }
       case 'waitlist': return <Waitlist key={section.id} section={section} preview={preview} />;
       default: return null;
     }

@@ -115,6 +115,74 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Automation:** None
 - **Status:** Not run
 
+### TC-105 — Reduced motion turns the motion layer off
+
+- **Traces:** NFR-003 · US-031 · AC-031.2 · PH-1
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Chrome DevTools Rendering panel set to emulate `prefers-reduced-motion: reduce`; site storage cleared so `/` shows the entry sequence.
+- **Test data:** None.
+- **Steps:**
+  1. Open `/` and watch the rain.
+  2. Open `/home`, `/store` and `/the-sanctum`, and scroll each page from top to bottom.
+- **Expected result:** In step 1 the rain is a still frame. In step 2 page titles appear at once without the letter animation, no photo is ever covered by a black veil, the home hero and its title do not move with scrolling, and the Sanctum panels stack without drifting or darkening.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-106 — Grey text meets the AA contrast ratio
+
+- **Traces:** NFR-003 · US-031 · AC-031.3 · PH-1
+- **Type:** Manual inspection
+- **Priority:** P2
+- **Preconditions:** None.
+- **Test data:** Text colour `--ash-grey` #8A867F from `src/index.css`; backgrounds #0A0A0A (`--void-black`) and #151515 (store card frames).
+- **Steps:**
+  1. Compute the WCAG 2 contrast ratio of the text colour against each background.
+- **Expected result:** Both ratios are at least 4.5:1 (5.47:1 and 5.04:1).
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
+
+### TC-107 — GSAP stays out of the entry chunk
+
+- **Traces:** NFR-009 · US-045 · AC-045.1 · PH-1
+- **Type:** Manual inspection
+- **Priority:** P2
+- **Preconditions:** A fresh `npm run build`.
+- **Test data:** None.
+- **Steps:**
+  1. Search `dist/assets/index-*.js` and `dist/assets/motion-*.js` for "GreenSock".
+  2. Compare the `index-*.js` size in the build output with the build before the motion layer.
+- **Expected result:** Only the `motion-*.js` chunk contains GSAP. The entry chunk is the same size within 1 kB (468.85 kB on 2026-10-28, against 468.58 kB before the motion layer).
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
+
+### TC-108 — Image veils lift once
+
+- **Traces:** NFR-009 · US-045 · AC-045.2 · PH-1
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** Motion allowed (no reduced-motion preference).
+- **Test data:** None.
+- **Steps:**
+  1. Open `/store` and scroll down slowly to the last card.
+  2. Scroll back to the top, then down again.
+- **Expected result:** In step 1 each photo is uncovered by a black veil lifting upward as its card comes into view. In step 2 no veil covers a photo again.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-109 — Scrolling with motion is as smooth as without it
+
+- **Traces:** NFR-009 · US-045 · AC-045.3 · PH-1
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** The production build with the motion layer and the build before it, each served with `vite preview` on its own port; Chrome with nothing else running. For `/store`, scroll the page once and wait for every image to decode before measuring.
+- **Test data:** A page script that calls `window.scrollBy({ top: 450, behavior: 'smooth' })` every 350 ms until the bottom, recording `requestAnimationFrame` intervals and `long-animation-frame` entries with their script time.
+- **Steps:**
+  1. Run the script on `/home` and `/store` on both builds, alternating between builds.
+- **Expected result:** No long animation frame on the motion build contains script time. Its count of frames longer than 50 ms is no higher than the worst run of the same page on the build without motion.
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
+
 ## PH-2 — Accounts and authentication
 
 ### TC-022 — Signup validation and confirmation path
@@ -281,7 +349,7 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Test data:** `/the-nimbus`, `/nimbus`.
 - **Steps:**
   1. Open both paths.
-- **Expected result:** Both show the same caste name in upper case, its hero image and passage, and only its published products.
+- **Expected result:** Both show the same caste name in upper case, the room film with the caste's hero image as its poster, the passage, and only its published products.
 - **Automation:** None
 - **Status:** Not run
 
@@ -338,6 +406,75 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Expected result:** Only `old-world` products are listed. Every link has the form `/the-old-world/<id>`.
 - **Automation:** None
 - **Status:** Not run
+
+### TC-094 — Store size options cover every in-stock size in order
+
+- **Traces:** FR-005 · US-005 · AC-005.3 · PH-3
+- **Type:** Automated unit
+- **Priority:** P2
+- **Preconditions:** None.
+- **Test data:** Three products: in-stock `32` and `28` with an out-of-stock `40`; in-stock `XL`, `S` and `32`; and one with `product_sizes` set to null. Then an empty list.
+- **Steps:**
+  1. Call `storeSizes` with the three products, then with an empty list.
+- **Expected result:** `['S', 'XL', '28', '32']`, then `[]`.
+- **Automation:** `tests/products.test.js` › "the store size filter offers every in-stock size, letters first, then waist sizes in number order"
+- **Status:** Passing (2026-10-28)
+
+### TC-095 — Store size filter lists and applies waist sizes
+
+- **Traces:** FR-005 · US-005 · AC-005.3 · PH-3
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Published products in stock in both letter and waist sizes (the live catalog on 2026-10-28 has both).
+- **Test data:** Size `32`.
+- **Steps:**
+  1. Open `/store` and open the "Size:" menu.
+  2. Choose `32`.
+- **Expected result:** The menu lists "All", then the letter sizes in stock in garment order, then the numeric sizes ascending (on 2026-10-28: S, M, L, XL, ONE SIZE, 28, 30, 32, 34, 36). Step 2 shows only products with `32` in stock, on page 1.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-096 — Caste tabs appear only for castes with garments
+
+- **Traces:** FR-005 · US-005 · AC-005.4 · PH-3
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** At least one caste with no published product (on 2026-10-28: The Nimbus, The Vestments and The Fallen).
+- **Test data:** None.
+- **Steps:**
+  1. Open `/store` and read the caste tabs.
+- **Expected result:** The tabs are "All garments" followed only by castes that have a published product (on 2026-10-28: "The Faithful", "The Old World").
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
+
+### TC-097 — A card's second photo loads on mouse hover only
+
+- **Traces:** FR-005 · US-005 · AC-005.5 · PH-3
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** A desktop browser with a mouse; a published product with at least two photos; the DevTools Network panel filtered to images.
+- **Test data:** None.
+- **Steps:**
+  1. Open `/store`, rest the pointer over the grid without moving it, and scroll the page with the mouse wheel.
+  2. Move the pointer over a card that has two photos and keep it there for a second.
+  3. Turn on touch emulation, reload, and tap through the grid.
+- **Expected result:** Step 1 requests no second photo. In step 2 that card's second photo is requested and fades in over the first while the pointer stays on the card. Step 3 requests no second photo.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-098 — An empty caste room shows the sealed state
+
+- **Traces:** FR-006 · US-006 · AC-006.3 · PH-3
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** A caste with no published products (on 2026-10-28: `nimbus`).
+- **Test data:** `/nimbus`.
+- **Steps:**
+  1. Open `/nimbus` and scroll below the passage.
+  2. Inspect the link's target.
+- **Expected result:** "This chamber is sealed." and "Its garments have not yet crossed into the world." are shown, with the link "Be told when it opens →", which points to `/await`.
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
 
 ## PH-4 — Cart, checkout and payments
 
@@ -499,11 +636,11 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Traces:** FR-017 · US-017 · AC-017.1 · PH-5
 - **Type:** Manual browser
 - **Priority:** P3
-- **Preconditions:** `gauddly_unlocked_chapters` is absent.
+- **Preconditions:** A development build (`npm run dev`), because production builds have no unlock control (ADR-018); `gauddly_unlocked_chapters` is absent.
 - **Test data:** None.
 - **Steps:**
   1. Open `/codex` and note which chapters are sealed.
-  2. Activate the unlock control for chapter 2 and wait for the animation to finish.
+  2. Activate "Unlock Ch. II" in the "Unlock Animation Simulator" panel and wait for the animation to finish.
   3. Reload.
 - **Expected result:** Initially only chapter 1 is readable. After the animation chapter 2 is readable, and `localStorage.gauddly_unlocked_chapters` contains `[1,2]`. Chapter 2 stays unlocked after reload.
 - **Automation:** None
@@ -588,6 +725,101 @@ Format: [test-strategy.md §4](test-strategy.md#4-test-case-format). Test data a
 - **Steps:**
   1. On `/returns`, choose "check the size chart".
 - **Expected result:** `/size-care` opens scrolled to the "Size chart" section, not the top of the page.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-093 — Featured controls appear only with several garments
+
+- **Traces:** FR-003 · US-003 · AC-003.5 · PH-5
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** Admin access to the homepage editor.
+- **Test data:** The featured section with one product ID, then with three.
+- **Steps:**
+  1. In the homepage editor preview, give the featured section one garment and look at the section.
+  2. Give it three garments and use the arrows.
+- **Expected result:** Step 1 shows no counter and no "←" or "→" buttons. Step 2 shows "01 / 03" with both buttons, and they cycle through the three garments.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-099 — A production build keeps chapters 2 to 7 sealed
+
+- **Traces:** FR-017 · US-017 · AC-017.2 · PH-5
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** A production build (`npm run build` then `npm run preview`, or a deployment); `gauddly_unlocked_chapters` is absent.
+- **Test data:** None.
+- **Steps:**
+  1. Open `/codex` and scroll through every chapter.
+  2. Search the page for "Unlock Animation Simulator".
+- **Expected result:** Chapters 2 to 7 each show "This chamber of the Codex remains sealed." The page has no unlock panel and no "Unlock Ch. II" or "Unlock Ch. III" button.
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
+
+### TC-100 — A released episode without a film is not offered as playable
+
+- **Traces:** FR-018 · US-018 · AC-018.2 · PH-5
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** A released episode with no video (on 2026-10-28: episodes 00, 01 and 02).
+- **Test data:** None.
+- **Steps:**
+  1. Open `/episodes` and inspect the tile of a released episode without a video.
+  2. Press Tab through the page, then click that tile.
+- **Expected result:** The tile is labelled "PREMIERE SOON" and has no `role="button"` and no `tabindex`. Tab skips it, and clicking it opens no player.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-101 — The Films page is one column on a phone
+
+- **Traces:** FR-018 · US-018 · AC-018.3 · PH-5
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** At least two episodes.
+- **Test data:** Viewport 390 × 844.
+- **Steps:**
+  1. Open `/episodes` at 390 px wide and scroll through the episodes.
+- **Expected result:** Each episode shows its number, still and text stacked in one centred column, with 24 px side margins, and its text runs the full width of the column.
+- **Automation:** None
+- **Status:** Passing (2026-10-28)
+
+### TC-102 — The Sanctum shows one panel per caste with a link to its room
+
+- **Traces:** FR-036 · US-044 · AC-044.1 · PH-5
+- **Type:** Manual browser
+- **Priority:** P2
+- **Preconditions:** Four castes plus the Old World in the catalog (as on 2026-10-28).
+- **Test data:** None.
+- **Steps:**
+  1. Open `/the-sanctum` and scroll to the end.
+  2. Inspect each "Enter the room →" link.
+- **Expected result:** After the manifesto there are four panels, "01 / 04" to "04 / 04", for The Nimbus, The Vestments, The Faithful and The Fallen, each with its passage, and none for The Old World. Each link points to `/the-<caste id>`, for example `/the-nimbus`. The page ends with "Founded in Delhi. Directed by Aman Kaushik."
+- **Automation:** None
+- **Status:** Not run
+
+### TC-103 — Sanctum panels stack while scrolling
+
+- **Traces:** FR-036 · US-044 · AC-044.2 · PH-5
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** Motion allowed (no reduced-motion preference).
+- **Test data:** None.
+- **Steps:**
+  1. Open `/the-sanctum` and scroll slowly through the castes.
+- **Expected result:** Each panel stays fixed in the viewport while the next one slides up over it. The covered panel drifts up slightly and darkens, and the arriving panel's text rises into place.
+- **Automation:** None
+- **Status:** Not run
+
+### TC-104 — The Sanctum without castes
+
+- **Traces:** FR-036 · US-044 · AC-044.3 · PH-5
+- **Type:** Manual browser
+- **Priority:** P3
+- **Preconditions:** DevTools request blocking set for the Supabase REST host and `/api/*`.
+- **Test data:** None.
+- **Steps:**
+  1. Open `/the-sanctum` in a new tab with the requests blocked.
+- **Expected result:** The manifesto and "Founded in Delhi. Directed by Aman Kaushik." are shown, with no caste panel, no empty panel and no error.
 - **Automation:** None
 - **Status:** Not run
 
