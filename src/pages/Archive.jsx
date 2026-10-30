@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { publicRead, mediaUrl } from '../lib/supabase';
 
+// The archive's monochrome hero: the cloister still (also Episode 00's still)
+const ARCHIVE_HERO = mediaUrl('homepage/film/23553884-4ef6-46a6-89e2-63898567bc5b-Solitary-Figure-in-a-Gothic-Cloister.png');
+
 export default function Archive() {
   const [isHeaderPinned, setIsHeaderPinned] = useState(false);
   const headerAnchorRef = useRef(null);
@@ -48,7 +51,7 @@ export default function Archive() {
         style={{
           width: '100%',
           height: '80vh',
-          backgroundImage: 'linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0) 40%), url("/cathedral_hero.png")',
+          backgroundImage: `linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0) 40%), url("${ARCHIVE_HERO}")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           filter: 'grayscale(1)', // Archive is completely monochrome

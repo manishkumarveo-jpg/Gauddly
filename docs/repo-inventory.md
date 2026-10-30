@@ -20,12 +20,13 @@ Five source files carry uncommitted changes at the time of writing. They make ad
 | Media storage | Cloudflare R2, via presigned URLs from a Supabase Edge Function | `src/pages/admin/uploadToR2.js` |
 | Hosting | Cloudflare Workers via Workers Builds (`dist/` as static assets with SPA fallback and immutable cache on `/assets/*`; one Worker for `/api/*`); `vercel.json` is left over and unused (ADR-016) | `wrangler.jsonc`, `worker/index.js`, `public/_headers` |
 | Cache | Upstash Redis over its REST API, for public catalog reads (NFR-008) | `src/lib/public-api.js` |
+| Motion | GSAP 3.15 with ScrollTrigger and SplitText, loaded only by lazy page chunks; off when reduced motion is preferred (NFR-009, ADR-017) | `package.json`, `src/lib/motion.js` |
 | Lint | oxlint (react, oxc plugins) | `.oxlintrc.json` |
 | Unit tests | Node built-in test runner (`node:test`) | `tests/*.test.js` |
 | SQL tests | psql scripts in a rolled-back transaction | `tests/homepage-permissions.sql`, `tests/rate-limits-permissions.sql` |
 | AI | None. No Groq or other model calls exist. | Code search: no AI SDK or API calls |
 
-Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom`, `react-router-dom`.
+Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom`, `react-router-dom` and, since 2026-10-28, `gsap` (ADR-017).
 
 ## 2. Directory structure
 
@@ -47,7 +48,7 @@ Runtime dependencies are limited to `@supabase/supabase-js`, `react`, `react-dom
 └── src/
     ├── main.jsx, App.jsx      Entry point and route table
     ├── context/               AppContext (cart, session, isAdmin, sound, entry, codex)
-    ├── lib/                   supabase client, public read API, homepage model, request cache, safe redirects
+    ├── lib/                   supabase client, public read API, homepage model, product helpers, request cache, safe redirects, GSAP motion
     ├── components/            Navigation, Footer, CartDrawer, HomeExperience, SEO, effects
     └── pages/                 Public pages and admin/ studio
 ```
@@ -141,11 +142,12 @@ There is no `test` script in `package.json`, no CI configuration (`.github/` abs
 **Implemented**
 - Entry sequence with 30-day bypass and optional sound drone.
 - Editorial homepage driven by a published CMS document with safe defaults.
-- Storefront: store grid with caste, size and sort filters; caste rooms; product detail; archive.
+- Storefront: store grid with caste, size and sort filters (size options taken from the catalog, working tree); caste rooms with a sealed state when empty; product detail; archive.
 - Cart in `localStorage`; checkout through the `create-order` Edge Function.
 - Supabase email/password auth: signup, sign-in, recovery, account profile and order history.
 - Admin redirect after sign-in plus dashboard links in the navigation and on the account page (working tree).
-- Story content: Codex chapters with local unlocks, Episodes films, Sanctum page, waitlist, legal/info pages.
+- Story content: Codex chapters (2 to 7 sealed; the unlock simulator is in development builds only, ADR-018), Episodes films, the Sanctum page with its descent through the castes (working tree), waitlist, legal/info pages.
+- GSAP motion layer (working tree): letter-by-letter page titles, image veils, the home hero drift and the Sanctum descent, all off when reduced motion is preferred (NFR-009).
 - Admin studio: dashboard metrics and CSV export, products, castes, episodes, orders, homepage editor, R2 uploads.
 - Per-route SEO meta tags; noindex on auth and admin.
 - Rate limits on waitlist signups and pending orders; Redis-cached public catalog reads.

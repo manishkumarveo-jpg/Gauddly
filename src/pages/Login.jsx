@@ -30,7 +30,7 @@ export default function Login() {
     } finally { setBusy(false); }
   }
 
-  return <AuthLayout>
+  return <AuthLayout image="/auth/create-account.jpg" alt="A cloaked figure in a gothic stone cloister">
     <span className="auth-eyebrow">Your place in the Sanctum</span>
     <h1>Welcome back.</h1>
     <p className="auth-intro">Sign in to view your claims and manage your details.</p>

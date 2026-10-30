@@ -1,0 +1,28 @@
+/* The Sanctum: the manifesto, then a descent through the castes (src/pages/Sanctum.jsx). */
+.sanctum { background: var(--void-black); color: var(--bone-white); }
+
+.sanctum-intro { max-width: 680px; margin: 0 auto; padding: 160px 24px 120px; display: flex; flex-direction: column; gap: 80px; text-align: center; }
+.sanctum-intro h1 { font-family: var(--font-display); font-size: 40px; font-weight: 300; line-height: 1.3; }
+.sanctum-intro-body { display: flex; flex-direction: column; gap: 32px; align-items: center; }
+
+/* Sticky panels stack: each one holds while the next slides over it. GSAP only moves .sanctum-panel-inner
+   up and fades .sanctum-panel-shade in, both compositor-only. */
+.sanctum-castes { position: relative; }
+.sanctum-panel { position: sticky; top: 0; height: 100svh; overflow: hidden; background: var(--void-black); }
+.sanctum-panel-inner { position: absolute; inset: 0; }
+/* Portrait figures: on wide screens cover crops top and bottom, so keep the crop near the faces */
+.sanctum-panel-inner img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; display: block; }
+.sanctum-panel-gradient { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(10, 10, 10, 0.92) 0%, rgba(10, 10, 10, 0.35) 55%, rgba(10, 10, 10, 0.15) 100%); }
+.sanctum-panel-copy { position: absolute; left: 0; right: 0; bottom: 0; max-width: 960px; padding: 0 var(--grid-margin-desktop) 12vh; display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.sanctum-panel-copy p { max-width: 560px; font-style: italic; }
+.sanctum-panel-copy .ui-text { color: var(--cold-silver); }
+.sanctum-panel-shade { position: absolute; inset: 0; background: var(--void-black); opacity: 0; pointer-events: none; }
+
+.sanctum-signoff { max-width: 680px; margin: 0 auto; padding: 120px 24px 160px; text-align: center; }
+.sanctum-signoff p { font-style: italic; color: var(--ash-grey); border-top: 1px solid rgba(200, 204, 209, 0.15); padding-top: 40px; }
+
+@media (max-width: 768px) {
+  .sanctum-intro { padding: 120px 24px 80px; gap: 56px; }
+  .sanctum-intro h1 { font-size: 32px; }
+  .sanctum-panel-copy { padding: 0 var(--grid-margin-mobile) 10vh; }
+}

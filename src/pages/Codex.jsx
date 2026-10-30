@@ -109,7 +109,7 @@ export default function Codex() {
       setActiveChapter(currentActive);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [chapterRefs]);
 
@@ -162,8 +162,8 @@ export default function Codex() {
   return (
     <div style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', minHeight: '100vh', paddingTop: '120px' }}>
       
-      {/* Dev Unlock Panel simulator */}
-      <div 
+      {/* Dev Unlock Panel simulator: `npm run dev` only, Vite drops it from production builds */}
+      {import.meta.env.DEV && <div
         style={{
           position: 'fixed',
           bottom: '24px',
@@ -212,7 +212,7 @@ export default function Codex() {
             Unlock Ch. III
           </button>
         </div>
-      </div>
+      </div>}
 
       <div className="grid-container" style={{ position: 'relative' }}>
         

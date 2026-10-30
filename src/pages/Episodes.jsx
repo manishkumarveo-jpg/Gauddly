@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { publicRead, mediaUrl } from '../lib/supabase';
+import { fogTitle, useMotion } from '../lib/motion';
 
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -10,6 +11,8 @@ export default function Episodes() {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef(null);
   const [episodes, setEpisodes] = useState([]);
+  const root = useRef(null);
+  useMotion(root, (el) => fogTitle(el.querySelector('h1')), []);
 
   useEffect(() => {
     publicRead('episodes')
@@ -76,7 +79,7 @@ export default function Episodes() {
   };
 
   return (
-    <div style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', minHeight: '100vh', paddingTop: '120px', paddingBottom: '160px' }} className="fade-in">
+    <div ref={root} style={{ backgroundColor: 'var(--void-black)', color: 'var(--bone-white)', minHeight: '100vh', paddingTop: '120px', paddingBottom: '160px' }} className="fade-in">
       
       {/* VIDEO PLAYER LAYER */}
       {activeVideo && (
@@ -206,21 +209,23 @@ export default function Episodes() {
         {episodes.map((ep) => {
           const isReleased = ep.status === 'Released';
           const isSealed = ep.status === 'Sealed';
+          // A released episode without a film yet is shown, but not offered as playable.
+          const playable = isReleased && Boolean(ep.videoUrl);
 
           return (
-            <div 
+            <div
               key={ep.id}
-              onClick={() => handleTileClick(ep)}
-              onKeyDown={(event) => {
-                if (isReleased && (event.key === 'Enter' || event.key === ' ')) {
+              onClick={playable ? () => handleTileClick(ep) : undefined}
+              onKeyDown={playable ? (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault();
                   handleTileClick(ep);
                 }
-              }}
-              role={isReleased ? 'button' : undefined}
-              tabIndex={isReleased ? 0 : undefined}
-              aria-label={isReleased ? `Play ${ep.title}` : undefined}
-              className={isReleased ? 'episode-tile silver-hover' : ''}
+              } : undefined}
+              role={playable ? 'button' : undefined}
+              tabIndex={playable ? 0 : undefined}
+              aria-label={playable ? `Play ${ep.title}` : undefined}
+              className={playable ? 'episode-row episode-tile silver-hover' : 'episode-row'}
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1.5fr 2fr',
@@ -228,7 +233,7 @@ export default function Episodes() {
                 alignItems: 'center',
                 borderBottom: '1px solid rgba(200, 204, 209, 0.1)',
                 paddingBottom: '60px',
-                cursor: isReleased ? 'pointer' : (isSealed ? 'not-allowed' : 'wait'),
+                cursor: playable ? 'pointer' : isReleased ? 'default' : (isSealed ? 'not-allowed' : 'wait'),
                 opacity: isReleased ? 1.0 : 0.4,
                 transition: 'opacity 0.4s, transform 0.4s',
               }}
@@ -280,7 +285,7 @@ export default function Episodes() {
               {/* Right Third: Text Details */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <span className="ui-text" style={{ fontSize: '10px' }}>
-                  {isReleased ? 'EPISODE AVAILABLE' : 'CHAMBER LOCKED'}
+                  {playable ? 'EPISODE AVAILABLE' : isReleased ? 'PREMIERE SOON' : 'CHAMBER LOCKED'}
                 </span>
                 
                 <h3 className="display-s" style={{ fontSize: '28px' }}>
@@ -304,16 +309,18 @@ export default function Episodes() {
 
       <style dangerouslySetInnerHTML={{__html: `
         @media (max-width: 900px) {
-          .episodes-container div[onClick] {
+          .episodes-container {
+            padding: 0 var(--grid-margin-mobile) !important;
+          }
+          .episodes-container .episode-row {
             grid-template-columns: 1fr !important;
             gap: 24px !important;
             text-align: center;
           }
-          .episodes-container img {
-            max-width: 320px;
+          .episodes-container .episode-row > div {
+            width: 100%;
+            max-width: 480px;
             margin: 0 auto;
-          }
-          .episodes-container div {
             align-items: center !important;
           }
         }

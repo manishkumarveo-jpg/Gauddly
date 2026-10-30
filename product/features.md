@@ -9,9 +9,9 @@ Features group requirements into the product's real surface areas. Status is der
 | FEAT-03 | Catalog and storefront | FR-005, FR-006, FR-007, FR-008 | PH-3 | Built |
 | FEAT-04 | Cart, checkout and payments | FR-009, FR-010, FR-011 | PH-4 | Partial (payments planned) |
 | FEAT-05 | Accounts and authentication | FR-012, FR-013, FR-014, FR-015, FR-016 | PH-2 | Built |
-| FEAT-06 | Story and engagement content | FR-017, FR-018, FR-019, FR-020 | PH-5 | Built |
+| FEAT-06 | Story and engagement content | FR-017, FR-018, FR-019, FR-020, FR-036 | PH-5 | Built |
 | FEAT-07 | Admin studio | FR-021 to FR-035 | PH-6 | Built |
-| FEAT-08 | Platform quality | NFR-001 to NFR-008 | PH-1, PH-7, PH-8 | Partial |
+| FEAT-08 | Platform quality | NFR-001 to NFR-009 | PH-1, PH-7, PH-8 | Partial |
 
 ## FEAT-01 — Entry sequence
 
@@ -35,7 +35,7 @@ Supabase email/password auth covers signup, sign-in, password recovery and accou
 
 ## FEAT-06 — Story and engagement content
 
-The Codex chapters, the Episodes film library, the Sanctum brand page, waitlist capture and customer-care pages.
+The Codex chapters, the Episodes film library, the Sanctum brand page with its scroll descent through the castes, waitlist capture and customer-care pages.
 
 ## FEAT-07 — Admin studio
 
@@ -43,4 +43,4 @@ A separate layout at `/admin`, with sidebar sections for Overview, Commerce and 
 
 ## FEAT-08 — Platform quality
 
-The cross-cutting concerns: SEO metadata, security boundaries, accessibility, performance, backend reproducibility and quality gates.
+The cross-cutting concerns: SEO metadata, security boundaries, accessibility, performance, motion, backend reproducibility and quality gates.

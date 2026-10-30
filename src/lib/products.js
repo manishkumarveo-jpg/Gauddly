@@ -16,6 +16,12 @@ export function sortSizes(first, second) {
   return (firstRank === -1 ? SIZE_ORDER.length : firstRank) - (secondRank === -1 ? SIZE_ORDER.length : secondRank);
 }
 
+// The store's size filter: every size some garment has in stock (letters and waist sizes alike), in sortSizes order.
+export function storeSizes(products) {
+  const sizes = new Set(products.flatMap(p => (p.product_sizes || []).filter(s => s.in_stock).map(s => s.size)));
+  return [...sizes].map(size => ({ size })).sort(sortSizes).map(s => s.size);
+}
+
 // Turns a products row (with castes, product_images and product_sizes) into what the product page draws.
 // `media` resolves a stored key to a URL; the app passes `mediaUrl`.
 export function shapeProduct(data, media) {

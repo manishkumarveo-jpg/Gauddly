@@ -2,7 +2,8 @@ import { useContext, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { AppContext } from '../context/app-context';
-import { publicRead, mediaUrl } from '../lib/supabase';
+import { publicRead, mediaUrl, supabase } from '../lib/supabase';
+import { recordView } from '../lib/recently-viewed';
 import Seo from '../components/Seo';
 import ProductGallery, { ProductDialog, ProductImage } from '../components/ProductGallery';
 import ProductDetailGrid from '../components/ProductDetailGrid';
@@ -26,7 +27,11 @@ export default function PieceDetail() {
     async function loadProduct() {
       try {
         const [[data]] = await publicRead(`piece/${encodeURIComponent(pieceId)}`);
-        if (active && data) setProduct(shapeProduct(data, mediaUrl));
+        if (active && data) {
+          const shaped = shapeProduct(data, mediaUrl);
+          setProduct(shaped);
+          recordView({ id: shaped.id, name: shaped.name, price: shaped.price, image: shaped.images[0]?.src, path: window.location.pathname });
+        }
       } catch {
         if (active) setError('This garment could not be opened. Please try again.');
       } finally {
@@ -49,11 +54,48 @@ export default function PieceDetail() {
     <Link to="/store">Return to the store →</Link>
   </div>;
 
-  return <PieceDetailView key={product.id} product={product} />;
+  return <PieceDetailView key={product.id} product={product} wishlist />;
+}
+
+// Saves the garment to the signed-in customer's wishlist; signed-out visitors are sent to sign in
+function WishlistButton({ productId }) {
+  const { user } = useContext(AppContext);
+  const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('wishlist').select('product_id').eq('user_id', user.id).eq('product_id', productId).maybeSingle()
+      .then(({ data }) => setSaved(Boolean(data)));
+  }, [user, productId]);
+
+  if (!user) {
+    return <Link className="piece-wishlist" to={`/login?redirect=${encodeURIComponent(window.location.pathname)}`}>♡ Sign in to save to wishlist</Link>;
+  }
+
+  async function toggle() {
+    setBusy(true);
+    setError('');
+    const { error: e } = saved
+      ? await supabase.from('wishlist').delete().eq('user_id', user.id).eq('product_id', productId)
+      : await supabase.from('wishlist').insert({ product_id: productId });
+    setBusy(false);
+    if (e) {
+      setError('Your wishlist could not be updated. Please try again.');
+      return;
+    }
+    setSaved(!saved);
+  }
+
+  return <>
+    <button type="button" className="piece-wishlist" aria-pressed={saved} disabled={busy} onClick={toggle}>{saved ? '♥ Saved to wishlist' : '♡ Save to wishlist'}</button>
+    {error && <p className="piece-size-notice" role="alert">{error}</p>}
+  </>;
 }
 
 // Draws a garment from shaped data; the admin's live preview renders it with unsaved changes.
-export function PieceDetailView({ product }) {
+export function PieceDetailView({ product, wishlist = false }) {
   const { addToCart, setIsCartOpen, isCartOpen } = useContext(AppContext);
   const [selectedSize, setSelectedSize] = useState(null);
   const [sizeNotice, setSizeNotice] = useState('');
@@ -99,6 +141,7 @@ export function PieceDetailView({ product }) {
         </div>
         <p id="piece-size-notice" className="piece-size-notice" role="status">{!available ? 'This garment is currently unavailable in all sizes.' : sizeNotice}</p>
         <button className="piece-claim" disabled={!available} onClick={claim}>{claimLabel}</button>
+        {wishlist && <WishlistButton productId={product.id} />}
         <div className="piece-order-note"><p>Made to order in Delhi · Dispatch in 14–21 days.</p><Link to="/returns">Review returns & exchanges ↗</Link></div>
 
         <div className="piece-accordions">

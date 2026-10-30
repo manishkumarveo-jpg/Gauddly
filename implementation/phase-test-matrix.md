@@ -1,20 +1,20 @@
 # Phase test matrix
 
-Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test definitions: [testing/test-cases.md](../testing/test-cases.md).
+Status as of 2026-10-28. Phase definitions: [phase-plan.md](phase-plan.md). Test definitions: [testing/test-cases.md](../testing/test-cases.md).
 
 ## Phase status
 
 | Phase | Status | Evidence | Tests | Passing | Not run | Not implemented |
 | --- | --- | --- | --- | --- | --- | --- |
-| PH-1 | Complete | Code present for every requirement; TC-052 and TC-053 automated | 8 | 2 | 6 | 0 |
+| PH-1 | Complete | Code present for every requirement; TC-052 and TC-053 automated; motion layer (NFR-009) in the working tree, with TC-106, TC-107 and TC-109 checked on 2026-10-28 | 13 | 5 | 8 | 0 |
 | PH-2 | Complete | Code present; FR-016 in the uncommitted working tree | 9 | 0 | 9 | 0 |
-| PH-3 | Complete | Code present | 7 | 0 | 7 | 0 |
+| PH-3 | Complete | Code present; store and caste-room changes in the working tree; TC-094 automated; TC-096 and TC-098 checked on 2026-10-28 | 12 | 3 | 9 | 0 |
 | PH-4 | Partial | Cart and checkout present; payment absent | 5 | 0 | 4 | 1 |
-| PH-5 | Complete | Code present; TC-004 to TC-008 and TC-091 automated | 13 | 6 | 7 | 0 |
+| PH-5 | Complete | Code present; TC-004 to TC-008 and TC-091 automated; Sanctum descent (FR-036), Films and Codex changes in the working tree, with TC-099 and TC-101 checked on 2026-10-28 | 20 | 8 | 12 | 0 |
 | PH-6 | Complete | Code present; homepage editor (FR-029 to FR-031) and products redesign (FR-032 to FR-035) in the working tree | 34 | 17 | 17 | 0 |
 | PH-7 | Partial | Homepage migration; rate-limit migration in the working tree, not applied | 8 | 0 | 7 | 1 |
 | PH-8 | Partial | Lint, unit tests and build pass; Redis catalog cache on Cloudflare Workers; no CI | 8 | 6 | 1 | 1 |
-| **Total** | | | **92** | **31** | **58** | **3** |
+| **Total** | | | **109** | **39** | **67** | **3** |
 
 "Complete" means every requirement in the phase is implemented in code. The manual verification cases still need to be run and signed off, as defined in [test-strategy.md §6](../testing/test-strategy.md#6-entry-and-exit-criteria-per-phase).
 
@@ -30,6 +30,11 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | TC-052 | PH-1 | NFR-004 | Automated unit | P2 | Passing |
 | TC-053 | PH-1 | NFR-004 | Automated unit | P3 | Passing |
 | TC-054 | PH-1 | NFR-004 | Manual inspection | P3 | Not run |
+| TC-105 | PH-1 | NFR-003 | Manual browser | P2 | Not run |
+| TC-106 | PH-1 | NFR-003 | Manual inspection | P2 | Passing |
+| TC-107 | PH-1 | NFR-009 | Manual inspection | P2 | Passing |
+| TC-108 | PH-1 | NFR-009 | Manual browser | P3 | Not run |
+| TC-109 | PH-1 | NFR-009 | Manual browser | P2 | Passing |
 | TC-022 | PH-2 | FR-012 | Manual browser | P1 | Not run |
 | TC-023 | PH-2 | FR-013 | Manual browser | P1 | Not run |
 | TC-024 | PH-2 | FR-013 | Manual browser | P1 | Not run |
@@ -46,6 +51,11 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | TC-014 | PH-3 | FR-007 | Manual browser | P1 | Not run |
 | TC-015 | PH-3 | FR-007 | Manual browser | P1 | Not run |
 | TC-016 | PH-3 | FR-008 | Manual browser | P2 | Not run |
+| TC-094 | PH-3 | FR-005 | Automated unit | P2 | Passing |
+| TC-095 | PH-3 | FR-005 | Manual browser | P2 | Not run |
+| TC-096 | PH-3 | FR-005 | Manual browser | P3 | Passing |
+| TC-097 | PH-3 | FR-005 | Manual browser | P3 | Not run |
+| TC-098 | PH-3 | FR-006 | Manual browser | P2 | Passing |
 | TC-017 | PH-4 | FR-009 | Manual browser | P1 | Not run |
 | TC-018 | PH-4 | FR-009 | Manual browser | P2 | Not run |
 | TC-019 | PH-4 | FR-010 | Manual browser | P1 | Not run |
@@ -64,6 +74,13 @@ Status as of 2026-10-19. Phase definitions: [phase-plan.md](phase-plan.md). Test
 | TC-090 | PH-5 | FR-020 | Manual browser | P3 | Not run |
 | TC-091 | PH-5 | FR-020 | Automated unit | P3 | Passing |
 | TC-092 | PH-5 | FR-020 | Manual browser | P3 | Not run |
+| TC-093 | PH-5 | FR-003 | Manual browser | P3 | Not run |
+| TC-099 | PH-5 | FR-017 | Manual browser | P2 | Passing |
+| TC-100 | PH-5 | FR-018 | Manual browser | P2 | Not run |
+| TC-101 | PH-5 | FR-018 | Manual browser | P2 | Passing |
+| TC-102 | PH-5 | FR-036 | Manual browser | P2 | Not run |
+| TC-103 | PH-5 | FR-036 | Manual browser | P3 | Not run |
+| TC-104 | PH-5 | FR-036 | Manual browser | P3 | Not run |
 | TC-035 | PH-6 | FR-021 | Manual browser | P1 | Not run |
 | TC-036 | PH-6 | FR-021 | Manual browser | P1 | Not run |
 | TC-037 | PH-6 | FR-022 | Manual browser | P2 | Not run |

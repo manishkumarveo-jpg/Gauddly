@@ -75,6 +75,10 @@ export default function SilverRain({ opacity = 1.0 }) {
       drops.push(new Drop(canvas.width));
     }
 
+    // Reduced motion: draw one still frame of rain on screen and skip the animation loop
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (still) drops.forEach((drop) => { drop.y = Math.random() * canvas.height; });
+
     const render = () => {
       // Softer trailing for elegant motion blur
       ctx.fillStyle = 'rgba(10, 10, 10, 0.12)';
@@ -85,7 +89,7 @@ export default function SilverRain({ opacity = 1.0 }) {
         drop.draw(ctx);
       });
 
-      animationFrameId = requestAnimationFrame(render);
+      if (!still) animationFrameId = requestAnimationFrame(render);
     };
 
     render();

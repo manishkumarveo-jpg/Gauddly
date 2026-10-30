@@ -6,7 +6,7 @@
 
 Gauddly has no AI features, and none are planned.
 
-- **Code check (2026-10-19):** the dependencies are only `@supabase/supabase-js`, `react`, `react-dom` and `react-router-dom`. No source file calls an AI SDK or model API (Groq, OpenAI, Anthropic or other), and no environment variable names one.
+- **Code check (2026-10-19):** the dependencies are only `@supabase/supabase-js`, `react`, `react-dom` and `react-router-dom`. No source file calls an AI SDK or model API (Groq, OpenAI, Anthropic or other), and no environment variable names one. On 2026-10-28 `gsap` was added for page motion (ADR-017); it is an animation library, not an AI service.
 - **Owner confirmation (2026-10-19):** "None planned."
 
 The default stack's Groq API is therefore not adopted. See [ADR-008](../architecture/architecture-decisions.md#adr-008--no-ai-features-groq-not-adopted).

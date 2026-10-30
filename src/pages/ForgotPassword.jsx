@@ -28,8 +28,8 @@ export default function ForgotPassword() {
     } finally { setBusy(false); }
   }
 
-  return <AuthLayout>
-    <span className="auth-eyebrow">Your place in the Sanctum</span>
+  return <AuthLayout image="/auth/forgot-password.jpg" alt="The Gauddly G embroidered beside a silver zip on black fabric">
+    <span className="auth-eyebrow">Secure access</span>
     <h1>{sent ? 'Check your email.' : 'Forgot your password?'}</h1>
     {sent ? <div className="auth-confirmation" role="status"><p>If an account exists for that address, you’ll receive a link to choose a new password.</p><p>Check your spam folder too. Use the most recent email if you requested more than one link.</p></div> : <>
       <p className="auth-intro">Enter your account email and we’ll send a password-reset link.</p>

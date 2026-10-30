@@ -27,6 +27,7 @@ const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
 const AdminCastes = lazy(() => import('./pages/admin/AdminCastes'));
 const AdminEpisodes = lazy(() => import('./pages/admin/AdminEpisodes'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
+const AdminClaims = lazy(() => import('./pages/admin/AdminClaims'));
 const AdminHomepage = lazy(() => import('./pages/admin/AdminHomepage'));
 const HomepagePreview = lazy(() => import('./pages/admin/HomepagePreview'));
 const ProductPreview = lazy(() => import('./pages/admin/ProductPreview'));
@@ -34,19 +35,23 @@ const AdminProductEditor = lazy(() => import('./pages/admin/AdminProductEditor')
 
 // Components
 import Navigation from './components/Navigation';
+import MobileHeader from './components/mobile/MobileHeader';
+import MobileBottomNav from './components/mobile/MobileBottomNav';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import PageTransition from './components/PageTransition';
 import RouteSeo from './components/RouteSeo';
 import ScrollToTop from './components/ScrollToTop';
+import { useIsMobile } from './lib/useIsMobile';
 
 function AppContent() {
   const location = useLocation();
+  const isMobile = useIsMobile(768);
 
   // The editors' live previews show the real site chrome, so they are not treated as admin screens.
   const isPreviewRoute = ['/admin/homepage/preview', '/admin/products/preview'].includes(location.pathname);
   const isAdminRoute = location.pathname.startsWith('/admin') && !isPreviewRoute;
-  const isAuthRoute = ['/login', '/forgot-password', '/reset-password'].includes(location.pathname);
+  const isAuthRoute = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(location.pathname);
   const showHeaderFooter = !isAdminRoute && location.pathname !== '/' && location.pathname !== '/await';
 
   return (
@@ -54,14 +59,14 @@ function AppContent() {
       <RouteSeo />
       <ScrollToTop />
 
-      {/* Header bar */}
-      {showHeaderFooter && <Navigation />}
+      {/* Header bar: MobileHeader ONLY on mobile (<= 768px), desktop Navigation on desktop */}
+      {showHeaderFooter && (isMobile ? <MobileHeader /> : <Navigation />)}
 
       {/* Cart Slider */}
       {!isAdminRoute && !isPreviewRoute && <CartDrawer />}
 
       {/* Main content body with page transitions */}
-      <main id="main-content" style={{ minHeight: showHeaderFooter ? 'calc(100vh - 64px)' : '100vh' }}>
+      <main id="main-content" className={isAdminRoute ? undefined : 'grain'} style={{ minHeight: showHeaderFooter ? 'calc(100vh - 64px)' : '100vh' }}>
         <Suspense fallback={<div className="route-loader" role="status">Opening the chamber…</div>}>
           <PageTransition>
           <Routes>
@@ -112,6 +117,7 @@ function AppContent() {
               <Route path="castes"   element={<AdminCastes />} />
               <Route path="episodes" element={<AdminEpisodes />} />
               <Route path="orders"   element={<AdminOrders />} />
+              <Route path="claims"   element={<AdminClaims />} />
               <Route path="homepage" element={<AdminHomepage />} />
             </Route>
 
@@ -123,6 +129,9 @@ function AppContent() {
 
       {/* Footer bar */}
       {showHeaderFooter && !isAuthRoute && <Footer />}
+
+      {/* Persistent Mobile Bottom Navigation Bar ONLY on mobile screens (<= 768px) */}
+      {isMobile && showHeaderFooter && !isAdminRoute && !isAuthRoute && <MobileBottomNav />}
     </>
   );
 }
